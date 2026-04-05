@@ -1,0 +1,380 @@
+# Polaris — Startup Incubation Management Platform
+# RNS Institute of Technology, Bengaluru | Team Polaris | 2025
+# Cursor rules for vibe coding — read this before writing ANY code.
+
+## WHAT THIS PROJECT IS
+Full-stack web app for managing startup incubation programs.
+Five roles: admin, founder, mentor, investor, manager.
+Stack: Next.js 14 + Supabase + Vercel. That's it. No custom server. Ever.
+
+---
+
+## TECH STACK — USE ONLY THESE, NEVER SUGGEST ALTERNATIVES
+
+| What           | Use This              | Never Use              |
+|----------------|-----------------------|------------------------|
+| Framework      | Next.js 14 App Router | Pages Router, Express  |
+| Language       | TypeScript strict      | JavaScript, `any`      |
+| Styling        | Tailwind CSS           | CSS modules, styled-components |
+| UI Components  | shadcn/ui only         | Radix directly, MUI, Chakra |
+| State          | Zustand                | Redux, Context API for global state |
+| Server state   | TanStack React Query v5| SWR, useEffect fetching |
+| Forms          | React Hook Form + Zod  | Formik, uncontrolled inputs |
+| Charts         | Recharts only          | Chart.js, Victory, ApexCharts |
+| Auth           | Supabase Auth          | NextAuth, Clerk, Auth.js |
+| Database       | Supabase PostgreSQL     | Prisma, Drizzle, raw SQL client |
+| Access control | Supabase RLS           | middleware-only auth   |
+| File storage   | Supabase Storage        | S3, Cloudinary         |
+| Background jobs| Supabase Edge Functions (Deno) | Node.js scripts, cron servers |
+| Deployment     | Vercel                 | Docker, Kubernetes, Railway |
+
+---
+
+## ARCHITECTURE — TWO TIERS ONLY
+
+```
+Browser
+  └── Next.js (App Router) — TypeScript, Tailwind, shadcn/ui
+        ├── Middleware — auth session check + role-based route protection
+        └── Supabase JS Client
+              ├── PostgreSQL (auto-generated REST)
+              ├── Auth (sessions, OAuth, user_metadata.role)
+              ├── Realtime (dashboard live updates)
+              ├── Storage (pitch decks, documents)
+              └── Edge Functions (Deno — emails, aggregates)
+```
+
+**There is NO custom Express/Node server. Zero. Never add one.**
+If logic can't run on the frontend → it goes in a Supabase Edge Function.
+
+---
+
+## ENV VARIABLES
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=   # server-side / Edge Functions only — NEVER expose to browser
+```
+
+---
+
+## USER ROLES
+
+Stored in `user_metadata.role` in Supabase Auth.
+Enforced at TWO layers: Next.js middleware (routing) + Supabase RLS (data).
+
+| Role      | What they do                                               |
+|-----------|------------------------------------------------------------|
+| admin     | Full control — cohorts, mentor assignment, app review      |
+| founder   | Own startup only — application, milestones, funding        |
+| mentor    | Assigned startups only — sessions, feedback                |
+| investor  | Read-only — startup progress, funding milestones           |
+| manager   | Programs, events, workshops, cohort logistics              |
+
+**RLS is the real security boundary. Frontend route guards are just UX.**
+
+---
+
+## DATABASE SCHEMA
+
+```
+users               — id, email
+startups            — id, founder_id, name, sector, stage, status,
+                      strategy_summary, target_market, revenue_model,
+                      competitive_advantage, strategy_updated_at
+applications        — id, startup_id, program_id, status, submitted_at
+programs            — id, name, cohort, start_date, end_date, manager_id,
+                      cohort_start, cohort_end, demo_day_date, max_startups
+mentors             — id, user_id, expertise, bio
+mentor_assignments  — mentor_id, startup_id, assigned_by, assigned_at
+sessions            — id, mentor_id, startup_id, scheduled_at, notes,
+                      feedback, status, rating, action_items, linked_milestone_id
+milestones          — id, startup_id, title, due_date, status, completed_at
+funding             — id, startup_id, type, amount, source, date, status
+events              — id, program_id, title, type, date, location
+event_registrations — event_id, user_id
+reports             — id, startup_id, generated_by, period, data,
+                      milestone_completion_rate, funding_received_cumulative,
+                      session_count_period, period_start, period_end
+investor_interests  — id, investor_id, startup_id, signal_type, note, created_at
+application_scores  — id, application_id, reviewer_id, team_score, market_score,
+                      traction_score, uniqueness_score, overall_comment, scored_at
+admin_settings      — key, value, description, updated_by, updated_at
+```
+
+All PKs are `uuid`. All tables have RLS enabled. Run `supabase gen types typescript` after any schema change.
+
+---
+
+## FILE STRUCTURE
+
+```
+/app
+  /(auth)/login, /register
+  /(dashboard)
+    /admin/...
+    /founder/...
+    /mentor/...
+    /investor/...
+    /manager/...
+  /api/   ← ONLY for 3rd-party webhooks (e.g. email provider callbacks)
+/components
+  /ui/          ← shadcn/ui generated — NEVER edit directly
+  /shared/      ← reusable across roles
+  /[module]/    ← scoped to one module (funding, events, etc.)
+/lib
+  /supabase/
+    browser.ts  ← createBrowserClient (Client Components only)
+    server.ts   ← createServerClient (Server Components + Actions)
+    middleware.ts
+  /validations/ ← all Zod schemas, one file per domain
+  /hooks/       ← React Query hooks + Zustand stores
+  /utils/
+/types/         ← shared TypeScript interfaces (non-generated)
+middleware.ts   ← Next.js root middleware
+```
+
+---
+
+## PATTERNS — ALWAYS USE THESE EXACT PATTERNS
+
+### Supabase clients — two separate files, never mix them
+
+```ts
+// lib/supabase/browser.ts — Client Components ONLY
+import { createBrowserClient } from '@supabase/ssr'
+export const supabase = createBrowserClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+// lib/supabase/server.ts — Server Components, Route Handlers, Actions ONLY
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+export function createClient() {
+  const cookieStore = cookies()
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (c) => c.forEach(({ name, value, options }) =>
+          cookieStore.set(name, value, options))
+      }
+    }
+  )
+}
+```
+
+### Auth check — ALWAYS getUser(), NEVER getSession() server-side
+
+```ts
+// CORRECT — verifies with Supabase server
+const { data: { user } } = await supabase.auth.getUser()
+
+// WRONG — reads from local storage only, never trust for authorization
+const { data: { session } } = await supabase.auth.getSession()
+```
+
+### Data fetching — always through React Query hooks, never directly in components
+
+```ts
+// lib/hooks/use-milestones.ts
+export function useMilestones(startupId: string) {
+  return useQuery({
+    queryKey: ['milestones', startupId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('milestones')
+        .select('id, title, due_date, status, completed_at')  // never use *
+        .eq('startup_id', startupId)
+        .order('due_date', { ascending: true })
+      if (error) throw error
+      return data
+    },
+    staleTime: 30_000,
+  })
+}
+```
+
+### Mutations — always invalidate query keys on success
+
+```ts
+const { mutate } = useMutation({
+  mutationFn: async (data: MilestoneFormData) => {
+    const { error } = await supabase.from('milestones').insert(data)
+    if (error) throw error
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['milestones', startupId] })
+  },
+})
+```
+
+### Forms — schema first, type inferred, never written separately
+
+```ts
+// lib/validations/milestone.ts
+export const milestoneSchema = z.object({
+  title:    z.string().min(3),
+  due_date: z.coerce.date(),
+  status:   z.enum(['pending', 'in_progress', 'completed']),
+})
+export type MilestoneFormData = z.infer<typeof milestoneSchema>
+// Use zodResolver(milestoneSchema) in useForm()
+```
+
+### Server Component page (preferred for initial data loads)
+
+```ts
+// app/(dashboard)/admin/startups/page.tsx
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+
+export default async function AdminStartupsPage() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.user_metadata.role !== 'admin') redirect('/login')
+
+  const { data: startups } = await supabase
+    .from('startups')
+    .select('id, name, sector, stage, status')
+    .order('created_at', { ascending: false })
+
+  return <StartupTable startups={startups ?? []} />
+}
+```
+
+### RLS policy — always comment which role it targets
+
+```sql
+-- founders: read milestones only for startups they own
+create policy "founder_select_own_milestones"
+on milestones for select
+using (
+  startup_id in (select id from startups where founder_id = auth.uid())
+);
+```
+
+### Realtime subscription — always clean up in useEffect
+
+```ts
+useEffect(() => {
+  const channel = supabase
+    .channel('milestones-changes')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'milestones',
+        filter: `startup_id=eq.${startupId}` },
+      () => queryClient.invalidateQueries({ queryKey: ['milestones', startupId] })
+    )
+    .subscribe()
+  return () => { supabase.removeChannel(channel) }
+}, [startupId])
+```
+
+### Edge Function (Deno — not Node.js)
+
+```ts
+// supabase/functions/my-function/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+serve(async (req) => {
+  // Use Deno.env.get() not process.env
+  // Use esm.sh for npm packages
+  // No require(), no file system, must complete in 150s
+  return new Response('OK')
+})
+```
+
+---
+
+## RULES — NEVER BREAK THESE
+
+### Security
+- Enable RLS on EVERY new table immediately after `create table`
+- Every table needs at least one `select` and one `insert`/`update` policy
+- Use `getUser()` for all server-side auth — never `getSession()`
+- Never put `SUPABASE_SERVICE_ROLE_KEY` in client-side code
+- Pair every frontend route guard with an RLS policy
+
+### Database
+- Never use `select('*')` in production — list columns explicitly
+- All PKs are `uuid` using `gen_random_uuid()`
+- When updating sessions, map fields explicitly — never spread a form data object
+- To avoid funding row multiplication in aggregate views, use correlated subqueries for SUM
+
+### TypeScript
+- Strict mode — no `any`, no `as unknown as X`
+- Always type Supabase results using generated `Database` types
+- Derive types from Zod: `type T = z.infer<typeof schema>`
+
+### Components
+- Never edit files in `/components/ui/` — they are shadcn/ui generated
+- Use Server Components for initial data loads; Client Components only when you need hooks/events/realtime
+- Never call Supabase directly inside a component — always use a React Query hook
+- Never use `<form>` HTML element — use React Hook Form
+
+### Supabase-specific
+- After any schema change: `supabase gen types typescript --local > types/database.ts`
+- For Realtime: enable table replication in Supabase Dashboard → Database → Replication
+- Edge Functions run on Deno: use `esm.sh` imports, `Deno.env.get()`, no `require()`
+- For email in Edge Functions: fetch founder email via `auth.admin.getUserById()` using the service role key — the `applications` table does not store email
+
+---
+
+## QUERY KEY CONVENTIONS
+
+```ts
+['milestones', startupId]
+['startups', 'list']
+['startups', 'detail', startupId]
+['sessions', mentorId]
+['sessions', 'engagement', startupId]
+['sessions', 'intensity', programId]
+['funding', startupId]
+['events', programId]
+['programs', 'list']
+```
+
+---
+
+## MODULE BUILD ORDER (do these in order)
+
+1. **Auth** — register, login, password reset, middleware routing
+2. **Startup management** — application form, profile, milestones
+3. **Mentor management** — profiles, admin assignment, session + feedback
+4. **Program management** — cohort creation, application review/approval
+5. **Funding tracker** — grants, seed rounds, investment tracking
+6. **Events** — workshops, demo days, registrations
+7. **Analytics** — Recharts dashboards, KPIs, CSV export
+
+---
+
+## COMMON GOTCHAS
+
+| Problem | Fix |
+|---------|-----|
+| RLS off by default on new tables | `alter table X enable row level security;` immediately |
+| `getSession()` used server-side | Replace with `getUser()` |
+| Realtime not firing | Enable replication for the table in Supabase Dashboard |
+| `createBrowserClient` in Server Component | Use `createServerClient` from `lib/supabase/server.ts` |
+| Frontend role check only | Always add a matching RLS policy |
+| `*` in `.select()` | List columns explicitly |
+| Spreading form data into `.update()` | Map fields explicitly: `{ notes: data.notes, rating: data.rating, ... }` |
+| Funding SUM double-counts in views | Use a correlated subquery, not a JOIN |
+| `feedback::numeric` cast in SQL | Use separate `rating integer` column for numeric scores |
+| `startup_stage` enum migration | Use `alter type ... add value if not exists` — never rename+recreate |
+
+---
+
+## OUT OF SCOPE (do NOT build in v1)
+
+- Native mobile app
+- Payment gateway
+- AI/ML features
+- Docker or Kubernetes
+- Custom Express/Node server
+- Third-party CRM integrations
