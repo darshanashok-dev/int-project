@@ -2,26 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 210 20% 98%; /* #f8f9fa */
+    --foreground: 210 11% 15%; /* #202124 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 11% 15%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 11% 15%;
+
+    --primary: 214 82% 51%; /* Google Blue #1a73e8 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 14% 89%; /* Soft gray for secondary buttons */
+    --secondary-foreground: 210 11% 15%;
+
+    --muted: 210 14% 89%;
+    --muted-foreground: 210 8% 40%; /* #5f6368 */
+
+    --accent: 214 82% 95%; /* Light blue hover #e8f0fe */
+    --accent-foreground: 214 82% 51%; /* Google Blue text on accent */
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 210 14% 89%; /* Light gray borders */
+    --input: 210 14% 89%;
+    --ring: 214 82% 51%;
+
+    --radius: 0.5rem; /* Google apps favor slightly rounded interactive elements */
+  }
+
+  .dark {
+    --background: 210 11% 15%; /* #202124 */
+    --foreground: 0 0% 100%;
+
+    --card: 210 11% 15%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 210 11% 15%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 214 82% 65%; /* Lighter blue for dark mode */
+    --primary-foreground: 210 11% 15%;
+
+    --secondary: 210 8% 25%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 8% 25%;
+    --muted-foreground: 210 8% 70%;
+
+    --accent: 214 82% 20%;
+    --accent-foreground: 214 82% 80%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 8% 25%;
+    --input: 210 8% 25%;
+    --ring: 214 82% 65%;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
