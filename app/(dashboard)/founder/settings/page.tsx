@@ -1,6 +1,6 @@
 'use client'
 
-import { Settings as SettingsIcon, User, Bell, Shield, CreditCard, ChevronRight } from 'lucide-react'
+import { User, Bell, Shield, CreditCard, ChevronRight } from 'lucide-react'
 
 const SETTINGS_PAGES = [
   { id: 'profile', name: 'Profile Identity', desc: 'Manage your public founder persona.', icon: User },
@@ -38,7 +38,7 @@ export default function SettingsPage() {
 
       <div className="bg-blue-50 border border-blue-100 rounded-[2rem] p-8 text-center">
         <p className="text-sm font-bold text-blue-700">Looking for workspace-specific settings?</p>
-        <p className="text-xs font-medium text-blue-600 mt-1 italic">Venture-level configurations can be found in the "My Startup" section.</p>
+        <p className="text-xs font-medium text-blue-600 mt-1 italic">Venture-level configurations can be found in the &ldquo;My Startup&rdquo; section.</p>
       </div>
     </div>
   )

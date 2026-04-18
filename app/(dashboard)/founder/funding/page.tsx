@@ -9,16 +9,14 @@ import {
   Plus, 
   Download,
   FileText,
-  ChevronRight,
-  ExternalLink
+  ChevronRight
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function FundingOversightPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [fundingData, setFundingData] = useState<any[]>([])
-  const [startup, setStartup] = useState<any>(null)
+  const [fundingData, setFundingData] = useState<unknown[]>([])
   const [showSuccess, setShowSuccess] = useState<string | null>(null)
 
   useEffect(() => {
@@ -39,7 +37,6 @@ export default function FundingOversightPage() {
         if (startupError) throw startupError
 
         if (startupData) {
-          setStartup(startupData)
           const { data: funding, error: fundingError } = await supabase
             .from('funding')
             .select('*')
@@ -56,14 +53,14 @@ export default function FundingOversightPage() {
       }
     }
     loadData()
-  }, [])
+  }, [supabase])
 
   const handleAction = (type: string) => {
     setShowSuccess(type)
     setTimeout(() => setShowSuccess(null), 3000)
   }
 
-  const totalRaised = fundingData.reduce((acc, curr) => acc + Number(curr.amount), 0)
+  const totalRaised = (fundingData as { amount: string | number }[]).reduce((acc, curr) => acc + Number(curr.amount), 0)
 
   if (loading) return <div className="p-8">Loading...</div>
 
@@ -219,7 +216,7 @@ export default function FundingOversightPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {fundingData.length > 0 ? fundingData.map((f, i) => (
+              {fundingData.length > 0 ? (fundingData as { type: string, amount: string | number, date: string, source: string, status: string }[]).map((f, i) => (
                 <tr key={i} className="group transition-colors hover:bg-gray-50/50">
                   <td className="py-6 font-extrabold text-[#202124]">{f.type}</td>
                   <td className="py-6 font-bold text-muted-foreground">${Number(f.amount).toLocaleString()}</td>
@@ -320,7 +317,7 @@ export default function FundingOversightPage() {
   )
 }
 
-function Circle(props: any) {
+function Circle(props: { className?: string }) {
   return (
     <svg
       {...props}

@@ -8,9 +8,6 @@ import {
   DollarSign, 
   Plus,
   Search,
-  ChevronRight,
-  ExternalLink,
-  MessageSquare,
   Zap,
   ArrowRight,
   Calendar,
@@ -21,7 +18,7 @@ import { cn } from '@/lib/utils'
 export default function ApplicationTrackingPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [applications, setApplications] = useState<any[]>([])
+  const [applications, setApplications] = useState<unknown[]>([])
   const [showSuccess, setShowSuccess] = useState(false)
   const [activeTab, setActiveTab] = useState('All')
 
@@ -59,14 +56,14 @@ export default function ApplicationTrackingPage() {
       }
     }
     loadData()
-  }, [])
+  }, [supabase])
 
   const handleDraft = () => {
     setShowSuccess(true)
     setTimeout(() => setShowSuccess(false), 3000)
   }
 
-  const filteredApplications = applications.filter(app => {
+  const filteredApplications = (applications as { status: string }[]).filter(app => {
     if (activeTab === 'All') return true
     if (activeTab === 'Pending') return app.status === 'submitted'
     if (activeTab === 'Approved') return app.status === 'approved'
@@ -148,7 +145,7 @@ export default function ApplicationTrackingPage() {
             </div>
 
             <div className="space-y-4">
-              {filteredApplications.length > 0 ? filteredApplications.map((app, i) => (
+              {filteredApplications.length > 0 ? (filteredApplications as { status: string, programs?: { name: string, cohort: string } }[]).map((app, i) => (
                 <div key={i} className="flex items-center gap-6 p-6 border border-transparent rounded-[2rem] hover:bg-[#f1f3f4]/50 hover:border-border transition-all group">
                   <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Zap className="w-8 h-8 text-blue-600" />

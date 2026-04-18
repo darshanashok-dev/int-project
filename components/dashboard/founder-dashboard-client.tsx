@@ -20,7 +20,7 @@ interface FounderDashboardClientProps {
       full_name?: string
     }
   }
-  startups: any[]
+  startups: unknown[]
   totalRaised: number
 }
 
@@ -88,7 +88,7 @@ export function FounderDashboardClient({ user, startups, totalRaised }: FounderD
           </div>
 
           <div className="space-y-4">
-            {startups && startups.length > 0 ? startups.map(startup => (
+            {startups && startups.length > 0 ? (startups as { id: string, name: string, status: string, sector: string, stage: string }[]).map((startup) => (
               <Link 
                 key={startup.id} 
                 href="/founder/startup"

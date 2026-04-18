@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Mock Client Implementation
 
 // Mock Data
@@ -40,6 +41,19 @@ export const createMockClient = () => {
   // In Mock Mode, we always return the mock user for a seamless experience
   const getMockUser = () => MOCK_USER
 
+  const createQueryChain = (table: string, data: any) => {
+    const chain: any = {
+      then: (cb: (arg0: { data: unknown; error: unknown }) => unknown) => cb({ data, error: null }),
+      eq: () => chain,
+      in: () => chain,
+      order: () => chain,
+      limit: () => chain,
+      single: async () => ({ data: Array.isArray(data) ? data[0] : data, error: null }),
+      select: () => chain
+    }
+    return chain
+  }
+
   return {
     auth: {
       getUser: async () => ({ data: { user: getMockUser() }, error: null }),
@@ -57,42 +71,27 @@ export const createMockClient = () => {
       }
     },
     from: (table: string) => ({
-      select: () => ({
-        eq: () => ({
-          single: async () => {
-            if (table === 'startups') return { data: MOCK_STARTUP, error: null }
-            return { data: null, error: null }
-          },
-          order: () => ({
-             then: (cb: (arg0: { data: any; error: any }) => any) => {
-               if (table === 'funding') return cb({ data: MOCK_FUNDING, error: null })
-               if (table === 'milestones') return cb({ data: MOCK_MILESTONES, error: null })
-               return cb({ data: [], error: null })
-             }
-          }),
-          then: (cb: (arg0: { data: any; error: any }) => any) => {
-             if (table === 'startups') return cb({ data: [MOCK_STARTUP], error: null })
-             if (table === 'funding') return cb({ data: MOCK_FUNDING, error: null })
-             if (table === 'milestones') return cb({ data: MOCK_MILESTONES, error: null })
-             if (table === 'applications') return cb({ data: [], error: null })
-             return cb({ data: [], error: null })
-          }
-        }),
-        in: () => ({
-          then: (cb: any) => cb({ data: MOCK_FUNDING, error: null })
-        }),
-        then: (cb: any) => cb({ data: [], error: null })
-      }),
-      update: (data: any) => ({
-        eq: () => ({
-          then: (cb: (arg0: { data: any; error: any }) => any) => cb({ data, error: null })
-        })
-      }),
-      insert: (data: any) => ({
+      select: () => {
+        let data: any = []
+        if (table === 'startups') data = [MOCK_STARTUP]
+        if (table === 'funding') data = MOCK_FUNDING
+        if (table === 'milestones') data = MOCK_MILESTONES
+        if (table === 'investor_interests') data = []
+        if (table === 'applications') data = []
+        if (table === 'programs') data = []
+        if (table === 'users') data = [MOCK_USER]
+        if (table === 'mentors') data = { id: 'm1', expertise: 'Scaling', bio: 'Bio' }
+        if (table === 'sessions') data = []
+        
+        return createQueryChain(table, data)
+      },
+      update: (data: unknown) => createQueryChain(table, data),
+      insert: (data: unknown) => ({
         select: () => ({
-          single: async () => ({ data: { ...data, id: 'new-id' }, error: null })
+          single: async () => ({ data: { ...(data as Record<string, unknown>), id: 'new-id' }, error: null })
         })
       })
     })
-  } as unknown as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any
 }

@@ -18,7 +18,7 @@ export default async function ManagerDashboard() {
           <h2 className="text-lg font-medium text-foreground mb-4">Programs</h2>
           {programs && programs.length > 0 ? (
             <ul className="divide-y divide-border">
-              {programs.map(p => (
+              {programs.map((p: { id: string, name: string, cohort: string }) => (
                 <li key={p.id} className="py-3">
                   <p className="font-medium text-foreground">{p.name}</p>
                   <p className="text-sm text-muted-foreground">Cohort: {p.cohort}</p>
@@ -34,7 +34,7 @@ export default async function ManagerDashboard() {
           <h2 className="text-lg font-medium text-foreground mb-4">Recent Applications</h2>
           {applications && applications.length > 0 ? (
             <ul className="divide-y divide-border">
-              {applications.map((a: any) => (
+              {applications.map((a: { id: string, status: string, startups?: { name: string }, programs?: { name: string } }) => (
                 <li key={a.id} className="py-3 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-foreground">{a.startups?.name}</p>

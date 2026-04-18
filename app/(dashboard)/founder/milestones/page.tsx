@@ -10,16 +10,14 @@ import {
   MessageCircle,
   TrendingUp,
   Activity,
-  CheckCircle2,
-  Clock,
-  Play
+  CheckCircle2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function MilestonesPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [milestones, setMilestones] = useState<any[]>([])
+  const [milestones, setMilestones] = useState<unknown[]>([])
   const [showSuccess, setShowSuccess] = useState<string | null>(null)
   const [shareWith, setShareWith] = useState('All')
 
@@ -57,7 +55,7 @@ export default function MilestonesPage() {
       }
     }
     loadData()
-  }, [])
+  }, [supabase])
 
   const handleAction = (type: string) => {
     setShowSuccess(type)
@@ -162,7 +160,7 @@ export default function MilestonesPage() {
               {/* Vertical Line */}
               <div className="absolute left-6 top-2 bottom-2 w-0.5 bg-gray-100"></div>
 
-              {milestones.length > 0 ? milestones.map((m, i) => (
+              {milestones.length > 0 ? (milestones as { status: string, title: string, due_date: string }[]).map((m, i) => (
                 <div key={i} className="flex gap-8 relative group">
                   <div className={cn(
                     "w-12 h-12 rounded-xl flex items-center justify-center z-10 shrink-0 shadow-sm border-2",
@@ -268,7 +266,7 @@ export default function MilestonesPage() {
             <div className="flex gap-4">
               <div className="w-10 h-10 rounded-xl bg-gray-700 shrink-0"></div>
               <blockquote className="italic text-sm text-gray-300 font-medium leading-relaxed">
-                "Focus on the enterprise pilots this month. Your conversion data is the strongest signal for the upcoming board meeting."
+                &ldquo;Focus on the enterprise pilots this month. Your conversion data is the strongest signal for the upcoming board meeting.&rdquo;
               </blockquote>
             </div>
             <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-gray-500 text-right">
@@ -296,7 +294,7 @@ export default function MilestonesPage() {
   )
 }
 
-function Circle(props: any) {
+function Circle(props: { className?: string }) {
   return (
     <svg
       {...props}

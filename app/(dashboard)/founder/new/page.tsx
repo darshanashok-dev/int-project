@@ -28,7 +28,7 @@ export default function NewVenturePage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('startups')
       .insert({
         founder_id: user.id,
@@ -62,7 +62,7 @@ export default function NewVenturePage() {
         
         <h1 className="text-4xl font-extrabold text-[#202124] mb-4">Launch New Venture</h1>
         <p className="text-muted-foreground font-medium mb-10 leading-relaxed">
-          Ready to build something world-changing? Let's start with the foundations of your new venture.
+          Ready to build something world-changing? Let&apos;s start with the foundations of your new venture.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-8">

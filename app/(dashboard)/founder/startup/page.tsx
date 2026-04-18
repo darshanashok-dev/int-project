@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { 
   Save, 
-  RotateCcw, 
   ChevronRight, 
   Zap,
   Clock,
@@ -25,8 +24,8 @@ export default function StartupDetailsPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [startup, setStartup] = useState<any>(null)
-  const [originalStartup, setOriginalStartup] = useState<any>(null)
+  const [startup, setStartup] = useState<{ id: string, name: string, sector: string, stage: string, strategy_summary?: string } | null>(null)
+  const [originalStartup, setOriginalStartup] = useState<{ id: string, name: string, sector: string, stage: string, strategy_summary?: string } | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
@@ -56,9 +55,10 @@ export default function StartupDetailsPage() {
       }
     }
     loadData()
-  }, [])
+  }, [supabase])
 
   const handleSave = async () => {
+    if (!startup) return
     setSaving(true)
     const { error } = await supabase
       .from('startups')
@@ -79,7 +79,9 @@ export default function StartupDetailsPage() {
   }
 
   const handleDiscard = () => {
-    setStartup({...originalStartup})
+    if (originalStartup) {
+      setStartup({...originalStartup})
+    }
   }
 
   const hasChanges = JSON.stringify(startup) !== JSON.stringify(originalStartup)
@@ -296,7 +298,7 @@ export default function StartupDetailsPage() {
   )
 }
 
-function BarChart(props: any) {
+function BarChart(props: { className?: string }) {
   return (
     <svg
       {...props}

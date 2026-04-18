@@ -13,9 +13,9 @@ export default async function FounderDashboard() {
   const { data: funding } = await supabase
     .from('funding')
     .select('amount')
-    .in('startup_id', startups?.map(s => s.id) || [])
+    .in('startup_id', startups?.map((s: { id: string }) => s.id) || [])
 
-  const totalRaised = funding?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0
+  const totalRaised = funding?.reduce((acc: number, curr: { amount: string | number }) => acc + Number(curr.amount), 0) || 0
 
   return (
     <FounderDashboardClient 

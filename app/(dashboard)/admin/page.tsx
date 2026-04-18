@@ -33,7 +33,7 @@ export default async function AdminDashboard() {
         <h2 className="text-lg font-medium text-foreground mb-4">Recent Startups</h2>
         {startups && startups.length > 0 ? (
           <ul className="divide-y divide-border">
-            {startups.slice(0, 10).map(s => (
+            {startups.slice(0, 10).map((s: { id: string, name: string, status: string }) => (
               <li key={s.id} className="py-3 flex items-center justify-between">
                 <p className="font-medium text-foreground">{s.name}</p>
                 <span className="text-xs capitalize bg-accent text-accent-foreground px-2 py-1 rounded-full">

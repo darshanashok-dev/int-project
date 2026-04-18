@@ -1,4 +1,5 @@
 import { Logo } from '@/components/shared/logo'
+import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,7 +26,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Footer Section */}
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-12 relative z-10 pt-12">
         <p className="max-w-md text-center italic text-sm text-muted-foreground font-medium animate-in fade-in slide-in-from-bottom-2 duration-700">
-          "Precision in architecture leads to clarity in execution."
+        &ldquo;Precision in architecture leads to clarity in execution.&rdquo;
         </p>
         <div className="w-full pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-col items-center md:items-start gap-1">
