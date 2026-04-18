@@ -4,11 +4,16 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/browser'
+import { ArrowRight, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const ROLES = ['Founder', 'Admin', 'Mentor', 'Investor', 'Manager']
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [selectedRole, setSelectedRole] = useState('Founder')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -25,58 +30,114 @@ export default function LoginPage() {
       return
     }
 
-    const role = data.user?.user_metadata?.role || 'founder'
+    const role = data.user?.user_metadata?.role || selectedRole.toLowerCase()
     router.push(`/${role}`)
     router.refresh()
   }
 
-  return (
-    <div className="w-full max-w-sm p-8 bg-card rounded-2xl shadow-sm border border-border/50">
-      <h1 className="text-2xl font-semibold text-foreground mb-1">Sign in</h1>
-      <p className="text-sm text-muted-foreground mb-6">Welcome back to Polaris</p>
+  const handleForgotPassword = () => {
+    alert('Password reset link has been sent to your email (Demo Toast)')
+  }
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-foreground">Email</label>
+  return (
+    <div className="w-full max-w-[480px] p-12 bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white relative z-10 transition-all">
+      <div className="space-y-1 mb-10">
+        <h2 className="text-4xl font-extrabold text-[#202124] tracking-tight">Sign In</h2>
+        <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+          Access your incubation metrics and project architecture.
+        </p>
+      </div>
+
+      <div className="mb-10">
+        <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4 px-1">
+          Select Workspace Role
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          {ROLES.map((role) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => setSelectedRole(role)}
+              className={cn(
+                "py-3 rounded-xl text-xs font-bold transition-all border",
+                selectedRole === role 
+                  ? "bg-black text-white border-black shadow-lg shadow-black/10" 
+                  : "bg-[#f1f3f4] text-muted-foreground border-transparent hover:bg-gray-200"
+              )}
+            >
+              {role}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="space-y-2">
+          <label htmlFor="email" className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
+            Email Address
+          </label>
           <input
             id="email"
             type="email"
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="you@example.com"
+            className="w-full h-14 px-6 rounded-2xl bg-[#f1f3f4] border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
+            placeholder="name@company.com"
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="text-sm font-medium text-foreground">Password</label>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center px-1">
+            <label htmlFor="password" className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+              Password
+            </label>
+            <button 
+              type="button" 
+              onClick={handleForgotPassword}
+              className="text-[10px] font-black text-[#202124] hover:underline uppercase tracking-widest"
+            >
+              Forgot password?
+            </button>
+          </div>
           <input
             id="password"
             type="password"
             required
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full h-14 px-6 rounded-2xl bg-[#f1f3f4] border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
             placeholder="••••••••"
           />
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm font-bold text-destructive px-1">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-2.5 rounded-full font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+          className="w-full h-16 bg-black text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-gray-800 transition-all shadow-xl shadow-black/10 disabled:opacity-50 group active:scale-[0.98]"
         >
-          {loading ? 'Signing in…' : 'Sign in'}
+          {loading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              Sign In to Polaris
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        No account?{' '}
-        <Link href="/register" className="text-primary hover:underline">Create one</Link>
-      </p>
+      <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col items-center gap-4">
+        <p className="text-xs font-bold text-muted-foreground">New to the platform?</p>
+        <Link 
+          href="/register" 
+          className="w-full h-12 flex items-center justify-center rounded-2xl bg-[#e8f0fe] text-blue-600 font-black text-xs hover:bg-blue-100 transition-all border border-blue-50"
+        >
+          Create Account
+        </Link>
+      </div>
     </div>
   )
 }

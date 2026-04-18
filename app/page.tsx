@@ -1,15 +1,14 @@
+import { Logo } from "@/components/shared/logo";
 import Link from "next/link";
-import { Rocket, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
-      <div className="w-full max-w-md p-10 bg-card rounded-2xl shadow-sm border border-border/50 text-center flex flex-col items-center">
-        <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-6">
-          <Rocket className="w-8 h-8" />
-        </div>
+      <div className="w-full max-w-md p-10 bg-card rounded-[2.5rem] shadow-sm border border-border/50 text-center flex flex-col items-center">
+        <Logo className="w-20 h-20 mb-8" iconClassName="w-12 h-12" />
         
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">
+        <h1 className="text-3xl font-black tracking-tight text-[#202124] mb-2">
           Polaris
         </h1>
         <p className="text-muted-foreground mb-8 text-sm">
