@@ -3,20 +3,29 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Roles Enum (though we get role from auth.users() metadata, we can type cast if needed)
--- We'll store role in user_metadata, but we fetch it via auth constraints.
-
 -------------------------------------------------
 -- 1. users
 -------------------------------------------------
 CREATE TABLE public.users (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email text NOT NULL,
+  role text NOT NULL DEFAULT 'founder', -- Moved from metadata to secure column
   created_at timestamp with time zone DEFAULT now()
 );
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "users_read_all" ON public.users FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "users_update_self" ON public.users FOR UPDATE USING (auth.uid() = id);
+
+-- Function to check roles securely via table lookup
+CREATE OR REPLACE FUNCTION public.is_role(target_roles text[])
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.users
+    WHERE id = auth.uid() AND role = ANY(target_roles)
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -------------------------------------------------
 -- 2. startups
@@ -58,7 +67,7 @@ CREATE TABLE public.programs (
 ALTER TABLE public.programs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "programs_read_all" ON public.programs FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "manager_manage_programs" ON public.programs FOR ALL USING (
-  (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) IN ('admin', 'manager')
+  public.is_role(ARRAY['admin', 'manager'])
 );
 
 -------------------------------------------------
@@ -76,7 +85,7 @@ CREATE POLICY "founder_read_own_applications" ON public.applications FOR SELECT 
   startup_id IN (SELECT id FROM public.startups WHERE founder_id = auth.uid())
 );
 CREATE POLICY "admin_manager_read_all_applications" ON public.applications FOR SELECT USING (
-  (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) IN ('admin', 'manager')
+  public.is_role(ARRAY['admin', 'manager'])
 );
 CREATE POLICY "founder_insert_application" ON public.applications FOR INSERT WITH CHECK (
   startup_id IN (SELECT id FROM public.startups WHERE founder_id = auth.uid())
@@ -106,7 +115,7 @@ CREATE TABLE public.mentor_assignments (
 ALTER TABLE public.mentor_assignments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "assignments_read_all" ON public.mentor_assignments FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "admin_manage_assignments" ON public.mentor_assignments FOR ALL USING (
-  (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) IN ('admin', 'manager')
+  public.is_role(ARRAY['admin', 'manager'])
 );
 
 -------------------------------------------------
@@ -131,7 +140,7 @@ CREATE POLICY "session_read_participants" ON public.sessions FOR SELECT USING (
     SELECT user_id FROM public.mentors WHERE id = sessions.mentor_id
     UNION
     SELECT founder_id FROM public.startups WHERE id = sessions.startup_id
-  ) OR (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) IN ('admin', 'manager')
+  ) OR public.is_role(ARRAY['admin', 'manager'])
 );
 CREATE POLICY "mentor_manage_sessions" ON public.sessions FOR ALL USING (
   mentor_id IN (SELECT id FROM public.mentors WHERE user_id = auth.uid())
@@ -166,7 +175,7 @@ ALTER TABLE public.sessions ADD CONSTRAINT fk_linked_milestone FOREIGN KEY (link
 CREATE TABLE public.funding (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   startup_id uuid REFERENCES public.startups(id) ON DELETE CASCADE,
-  type text NOT NULL,
+  round text NOT NULL,
   amount numeric(15, 2) NOT NULL,
   source text,
   date date NOT NULL,
@@ -194,7 +203,7 @@ CREATE TABLE public.events (
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "events_read_all" ON public.events FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "manager_manage_events" ON public.events FOR ALL USING (
-  (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) IN ('admin', 'manager')
+  public.is_role(ARRAY['admin', 'manager'])
 );
 
 CREATE TABLE public.event_registrations (
@@ -226,7 +235,7 @@ CREATE TABLE public.reports (
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "reports_read_authorized" ON public.reports FOR SELECT USING (
   startup_id IN (SELECT id FROM public.startups WHERE founder_id = auth.uid()) OR
-  (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) IN ('admin', 'manager', 'investor')
+  public.is_role(ARRAY['admin', 'manager', 'investor'])
 );
 
 -------------------------------------------------
@@ -260,7 +269,7 @@ CREATE TABLE public.application_scores (
 );
 ALTER TABLE public.application_scores ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "admin_manager_manage_scores" ON public.application_scores FOR ALL USING (
-  (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) IN ('admin', 'manager')
+  public.is_role(ARRAY['admin', 'manager'])
 );
 
 -------------------------------------------------
@@ -276,5 +285,130 @@ CREATE TABLE public.admin_settings (
 ALTER TABLE public.admin_settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "admin_read_all" ON public.admin_settings FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "admin_manage_settings" ON public.admin_settings FOR ALL USING (
-  (SELECT (auth.jwt() -> 'user_metadata' ->> 'role')) = 'admin'
+  public.is_role(ARRAY['admin'])
+);
+
+-------------------------------------------------
+-- 16. broadcasts
+-------------------------------------------------
+CREATE TABLE public.broadcasts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  startup_id uuid REFERENCES public.startups(id) ON DELETE CASCADE,
+  founder_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
+  title text NOT NULL,
+  area text,
+  content text NOT NULL,
+  audience text DEFAULT 'All',
+  created_at timestamp with time zone DEFAULT now()
+);
+ALTER TABLE public.broadcasts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "founder_manage_own_broadcasts" ON public.broadcasts FOR ALL USING (founder_id = auth.uid());
+CREATE POLICY "all_read_broadcasts" ON public.broadcasts FOR SELECT USING (auth.uid() IS NOT NULL);
+
+-- Additional startup fields for narrative
+ALTER TABLE public.startups ADD COLUMN IF NOT EXISTS founded_date text;
+ALTER TABLE public.startups ADD COLUMN IF NOT EXISTS elevator_pitch text;
+
+-- Additional program fields for funding details
+ALTER TABLE public.programs ADD COLUMN IF NOT EXISTS funding_amount text;
+ALTER TABLE public.programs ADD COLUMN IF NOT EXISTS funding_type text DEFAULT 'Equity-free';
+
+-- Additional startup fields for funding rounds
+ALTER TABLE public.startups ADD COLUMN IF NOT EXISTS active_round_name text DEFAULT 'Seed Round';
+ALTER TABLE public.startups ADD COLUMN IF NOT EXISTS funding_goal numeric(15, 2) DEFAULT 0;
+ALTER TABLE public.startups ADD COLUMN IF NOT EXISTS round_status text DEFAULT 'active';
+
+-------------------------------------------------
+-- 17. documents
+-------------------------------------------------
+CREATE TABLE public.documents (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  startup_id uuid REFERENCES public.startups(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  type text,
+  url text,
+  size_bytes integer,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "founder_manage_own_documents" ON public.documents FOR ALL USING (
+  startup_id IN (SELECT id FROM public.startups WHERE founder_id = auth.uid())
+);
+CREATE POLICY "all_read_documents" ON public.documents FOR SELECT USING (auth.uid() IS NOT NULL);
+
+-------------------------------------------------
+-- 18. equity
+-------------------------------------------------
+CREATE TABLE public.equity (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  startup_id uuid REFERENCES public.startups(id) ON DELETE CASCADE,
+  stakeholder_name text NOT NULL,
+  stakeholder_type text,
+  equity_percentage numeric(5, 2) NOT NULL,
+  created_at timestamp with time zone DEFAULT now()
+);
+ALTER TABLE public.equity ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "founder_manage_own_equity" ON public.equity FOR ALL USING (
+  startup_id IN (SELECT id FROM public.startups WHERE founder_id = auth.uid())
+);
+CREATE POLICY "all_read_equity" ON public.equity FOR SELECT USING (auth.uid() IS NOT NULL);
+
+-------------------------------------------------
+-- 19. Storage Policies for Avatars
+-------------------------------------------------
+-- Note: This assumes the 'avatars' bucket exists. 
+-- In a real setup, you'd create it in the Supabase Dashboard.
+INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true) ON CONFLICT DO NOTHING;
+
+CREATE POLICY "Avatar images are publicly accessible" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "Users can upload their own avatars" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE WITH CHECK (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+-- Ensure storage schema is available and bucket is created correctly
+DO $$
+BEGIN
+  INSERT INTO storage.buckets (id, name, public) 
+  VALUES ('avatars', 'avatars', true) 
+  ON CONFLICT (id) DO UPDATE SET public = true;
+END $$;
+
+-- Re-apply policies with more permissive checks for debugging if needed, 
+-- but let's stick to the correct ones first.
+-- Ensure the folder-based RLS is correct.
+DROP POLICY IF EXISTS "Users can upload their own avatars" ON storage.objects;
+CREATE POLICY "Users can upload their own avatars" ON storage.objects FOR INSERT WITH CHECK (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+DROP POLICY IF EXISTS "Users can update their own avatars" ON storage.objects;
+CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE WITH CHECK (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+DROP POLICY IF EXISTS "Users can delete their own avatars" ON storage.objects;
+CREATE POLICY "Users can delete their own avatars" ON storage.objects FOR DELETE WITH CHECK (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Simplify policies to use prefix matching instead of foldername
+DROP POLICY IF EXISTS "Users can upload their own avatars" ON storage.objects;
+CREATE POLICY "Users can upload their own avatars" ON storage.objects FOR INSERT WITH CHECK (
+  bucket_id = 'avatars' 
+  AND name LIKE auth.uid()::text || '%'
+);
+
+DROP POLICY IF EXISTS "Users can update their own avatars" ON storage.objects;
+CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE WITH CHECK (
+  bucket_id = 'avatars' 
+  AND name LIKE auth.uid()::text || '%'
+);
+
+DROP POLICY IF EXISTS "Users can delete their own avatars" ON storage.objects;
+CREATE POLICY "Users can delete their own avatars" ON storage.objects FOR DELETE WITH CHECK (
+  bucket_id = 'avatars' 
+  AND name LIKE auth.uid()::text || '%'
 );

@@ -5,7 +5,12 @@ import { createMockClient } from './mock-client'
 
 export function createClient() {
   const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
-  if (isMock) return createMockClient()
+  
+  if (isMock) {
+    const cookieStore = cookies()
+    const isAuthenticated = cookieStore.has('mock-auth')
+    return createMockClient(isAuthenticated)
+  }
 
   const cookieStore = cookies()
   return createServerClient<Database>(

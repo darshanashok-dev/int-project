@@ -35,11 +35,16 @@ const MOCK_MILESTONES = [
 ]
 
 // Mock Client Implementation
-export const createMockClient = () => {
+export const createMockClient = (serverSideAuthenticated?: boolean) => {
   const isBrowser = typeof window !== 'undefined'
   
-  // In Mock Mode, we always return the mock user for a seamless experience
-  const getMockUser = () => MOCK_USER
+  // Dynamic auth check that works in browser and respects server state
+  const isAuthenticated = () => {
+    if (isBrowser) {
+      return document.cookie.includes('mock-auth=true')
+    }
+    return serverSideAuthenticated ?? true
+  }
 
   const createQueryChain = (table: string, data: any) => {
     const chain: any = {
@@ -56,7 +61,12 @@ export const createMockClient = () => {
 
   return {
     auth: {
-      getUser: async () => ({ data: { user: getMockUser() }, error: null }),
+      getUser: async () => {
+        if (!isAuthenticated()) {
+          return { data: { user: null }, error: null }
+        }
+        return { data: { user: MOCK_USER }, error: null }
+      },
       signInWithPassword: async () => {
         if (isBrowser) document.cookie = "mock-auth=true; path=/;"
         return { data: { user: MOCK_USER, session: { access_token: 'mock-token' } }, error: null }
@@ -66,7 +76,9 @@ export const createMockClient = () => {
         return { data: { user: MOCK_USER, session: { access_token: 'mock-token' } }, error: null }
       },
       signOut: async () => {
-        if (isBrowser) document.cookie = "mock-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+        if (isBrowser) {
+          document.cookie = "mock-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+        }
         return { error: null }
       }
     },

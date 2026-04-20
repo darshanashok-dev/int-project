@@ -3,41 +3,56 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
-  BarChart2, 
-  Rocket, 
-  FileText, 
-  Flag, 
-  PieChart, 
+  LayoutDashboard, 
+  Briefcase, 
+  FileSignature, 
+  Milestone, 
+  Coins, 
   Settings, 
-  HelpCircle
+  HelpCircle,
+  User
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/shared/logo'
+import { useState, useEffect } from 'react'
 
 const navItems = [
-  { name: 'Dashboard', href: '/founder', icon: BarChart2 },
-  { name: 'My Startup', href: '/founder/startup', icon: Rocket },
-  { name: 'Applications', href: '/founder/applications', icon: FileText },
-  { name: 'Milestones', href: '/founder/milestones', icon: Flag },
-  { name: 'Funding', href: '/founder/funding', icon: PieChart },
+  { name: 'Dashboard', href: '/founder', icon: LayoutDashboard },
+  { name: 'My Startup', href: '/founder/startup', icon: Briefcase },
+  { name: 'Applications', href: '/founder/applications', icon: FileSignature },
+  { name: 'Milestones', href: '/founder/milestones', icon: Milestone },
+  { name: 'Funding', href: '/founder/funding', icon: Coins },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  user: any
+  displayName: string
+  displayRole: string
+}
+
+export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }: SidebarProps) {
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
-    <div className="w-64 h-full bg-[#f8f9fa] border-r border-border flex flex-col p-6 overflow-y-auto shrink-0">
-      <div className="mb-8">
-        <Link href="/founder" className="flex items-center gap-3">
-          <Logo className="w-8 h-8 rounded-lg" iconClassName="w-5 h-5" />
+    <div className="w-64 h-full bg-[#f8f9fa] border-r border-border flex flex-col p-5 overflow-y-auto shrink-0 transition-all duration-300">
+      {/* Branding Section */}
+      <div className="mb-6">
+        <Link href="/founder" className="flex items-center gap-3 py-1">
+          <Logo className="w-8 h-8" iconClassName="w-5 h-5" />
           <div>
-            <h1 className="font-bold text-lg leading-tight text-[#202124]">Polaris Platform</h1>
-            <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase">Founder Suite</p>
+            <h1 className="font-bold text-base leading-tight text-[#202124]">Polaris</h1>
+            <p className="text-[9px] font-black text-muted-foreground tracking-widest uppercase opacity-80">Founder Suite</p>
           </div>
         </Link>
       </div>
 
-      <nav className="flex-1 flex flex-col gap-2">
+      {/* Main Navigation */}
+      <nav className="flex-1 flex flex-col gap-1.5">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -55,33 +70,63 @@ export function Sidebar() {
                 "w-5 h-5",
                 isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
               )} />
-              <span className="font-medium text-sm">{item.name}</span>
+              <span className="font-semibold text-sm">{item.name}</span>
             </Link>
           )
         })}
-
       </nav>
 
-      <div className="pt-8 border-t border-border flex flex-col gap-2">
+      {/* Profile & Bottom Section */}
+      <div className="mt-auto pt-6 flex flex-col gap-1 border-t border-border/60">
+        
+        {/* User Profile Block - Protected by mounted state */}
+        <Link 
+          href="/founder/settings/profile"
+          className="px-3 py-4 mb-2 flex items-center gap-3 rounded-2xl bg-white/50 border border-transparent hover:border-border hover:bg-white transition-all group/profile"
+        >
+          <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-black/10 shrink-0 group-hover/profile:scale-105 transition-transform overflow-hidden">
+            {mounted && user?.user_metadata?.avatar_url ? (
+              <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : mounted ? (
+              displayName?.charAt(0) || 'U'
+            ) : (
+              <User className="w-5 h-5" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="font-bold text-sm text-[#202124] truncate min-h-[1.25rem]">
+              {mounted ? displayName : ''}
+            </p>
+            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider truncate opacity-70 min-h-[0.75rem]">
+              {mounted ? displayRole : ''}
+            </p>
+          </div>
+        </Link>
+
         <Link 
           href="/founder/settings" 
           className={cn(
-            "flex items-center gap-3 px-3 py-2 transition-colors",
-            pathname === '/founder/settings' ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
+            pathname === '/founder/settings' 
+              ? "bg-black text-white" 
+              : "text-muted-foreground hover:text-foreground hover:bg-black/5"
           )}
         >
-          <Settings className={cn("w-5 h-5", pathname === '/founder/settings' && "text-foreground")} />
-          <span className="text-sm">Settings</span>
+          <Settings className={cn("w-5 h-5", pathname === '/founder/settings' ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+          <span className="text-sm font-semibold">Settings</span>
         </Link>
+        
         <Link 
           href="/founder/support" 
           className={cn(
-            "flex items-center gap-3 px-3 py-2 transition-colors",
-            pathname === '/founder/support' ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
+            pathname === '/founder/support' 
+              ? "bg-black text-white" 
+              : "text-muted-foreground hover:text-foreground hover:bg-black/5"
           )}
         >
-          <HelpCircle className={cn("w-5 h-5", pathname === '/founder/support' && "text-foreground")} />
-          <span className="text-sm">Support</span>
+          <HelpCircle className={cn("w-5 h-5", pathname === '/founder/support' ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+          <span className="text-sm font-semibold">Support</span>
         </Link>
       </div>
     </div>

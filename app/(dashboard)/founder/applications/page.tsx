@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { 
   FileCheck, 
@@ -22,6 +23,8 @@ export default function ApplicationTrackingPage() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [activeTab, setActiveTab] = useState('All')
 
+  const [upcomingPrograms, setUpcomingPrograms] = useState<any[]>([])
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -42,12 +45,24 @@ export default function ApplicationTrackingPage() {
         if (startup) {
           const { data, error } = await supabase
             .from('applications')
-            .select('*, programs(name, cohort)')
+            .select('*, programs(name, cohort, funding_amount, funding_type)')
             .eq('startup_id', startup.id)
             .order('submitted_at', { ascending: false })
           
           if (error) throw error
           if (data) setApplications(data)
+        }
+
+        // Fetch upcoming programs for deadlines
+        const { data: programs, error: programsError } = await supabase
+          .from('programs')
+          .select('*')
+          .gte('cohort_start', new Date().toISOString().split('T')[0])
+          .order('cohort_start', { ascending: true })
+          .limit(2)
+        
+        if (!programsError && programs) {
+          setUpcomingPrograms(programs)
         }
       } catch (err) {
         console.error('Error loading applications data:', err)
@@ -58,9 +73,47 @@ export default function ApplicationTrackingPage() {
     loadData()
   }, [supabase])
 
-  const handleDraft = () => {
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
+  const handleDraft = async () => {
+    if (loading || !upcomingPrograms.length) return
+    setLoading(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: startup } = await supabase
+        .from('startups')
+        .select('id')
+        .eq('founder_id', user.id)
+        .single()
+      
+      if (!startup) return
+
+      const { error } = await supabase
+        .from('applications')
+        .insert({
+          startup_id: startup.id,
+          program_id: upcomingPrograms[0].id,
+          status: 'draft'
+        })
+
+      if (error) throw error
+
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+      
+      // Refresh applications list
+      const { data } = await supabase
+        .from('applications')
+        .select('*, programs(name, cohort, funding_amount, funding_type)')
+        .eq('startup_id', startup.id)
+        .order('submitted_at', { ascending: false })
+      
+      if (data) setApplications(data)
+    } catch (err) {
+      console.error('Error creating draft:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const filteredApplications = (applications as { status: string }[]).filter(app => {
@@ -71,6 +124,11 @@ export default function ApplicationTrackingPage() {
   })
 
   if (loading) return <div className="p-8">Loading...</div>
+
+  const activeReviews = applications.filter((app: any) => app.status === 'submitted').length
+  const approvedApps = applications.filter((app: any) => app.status === 'approved').length
+  const successRate = applications.length > 0 ? Math.round((approvedApps / applications.length) * 100) : 0
+  const pipelineValue = applications.length * 150000 // Placeholder logic: $150k per application
 
   return (
     <div className="space-y-8 relative">
@@ -97,12 +155,12 @@ export default function ApplicationTrackingPage() {
         </div>
       </div>
 
-      {/* ... (Stats Cards unchanged) */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-8">
         {[
-          { label: 'Active Reviews', value: '04', sub: '+2 this week', icon: FileCheck, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Success Rate', value: '82%', sub: 'Industry High', icon: BarChart, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Pipeline Value', value: '$2.4M', sub: 'Projected', icon: DollarSign, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Active Reviews', value: activeReviews.toString().padStart(2, '0'), sub: 'Pending Review', icon: FileCheck, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Success Rate', value: `${successRate}%`, sub: 'Approved Status', icon: BarChart, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Pipeline Value', value: `$${(pipelineValue / 1000000).toFixed(1)}M`, sub: 'Estimated Value', icon: DollarSign, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map((stat, i) => (
           <div key={i} className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
             <div className="relative z-10 flex justify-between items-start">
@@ -152,11 +210,13 @@ export default function ApplicationTrackingPage() {
                   </div>
                   <div className="flex-1">
                     <h4 className="font-extrabold text-lg text-[#202124]">{app.programs?.name}</h4>
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{app.programs?.cohort || 'Q4 Program'}</p>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                      {(app.programs as any)?.funding_amount ? `${(app.programs as any).funding_amount} ${(app.programs as any).funding_type}` : (app.programs?.cohort || 'Q4 Program')}
+                    </p>
                   </div>
                   <div className="hidden md:block">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Requested</p>
-                    <p className="font-bold text-sm text-[#202124]">$500,000 Equity-free</p>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Date</p>
+                    <p className="font-bold text-sm text-[#202124]">{new Date((app as any).submitted_at).toLocaleDateString()}</p>
                   </div>
                   <div className="w-32">
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Status</p>
@@ -188,25 +248,23 @@ export default function ApplicationTrackingPage() {
             </div>
           </div>
 
-          {/* ... (Deadlines section unchanged) */}
           <div className="bg-[#f8f9fa] border border-border rounded-[2.5rem] p-10 relative overflow-hidden group">
             <h3 className="text-2xl font-black text-[#202124] mb-8 relative z-10">Upcoming Funding Deadlines</h3>
             <div className="space-y-8 relative z-10">
-              {[
-                { date: 'OCT 24', title: 'Horizon BioTech Challenge', desc: 'Open for innovative synthetic biology startups. $50k non-dilutive.' },
-                { date: 'NOV 12', title: 'Global SaaS Summit Prep', desc: 'Presentation deadline for main stage incubator pitch.' },
-              ].map((item, i) => (
+              {upcomingPrograms.length > 0 ? upcomingPrograms.map((item, i) => (
                 <div key={i} className="flex gap-6 items-start group/item">
                   <div className="w-14 h-14 bg-white rounded-2xl flex flex-col items-center justify-center shrink-0 shadow-sm border border-border group-hover/item:scale-110 transition-transform">
-                    <span className="text-[10px] font-black text-muted-foreground leading-none">{item.date.split(' ')[0]}</span>
-                    <span className="text-xl font-black text-[#202124] leading-tight">{item.date.split(' ')[1]}</span>
+                    <span className="text-[10px] font-black text-muted-foreground leading-none">{new Date(item.cohort_start).toLocaleString('default', { month: 'short' }).toUpperCase()}</span>
+                    <span className="text-xl font-black text-[#202124] leading-tight">{new Date(item.cohort_start).getDate()}</span>
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-[#202124] group-hover/item:text-blue-600 transition-colors">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground font-medium mt-1 leading-relaxed">{item.desc}</p>
+                    <h4 className="font-extrabold text-[#202124] group-hover/item:text-blue-600 transition-colors">{item.name}</h4>
+                    <p className="text-sm text-muted-foreground font-medium mt-1 leading-relaxed">{item.cohort} cycle. Apply to secure your spot.</p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p className="text-sm text-muted-foreground font-medium">No upcoming deadlines found at this time.</p>
+              )}
             </div>
             <button className="mt-10 flex items-center gap-2 text-sm font-black uppercase tracking-widest text-[#202124] group/btn">
               Browse all opportunities
@@ -220,29 +278,20 @@ export default function ApplicationTrackingPage() {
 
         {/* Right Sidebar Column */}
         <div className="col-span-4">
-          <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm flex flex-col items-center text-center space-y-6 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4">
-               <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white">
-                 <Plus className="w-5 h-5" />
-               </div>
-            </div>
-            <div className="w-16 h-16 bg-[#202124] text-white rounded-[2rem] flex items-center justify-center p-4 shadow-xl group-hover:rotate-12 transition-transform">
-              <Award className="w-full h-full fill-current" />
-            </div>
+          <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm flex flex-col space-y-6">
             <div>
-              <h3 className="text-2xl font-black text-[#202124]">Strategic Matching Engine</h3>
-              <p className="text-sm text-muted-foreground font-medium mt-4 leading-relaxed">
-                Our platform has analyzed your pitch deck. You have a <span className="text-black font-black italic">94% match</span> with the <span className="italic">Green Horizon Grant</span> criteria. Submit now to capitalize on the momentum.
+              <h3 className="text-xl font-black text-[#202124]">Application Suite</h3>
+              <p className="text-sm text-muted-foreground font-medium mt-2 leading-relaxed">
+                Start a new submission for the {upcomingPrograms[0]?.name || 'current'} cohort.
               </p>
             </div>
-            <div className="w-full pt-6">
-               <button 
-                onClick={handleDraft}
-                className="w-full py-5 bg-black text-white rounded-3xl font-extrabold text-sm shadow-xl hover:bg-gray-800 transition-all group-hover:scale-[1.02] active:scale-[0.98]"
-               >
-                 Begin Instant Draft
-               </button>
-            </div>
+            <Link 
+              href="/founder/applications/new"
+              className="w-full py-5 bg-black text-white rounded-3xl font-extrabold text-sm shadow-xl hover:bg-gray-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Begin New Draft
+            </Link>
           </div>
         </div>
       </div>

@@ -40,7 +40,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-[480px] p-12 bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white relative z-10 transition-all">
+    <div className="w-full max-w-[480px] p-12 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white relative z-10 transition-all">
       <div className="space-y-1 mb-10">
         <h2 className="text-4xl font-extrabold text-[#202124] tracking-tight">Sign In</h2>
         <p className="text-sm font-medium text-muted-foreground leading-relaxed">
@@ -61,8 +61,8 @@ export default function LoginPage() {
               className={cn(
                 "py-3 rounded-xl text-xs font-bold transition-all border",
                 selectedRole === role 
-                  ? "bg-black text-white border-black shadow-lg shadow-black/10" 
-                  : "bg-[#f1f3f4] text-muted-foreground border-transparent hover:bg-gray-200"
+                  ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-black/10" 
+                  : "bg-secondary text-muted-foreground border-transparent hover:bg-gray-200"
               )}
             >
               {role}
@@ -82,7 +82,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full h-14 px-6 rounded-2xl bg-[#f1f3f4] border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
+            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
             placeholder="name@company.com"
           />
         </div>
@@ -106,7 +106,7 @@ export default function LoginPage() {
             required
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full h-14 px-6 rounded-2xl bg-[#f1f3f4] border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
+            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
             placeholder="••••••••"
           />
         </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full h-16 bg-black text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-gray-800 transition-all shadow-xl shadow-black/10 disabled:opacity-50 group active:scale-[0.98]"
+          className="w-full h-16 bg-primary text-primary-foreground rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-black/90 transition-all shadow-xl shadow-black/10 disabled:opacity-50 group active:scale-[0.98]"
         >
           {loading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -133,7 +133,7 @@ export default function LoginPage() {
         <p className="text-xs font-bold text-muted-foreground">New to the platform?</p>
         <Link 
           href="/register" 
-          className="w-full h-12 flex items-center justify-center rounded-2xl bg-[#e8f0fe] text-blue-600 font-black text-xs hover:bg-blue-100 transition-all border border-blue-50"
+          className="w-full h-12 flex items-center justify-center rounded-2xl bg-secondary text-primary font-black text-xs hover:bg-black hover:text-white transition-all border border-transparent"
         >
           Create Account
         </Link>

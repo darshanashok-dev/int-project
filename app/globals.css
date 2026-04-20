@@ -13,26 +13,26 @@
     --popover: 0 0% 100%;
     --popover-foreground: 210 11% 15%;
 
-    --primary: 214 82% 51%; /* Google Blue #1a73e8 */
+    --primary: 210 11% 15%; /* Premium Black #202124 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 14% 89%; /* Soft gray for secondary buttons */
+    --secondary: 210 10% 97%; /* #f1f3f4 neutral gray */
     --secondary-foreground: 210 11% 15%;
 
-    --muted: 210 14% 89%;
-    --muted-foreground: 210 8% 40%; /* #5f6368 */
+    --muted: 210 10% 97%;
+    --muted-foreground: 210 8% 45%;
 
-    --accent: 214 82% 95%; /* Light blue hover #e8f0fe */
-    --accent-foreground: 214 82% 51%; /* Google Blue text on accent */
+    --accent: 214 82% 95%; 
+    --accent-foreground: 210 11% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 20% 98%;
 
-    --border: 210 14% 89%; /* Light gray borders */
-    --input: 210 14% 89%;
-    --ring: 214 82% 51%;
+    --border: 210 14% 89%; 
+    --input: 210 10% 97%; /* #f1f3f4 */
+    --ring: 210 11% 15%;
 
-    --radius: 0.5rem; /* Google apps favor slightly rounded interactive elements */
+    --radius: 1.5rem; /* More rounded premium look */
   }
 
   .dark {

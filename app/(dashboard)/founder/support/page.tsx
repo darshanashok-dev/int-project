@@ -1,58 +1,94 @@
 'use client'
 
-import { HelpCircle, MessageCircle, FileText, Search, Mail, ArrowRight } from 'lucide-react'
-
-const SUPPORT_TOPICS = [
-  { name: 'Documentation', desc: 'Read guides and platform documentation.', icon: FileText },
-  { name: 'Community', desc: 'Discuss with other founders and mentors.', icon: MessageCircle },
-  { name: 'Contact Support', desc: 'Get in touch with our help desk.', icon: Mail },
-]
+import { Mail, Phone, Globe, MessageSquare, Shield, Clock, MapPin } from 'lucide-react'
 
 export default function SupportPage() {
+  const contactInfo = [
+    {
+      icon: Mail,
+      label: 'Email Support',
+      value: 'success@polarisventure.com',
+      description: 'Typical response time: < 2 hours',
+      color: 'bg-blue-50 text-blue-600'
+    },
+    {
+      icon: Phone,
+      label: 'Priority Line',
+      value: '+1 (888) POLARIS',
+      description: 'For urgent capital inquiries',
+      color: 'bg-purple-50 text-purple-600'
+    }
+  ]
+
   return (
-    <div className="max-w-4xl space-y-12">
+    <div className="max-w-3xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-5xl font-extrabold text-[#202124] tracking-tight italic">How can we assist you, Alex?</h1>
-        <p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
-          Access specialized support resources or reach out to our team of incubation experts.
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+          <Shield className="w-3 h-3" />
+          Polaris Priority Support
+        </div>
+        <h1 className="text-5xl font-extrabold text-[#202124] tracking-tight">How can we help your venture?</h1>
+        <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto">
+          Our Success Team is dedicated to helping you navigate the funding landscape and maximize your growth velocity.
         </p>
       </div>
 
-      <div className="relative max-w-2xl mx-auto">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
-        <input 
-          type="text" 
-          placeholder="Search for answers or resources..." 
-          className="w-full h-16 pl-16 pr-6 bg-white rounded-[2rem] border border-border shadow-sm focus:ring-4 focus:ring-black/5 text-lg font-medium transition-all"
-        />
-      </div>
-
-      <div className="grid grid-cols-3 gap-8">
-        {SUPPORT_TOPICS.map((topic) => (
-          <div 
-            key={topic.name}
-            className="bg-white border border-border rounded-[2.5rem] p-10 text-center hover:shadow-xl transition-all cursor-pointer group"
-          >
-            <div className="w-16 h-16 bg-[#f1f3f4] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-black group-hover:text-white transition-all">
-              <topic.icon className="w-8 h-8" />
+      {/* Contact Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {contactInfo.map((item, i) => (
+          <div key={i} className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              <item.icon className="w-6 h-6" />
             </div>
-            <h4 className="text-xl font-extrabold text-[#202124] mb-2">{topic.name}</h4>
-            <p className="text-xs font-medium text-muted-foreground leading-relaxed">{topic.desc}</p>
+            <h3 className="text-sm font-black text-muted-foreground uppercase tracking-widest mb-2">{item.label}</h3>
+            <p className="text-lg font-bold text-[#202124] mb-2">{item.value}</p>
+            <p className="text-xs text-muted-foreground font-medium">{item.description}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-[#202124] text-white rounded-[3rem] p-12 flex items-center justify-between relative overflow-hidden">
-        <div className="relative z-10">
-          <h3 className="text-3xl font-black italic mb-4">Urgent Inquiry?</h3>
-          <p className="text-gray-400 font-medium max-w-md">Our premium support team is available 24/7 for Series A+ ventures.</p>
-          <button className="mt-8 px-10 py-4 bg-white text-black rounded-2xl font-black text-sm hover:bg-gray-200 transition-all flex items-center gap-2">
-            Priority Access
-            <ArrowRight className="w-5 h-5" />
-          </button>
+      {/* Additional Details Section */}
+      <div className="bg-white border border-border rounded-[3rem] p-10 shadow-sm space-y-12">
+        <div className="space-y-6">
+          <h2 className="text-3xl font-black text-[#202124] tracking-tight">Venture Success Hub</h2>
+          <div className="space-y-4">
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-[#f1f3f4] rounded-xl flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5 text-[#202124]" />
+              </div>
+              <div>
+                <p className="font-bold text-[#202124]">Global Coverage</p>
+                <p className="text-sm text-muted-foreground font-medium">24/7 Monitoring for critical infrastructure and funding gateways.</p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-[#f1f3f4] rounded-xl flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5 text-[#202124]" />
+              </div>
+              <div>
+                <p className="font-bold text-[#202124]">Headquarters</p>
+                <p className="text-sm text-muted-foreground font-medium">Innovation Plaza, 500 Silicon Way, Palo Alto, CA.</p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-[#f1f3f4] rounded-xl flex items-center justify-center shrink-0">
+                <Globe className="w-5 h-5 text-[#202124]" />
+              </div>
+              <div>
+                <p className="font-bold text-[#202124]">Knowledge Base</p>
+                <p className="text-sm text-muted-foreground font-medium">Access our extensive library of fundraising playbooks and legal templates.</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <HelpCircle className="absolute -bottom-10 -right-10 w-64 h-64 text-white/5 -rotate-12" />
+
       </div>
+
+      {/* Footer Note */}
+      <p className="text-center text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-50">
+        Polaris Platform v2.4 • Enterprise Support Active
+      </p>
     </div>
   )
 }
