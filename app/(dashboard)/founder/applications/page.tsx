@@ -11,19 +11,37 @@ import {
   Search,
   Zap,
   ArrowRight,
-  Calendar,
-  Award
+  Calendar
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+interface Application {
+  id: string
+  status: string
+  submitted_at: string
+  programs?: {
+    name: string
+    cohort: string
+    funding_amount: string
+    funding_type: string
+  }
+}
+
+interface Program {
+  id: string
+  name: string
+  cohort: string
+  cohort_start: string
+}
 
 export default function ApplicationTrackingPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [applications, setApplications] = useState<unknown[]>([])
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [applications, setApplications] = useState<Application[]>([])
+  const [showSuccess] = useState(false)
   const [activeTab, setActiveTab] = useState('All')
 
-  const [upcomingPrograms, setUpcomingPrograms] = useState<any[]>([])
+  const [upcomingPrograms, setUpcomingPrograms] = useState<Program[]>([])
 
   useEffect(() => {
     async function loadData() {
@@ -73,50 +91,7 @@ export default function ApplicationTrackingPage() {
     loadData()
   }, [supabase])
 
-  const handleDraft = async () => {
-    if (loading || !upcomingPrograms.length) return
-    setLoading(true)
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data: startup } = await supabase
-        .from('startups')
-        .select('id')
-        .eq('founder_id', user.id)
-        .single()
-      
-      if (!startup) return
-
-      const { error } = await supabase
-        .from('applications')
-        .insert({
-          startup_id: startup.id,
-          program_id: upcomingPrograms[0].id,
-          status: 'draft'
-        })
-
-      if (error) throw error
-
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
-      
-      // Refresh applications list
-      const { data } = await supabase
-        .from('applications')
-        .select('*, programs(name, cohort, funding_amount, funding_type)')
-        .eq('startup_id', startup.id)
-        .order('submitted_at', { ascending: false })
-      
-      if (data) setApplications(data)
-    } catch (err) {
-      console.error('Error creating draft:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filteredApplications = (applications as { status: string }[]).filter(app => {
+  const filteredApplications = applications.filter(app => {
     if (activeTab === 'All') return true
     if (activeTab === 'Pending') return app.status === 'submitted'
     if (activeTab === 'Approved') return app.status === 'approved'
@@ -125,8 +100,8 @@ export default function ApplicationTrackingPage() {
 
   if (loading) return <div className="p-8">Loading...</div>
 
-  const activeReviews = applications.filter((app: any) => app.status === 'submitted').length
-  const approvedApps = applications.filter((app: any) => app.status === 'approved').length
+  const activeReviews = applications.filter((app) => app.status === 'submitted').length
+  const approvedApps = applications.filter((app) => app.status === 'approved').length
   const successRate = applications.length > 0 ? Math.round((approvedApps / applications.length) * 100) : 0
   const pipelineValue = applications.length * 150000 // Placeholder logic: $150k per application
 
@@ -203,7 +178,7 @@ export default function ApplicationTrackingPage() {
             </div>
 
             <div className="space-y-4">
-              {filteredApplications.length > 0 ? (filteredApplications as { status: string, programs?: { name: string, cohort: string } }[]).map((app, i) => (
+              {filteredApplications.length > 0 ? filteredApplications.map((app, i) => (
                 <div key={i} className="flex items-center gap-6 p-6 border border-transparent rounded-[2rem] hover:bg-[#f1f3f4]/50 hover:border-border transition-all group">
                   <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Zap className="w-8 h-8 text-blue-600" />
@@ -211,12 +186,12 @@ export default function ApplicationTrackingPage() {
                   <div className="flex-1">
                     <h4 className="font-extrabold text-lg text-[#202124]">{app.programs?.name}</h4>
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                      {(app.programs as any)?.funding_amount ? `${(app.programs as any).funding_amount} ${(app.programs as any).funding_type}` : (app.programs?.cohort || 'Q4 Program')}
+                      {app.programs?.funding_amount ? `${app.programs.funding_amount} ${app.programs.funding_type}` : (app.programs?.cohort || 'Q4 Program')}
                     </p>
                   </div>
                   <div className="hidden md:block">
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Date</p>
-                    <p className="font-bold text-sm text-[#202124]">{new Date((app as any).submitted_at).toLocaleDateString()}</p>
+                    <p className="font-bold text-sm text-[#202124]">{new Date(app.submitted_at).toLocaleDateString()}</p>
                   </div>
                   <div className="w-32">
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Status</p>

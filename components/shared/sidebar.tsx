@@ -10,22 +10,59 @@ import {
   Coins, 
   Settings, 
   HelpCircle,
-  User
+  User,
+  Users,
+  FolderKanban,
+  GraduationCap,
+  Calendar,
+  BarChart3
 } from 'lucide-react'
+import { LucideIcon } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/shared/logo'
 import { useState, useEffect } from 'react'
 
-const navItems = [
-  { name: 'Dashboard', href: '/founder', icon: LayoutDashboard },
-  { name: 'My Startup', href: '/founder/startup', icon: Briefcase },
-  { name: 'Applications', href: '/founder/applications', icon: FileSignature },
-  { name: 'Milestones', href: '/founder/milestones', icon: Milestone },
-  { name: 'Funding', href: '/founder/funding', icon: Coins },
-]
+const navConfigs: Record<string, { name: string, href: string, icon: LucideIcon }[]> = {
+  founder: [
+    { name: 'Dashboard', href: '/founder', icon: LayoutDashboard },
+    { name: 'My Startup', href: '/founder/startup', icon: Briefcase },
+    { name: 'Applications', href: '/founder/applications', icon: FileSignature },
+    { name: 'Milestones', href: '/founder/milestones', icon: Milestone },
+    { name: 'Funding', href: '/founder/funding', icon: Coins },
+  ],
+  admin: [
+    { name: 'Overview', href: '/admin', icon: LayoutDashboard },
+    { name: 'Users', href: '/admin/users', icon: Users },
+    { name: 'Startups', href: '/admin/startups', icon: Briefcase },
+    { name: 'Programs', href: '/admin/programs', icon: FolderKanban },
+    { name: 'Mentors', href: '/admin/mentors', icon: GraduationCap },
+    { name: 'Events', href: '/admin/events', icon: Calendar },
+    { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
+  ],
+  investor: [
+    { name: 'Dashboard', href: '/investor', icon: LayoutDashboard },
+    { name: 'Portfolio', href: '/investor/portfolio', icon: Briefcase },
+    { name: 'Pipeline', href: '/investor/pipeline', icon: FileSignature },
+  ],
+  manager: [
+    { name: 'Dashboard', href: '/manager', icon: LayoutDashboard },
+    { name: 'Programs', href: '/manager/programs', icon: FolderKanban },
+    { name: 'Startups', href: '/manager/startups', icon: Briefcase },
+  ],
+  mentor: [
+    { name: 'Dashboard', href: '/mentor', icon: LayoutDashboard },
+    { name: 'Sessions', href: '/mentor/sessions', icon: Users },
+    { name: 'Startups', href: '/mentor/startups', icon: Briefcase },
+  ]
+}
 
 interface SidebarProps {
-  user: any
+  user: {
+    user_metadata?: {
+      avatar_url?: string | null
+    }
+  } | null
   displayName: string
   displayRole: string
 }
@@ -38,15 +75,21 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
     setMounted(true)
   }, [])
 
+  const role = (displayRole?.toLowerCase() || 'founder') as keyof typeof navConfigs
+  const navItems = navConfigs[role] || navConfigs.founder
+  const dashboardPath = role === 'founder' ? '/founder' : `/${role}`
+
   return (
     <div className="w-64 h-full bg-[#f8f9fa] border-r border-border flex flex-col p-5 overflow-y-auto shrink-0 transition-all duration-300">
       {/* Branding Section */}
       <div className="mb-6">
-        <Link href="/founder" className="flex items-center gap-3 py-1">
+        <Link href={dashboardPath} className="flex items-center gap-3 py-1">
           <Logo className="w-8 h-8" iconClassName="w-5 h-5" />
           <div>
             <h1 className="font-bold text-base leading-tight text-[#202124]">Polaris</h1>
-            <p className="text-[9px] font-black text-muted-foreground tracking-widest uppercase opacity-80">Founder Suite</p>
+            <p className="text-[9px] font-black text-muted-foreground tracking-widest uppercase opacity-80">
+              {role === 'admin' ? 'Admin Control' : role === 'founder' ? 'Founder Suite' : `${role} Dashboard`}
+            </p>
           </div>
         </Link>
       </div>
@@ -54,7 +97,7 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
       {/* Main Navigation */}
       <nav className="flex-1 flex flex-col gap-1.5">
         {navItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href || (item.href !== dashboardPath && pathname.startsWith(item.href))
           return (
             <Link
               key={item.href}
@@ -81,12 +124,12 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
         
         {/* User Profile Block - Protected by mounted state */}
         <Link 
-          href="/founder/settings/profile"
+          href={`/${role}/settings/profile`}
           className="px-3 py-4 mb-2 flex items-center gap-3 rounded-2xl bg-white/50 border border-transparent hover:border-border hover:bg-white transition-all group/profile"
         >
           <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-black/10 shrink-0 group-hover/profile:scale-105 transition-transform overflow-hidden">
             {mounted && user?.user_metadata?.avatar_url ? (
-              <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              <Image src={user.user_metadata.avatar_url} alt="Avatar" fill className="object-cover" />
             ) : mounted ? (
               displayName?.charAt(0) || 'U'
             ) : (
@@ -104,31 +147,32 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
         </Link>
 
         <Link 
-          href="/founder/settings" 
+          href={`/${role}/settings`} 
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
-            pathname === '/founder/settings' 
+            pathname === `/${role}/settings` 
               ? "bg-black text-white" 
               : "text-muted-foreground hover:text-foreground hover:bg-black/5"
           )}
         >
-          <Settings className={cn("w-5 h-5", pathname === '/founder/settings' ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+          <Settings className={cn("w-5 h-5", pathname === `/${role}/settings` ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
           <span className="text-sm font-semibold">Settings</span>
         </Link>
         
         <Link 
-          href="/founder/support" 
+          href={`/${role}/support`} 
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
-            pathname === '/founder/support' 
+            pathname === `/${role}/support` 
               ? "bg-black text-white" 
               : "text-muted-foreground hover:text-foreground hover:bg-black/5"
           )}
         >
-          <HelpCircle className={cn("w-5 h-5", pathname === '/founder/support' ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+          <HelpCircle className={cn("w-5 h-5", pathname === `/${role}/support` ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
           <span className="text-sm font-semibold">Support</span>
         </Link>
       </div>
     </div>
   )
 }
+

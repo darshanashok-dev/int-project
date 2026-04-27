@@ -13,6 +13,7 @@ import {
   Upload,
   Loader2
 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 const STAGES = [
@@ -105,9 +106,10 @@ export default function StartupDetailsPage() {
         .getPublicUrl(filePath)
 
       setStartup({ ...startup, logo_url: publicUrl })
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error uploading logo:', err)
-      alert('Error uploading logo: ' + (err.message || 'Unknown error'))
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      alert('Error uploading logo: ' + message)
     } finally {
       setSaving(false)
     }
@@ -210,7 +212,7 @@ export default function StartupDetailsPage() {
               <div className="relative group/logo">
                 <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center text-white p-4 overflow-hidden border border-border/10 shadow-xl">
                   {startup.logo_url ? (
-                    <img src={startup.logo_url} alt="Logo" className="w-full h-full object-contain" />
+                    <Image src={startup.logo_url} alt="Logo" width={80} height={80} className="object-contain" />
                   ) : (
                     <Rocket className="w-full h-full fill-current" />
                   )}

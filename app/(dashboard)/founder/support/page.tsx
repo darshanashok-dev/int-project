@@ -1,6 +1,6 @@
 'use client'
 
-import { Mail, Phone, Globe, MessageSquare, Shield, Clock, MapPin } from 'lucide-react'
+import { Mail, Phone, Globe, Shield, Clock, MapPin } from 'lucide-react'
 
 export default function SupportPage() {
   const contactInfo = [

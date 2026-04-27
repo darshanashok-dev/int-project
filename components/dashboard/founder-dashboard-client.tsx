@@ -2,29 +2,31 @@
 
 import { 
   Rocket, 
-  BarChart2, 
   TrendingUp, 
   ArrowRight, 
   Plus, 
   X, 
   Zap, 
-  Search, 
-  Flag
+  Search
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 
 interface FounderDashboardClientProps {
-  user: any
-  startups: any[]
+  startups: {
+    id: string
+    name: string
+    sector: string
+    stage: string
+    status: string
+  }[]
   totalRaised: number
   greeting: string
   subtitle: string
 }
 
 export function FounderDashboardClient({ 
-  user, 
   startups, 
   totalRaised, 
   greeting,
@@ -32,7 +34,6 @@ export function FounderDashboardClient({
 }: FounderDashboardClientProps) {
   const [mounted, setMounted] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [latestBroadcast, setLatestBroadcast] = useState<any>(null)
   const hasVentures = startups && startups.length > 0
 
   // The 'Unified Synchronization' fix: 
@@ -40,18 +41,7 @@ export function FounderDashboardClient({
   // we ensure 100% hydration symmetry for this dynamic subtree.
   useEffect(() => {
     setMounted(true)
-    async function loadLatestBroadcast() {
-      const { createClient } = await import('@/lib/supabase/client')
-      const supabase = createClient()
-      const { data } = await supabase
-        .from('broadcasts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-      if (data) setLatestBroadcast(data)
-    }
-    loadLatestBroadcast()
+    // Broadcast logic removed as it was unused
   }, [])
 
   if (!mounted) {
@@ -141,7 +131,7 @@ export function FounderDashboardClient({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {hasVentures ? (startups as any[]).map((startup) => (
+            {hasVentures ? startups.map((startup) => (
               <Link 
                 key={startup.id} 
                 href="/founder/startup"

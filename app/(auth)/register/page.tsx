@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase/browser'
 import { Loader2, ArrowRight } from 'lucide-react'
 
-const ROLES = ['founder', 'mentor', 'investor', 'manager'] as const
+const ROLES = ['founder', 'admin', 'mentor', 'investor', 'manager'] as const
 type Role = typeof ROLES[number]
 
 export default function RegisterPage() {

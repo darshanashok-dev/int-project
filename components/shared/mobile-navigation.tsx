@@ -6,7 +6,11 @@ import { Sidebar } from '@/components/shared/sidebar'
 import { usePathname } from 'next/navigation'
 
 interface MobileNavigationProps {
-  user: any
+  user: {
+    user_metadata?: {
+      avatar_url?: string | null
+    }
+  } | null
   displayName: string
   displayRole: string
 }

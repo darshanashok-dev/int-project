@@ -9,7 +9,8 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE public.users (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email text NOT NULL,
-  role text NOT NULL DEFAULT 'founder', -- Moved from metadata to secure column
+  full_name text,
+  role text NOT NULL DEFAULT 'founder',
   created_at timestamp with time zone DEFAULT now()
 );
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
@@ -412,3 +413,8 @@ CREATE POLICY "Users can delete their own avatars" ON storage.objects FOR DELETE
   bucket_id = 'avatars' 
   AND name LIKE auth.uid()::text || '%'
 );
+
+-- Investor read access to application_scores (Requirement 8.6)
+CREATE POLICY "investor_read_scores"
+ON public.application_scores FOR SELECT
+USING (public.is_role(ARRAY['investor']));

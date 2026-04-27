@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { 
-  Plus, 
   ChevronRight, 
   Save, 
   ArrowLeft,
@@ -15,15 +14,25 @@ import {
   Loader2,
   CheckCircle2
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+
+interface Program {
+  id: string
+  name: string
+  cohort: string
+}
+
+interface Startup {
+  id: string
+  name: string
+}
 
 export default function NewApplicationPage() {
   const supabase = createClient()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [programs, setPrograms] = useState<any[]>([])
-  const [startups, setStartups] = useState<any[]>([])
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [startups, setStartups] = useState<Startup[]>([])
   const [showSuccess, setShowSuccess] = useState(false)
 
   const [formData, setFormData] = useState({

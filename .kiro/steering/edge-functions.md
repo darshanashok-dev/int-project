@@ -1,0 +1,67 @@
+---
+inclusion: fileMatch
+fileMatchPattern: ['supabase/functions/**']
+---
+
+# Edge Function Rules for Polaris
+
+## Deno runtime — NOT Node.js
+
+```ts
+// ✅ Correct imports
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+// ✅ Correct env access
+Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+// ❌ Never use these
+import { something } from 'some-npm-package'  // use esm.sh instead
+process.env.ANYTHING                           // use Deno.env.get()
+require('something')                           // no CommonJS
+```
+
+## To email a founder — fetch their email via Admin API
+## (applications table has NO founder_email column)
+
+```ts
+serve(async (req) => {
+  const { record, old_record } = await req.json()
+
+  const adminClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,  // needed for auth.admin
+  )
+
+  // Get startup → founder_id → email
+  const { data: startup } = await adminClient
+    .from('startups')
+    .select('founder_id')
+    .eq('id', record.startup_id)
+    .single()
+
+  const { data: { user } } = await adminClient.auth.admin.getUserById(startup.founder_id)
+
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'polaris@rnsit.ac.in',
+      to: user.email,
+      subject: `Status update: ${record.status}`,
+      html: `<p>Your application is now <strong>${record.status}</strong>.</p>`,
+    }),
+  })
+
+  return new Response('OK')
+})
+```
+
+## Constraints
+- Must complete within 150 seconds
+- No file system access
+- No long-running loops
+- Deploy: `supabase functions deploy function-name`

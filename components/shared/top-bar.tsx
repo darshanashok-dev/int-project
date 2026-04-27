@@ -1,13 +1,6 @@
 'use client'
 
-import { cn } from '@/lib/utils'
-
-interface TopBarProps {
-  user: any
-  displayName: string
-}
-
-export function TopBar({ user, displayName }: TopBarProps) {
+export function TopBar() {
   return (
     <header className="h-16 border-b border-border/50 bg-white/80 backdrop-blur-md flex items-center px-8 justify-between sticky top-0 z-10">
       <div className="flex-1">

@@ -25,9 +25,9 @@ export default async function InvestorDashboard() {
           <h2 className="text-lg font-medium text-foreground mb-4">Your Interests</h2>
           {interests && interests.length > 0 ? (
             <ul className="divide-y divide-border">
-              {interests.map((i: { id: string, signal_type: string, startups?: { name: string } }) => (
+              {interests.map((i) => (
                 <li key={i.id} className="py-3">
-                  <p className="font-medium text-foreground">{i.startups?.name}</p>
+                  <p className="font-medium text-foreground">{(i.startups as unknown as { name: string })?.name}</p>
                   <p className="text-sm text-muted-foreground">{i.signal_type}</p>
                 </li>
               ))}

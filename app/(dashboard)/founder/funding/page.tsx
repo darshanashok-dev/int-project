@@ -16,13 +16,42 @@ import {
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
+interface Funding {
+  id: string
+  amount: number
+  source: string
+  round: string
+  date: string
+  status: string
+}
+
+interface Document {
+  id: string
+  name: string
+  updated_at: string
+}
+
+interface Equity {
+  stakeholder_name: string
+  stakeholder_type: string
+  equity_percentage: number
+}
+
+interface Startup {
+  id: string
+  name: string
+  active_round_name: string
+  round_status: string
+  funding_goal: number
+}
+
 export default function FundingOversightPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [fundingData, setFundingData] = useState<any[]>([])
-  const [documents, setDocuments] = useState<any[]>([])
-  const [equity, setEquity] = useState<any[]>([])
-  const [startupDetails, setStartupDetails] = useState<any>(null)
+  const [fundingData, setFundingData] = useState<Funding[]>([])
+  const [documents, setDocuments] = useState<Document[]>([])
+  const [equity, setEquity] = useState<Equity[]>([])
+  const [startupDetails, setStartupDetails] = useState<Startup | null>(null)
   const [showSuccess, setShowSuccess] = useState<string | null>(null)
   const [showRecordModal, setShowRecordModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -166,14 +195,10 @@ export default function FundingOversightPage() {
     handleAction('Export Complete')
   }
 
-  const totalRaised = (fundingData as { amount: string | number }[]).reduce((acc, curr) => acc + Number(curr.amount), 0)
-  const investorCount = new Set((fundingData as any[]).map(f => f.source)).size
+  const totalRaised = fundingData.reduce((acc, curr) => acc + Number(curr.amount), 0)
+  const investorCount = new Set(fundingData.map(f => f.source)).size
   
   if (loading) return <div className="p-8">Loading...</div>
-
-  // Logic for runway/burn if no data
-  const burnRate = 142000 // Mock/Placeholder burn rate
-  const runwayMonths = burnRate > 0 ? Math.round(totalRaised / burnRate) : 0
 
   return (
     <div className="space-y-8 relative">
@@ -263,7 +288,7 @@ export default function FundingOversightPage() {
             </div>
             <div className="flex justify-between items-center text-xs font-bold">
               <span className="text-muted-foreground">
-                ${(totalRaised / 1000000).toFixed(1)}M / ${(startupDetails?.funding_goal / 1000000 || 0).toFixed(1)}M Goal
+                ${(totalRaised / 1000000).toFixed(1)}M / ${((startupDetails?.funding_goal || 0) / 1000000).toFixed(1)}M Goal
               </span>
               <span className="text-[#202124]">{Math.round((totalRaised / (startupDetails?.funding_goal || 1)) * 100)}%</span>
             </div>
@@ -301,9 +326,9 @@ export default function FundingOversightPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {fundingData.length > 0 ? (fundingData as { type: string, amount: string | number, date: string, source: string, status: string }[]).map((f, i) => (
+              {fundingData.length > 0 ? fundingData.map((f, i) => (
                 <tr key={i} className="group transition-colors hover:bg-gray-50/50">
-                  <td className="py-6 font-extrabold text-[#202124]">{f.type}</td>
+                  <td className="py-6 font-extrabold text-[#202124]">{f.round}</td>
                   <td className="py-6 font-bold text-muted-foreground">${Number(f.amount).toLocaleString()}</td>
                   <td className="py-6 text-sm font-medium text-muted-foreground">{new Date(f.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                   <td className="py-6">

@@ -34,11 +34,11 @@ export default async function ManagerDashboard() {
           <h2 className="text-lg font-medium text-foreground mb-4">Recent Applications</h2>
           {applications && applications.length > 0 ? (
             <ul className="divide-y divide-border">
-              {applications.map((a: { id: string, status: string, startups?: { name: string }, programs?: { name: string } }) => (
+              {applications.map((a) => (
                 <li key={a.id} className="py-3 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">{a.startups?.name}</p>
-                    <p className="text-sm text-muted-foreground">{a.programs?.name}</p>
+                    <p className="font-medium text-foreground">{(a.startups as unknown as { name: string })?.name}</p>
+                    <p className="text-sm text-muted-foreground">{(a.programs as unknown as { name: string })?.name}</p>
                   </div>
                   <span className="text-xs capitalize bg-accent text-accent-foreground px-2 py-1 rounded-full">
                     {a.status}

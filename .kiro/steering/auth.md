@@ -1,0 +1,70 @@
+---
+inclusion: fileMatch
+fileMatchPattern: ['app/(auth)/**', 'middleware.ts', 'lib/supabase/**']
+---
+
+# Auth Rules for Polaris
+
+## Role check — getUser() ONLY
+```ts
+// Server Components / Route Handlers / Actions
+const { data: { user } } = await supabase.auth.getUser()
+if (!user) redirect('/login')
+const role = user.user_metadata.role  // 'admin' | 'founder' | 'mentor' | 'investor' | 'manager'
+```
+Never use `getSession()` for any authorization check.
+
+## Middleware — protect all dashboard routes
+```ts
+// middleware.ts
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request: { headers: request.headers } })
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { /* standard cookie handlers */ } }
+  )
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+  return response
+}
+export const config = { matcher: ['/dashboard/:path*'] }
+```
+
+## Role-based redirects
+```ts
+// After login, redirect based on role:
+const redirectMap: Record<string, string> = {
+  admin:    '/dashboard/admin',
+  founder:  '/dashboard/founder',
+  mentor:   '/dashboard/mentor',
+  investor: '/dashboard/investor',
+  manager:  '/dashboard/manager',
+}
+router.push(redirectMap[user.user_metadata.role] ?? '/login')
+```
+
+## User registration — set role in metadata
+```ts
+const { error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { role }  // stored in user_metadata — read by RLS policies
+  }
+})
+```
+
+## RLS role helper (run once in Supabase SQL editor)
+```sql
+create or replace function auth_role() returns text
+language sql stable as $$
+  select coalesce(auth.jwt() -> 'user_metadata' ->> 'role', 'anonymous')
+$$;
+```

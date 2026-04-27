@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { Menu, X } from 'lucide-react'
-import { headers } from 'next/headers'
 
 // Disabling SSR for interactive layout components ensures that the Sidebar and TopBar
 // only activate once the browser has synchronized the user session, effectively

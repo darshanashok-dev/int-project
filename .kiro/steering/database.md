@@ -1,0 +1,101 @@
+---
+inclusion: fileMatch
+fileMatchPattern: ['supabase/**', '*.sql', 'types/database.ts']
+---
+
+# Database Rules for Polaris
+
+## New table checklist — do ALL of these, in order
+```sql
+-- 1. Create the table
+create table my_table (
+  id         uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now()
+);
+
+-- 2. Enable RLS immediately (it's OFF by default — forgetting = data leak)
+alter table my_table enable row level security;
+
+-- 3. Write at least one SELECT and one INSERT/UPDATE policy
+create policy "role_select_description"
+on my_table for select
+using ( /* condition using auth.uid() or auth_role() */ );
+
+-- 4. Enable replication if this table needs Realtime
+-- Dashboard → Database → Replication → toggle the table on
+
+-- 5. Regenerate types
+-- supabase gen types typescript --local > types/database.ts
+```
+
+## RLS policy patterns
+
+```sql
+-- Founder reads own startup's milestones
+create policy "founder_select_own_milestones"
+on milestones for select
+using (startup_id in (select id from startups where founder_id = auth.uid()));
+
+-- Admin full access
+create policy "admin_all"
+on my_table for all
+using (auth_role() = 'admin')
+with check (auth_role() = 'admin');  -- FOR ALL needs both USING and WITH CHECK
+
+-- Mentor reads only assigned startups
+create policy "mentor_select_assigned"
+on sessions for select
+using (
+  startup_id in (
+    select startup_id from mentor_assignments where mentor_id = auth.uid()
+  )
+);
+```
+
+## Enum changes — use ADD VALUE, never rename+recreate
+```sql
+-- CORRECT — safe, works even if views reference the type
+alter type startup_stage add value if not exists 'pre_incubation';
+-- NOTE: ADD VALUE cannot run inside a transaction — run standalone
+
+-- WRONG — breaks if any view references the type
+alter type startup_stage rename to startup_stage_old;  -- DON'T DO THIS
+```
+
+## Aggregate views — avoid JOIN fan-out for SUM
+```sql
+-- WRONG — milestones JOIN multiplies funding rows
+select sum(f.amount)
+from programs p
+join startups s on ...
+join milestones m on ...  -- this multiplies rows!
+join funding f on ...
+
+-- CORRECT — correlated subquery for SUM
+select (
+  select sum(f.amount)
+  from funding f
+  where f.startup_id in (select startup_id from applications where program_id = p.id)
+) as total_funding
+from programs p
+```
+
+## Sessions table — key constraints
+```sql
+-- sessions.feedback is a TEXT note (qualitative)
+-- sessions.rating is INTEGER 1-5 (quantitative) — use this for averages
+-- NEVER cast feedback::numeric — it will crash on any text value
+
+-- Correct average in a view:
+avg(se.rating)  -- integer column, safe to average
+
+-- Wrong:
+avg(se.feedback::numeric)  -- crashes if feedback contains words
+```
+
+## milestone_time_series — always filter nulls
+```sql
+-- completed_at is NULL for pending milestones
+-- date_trunc on NULL produces NULL week → breaks Recharts XAxis
+where completed_at is not null  -- always include this filter
+```

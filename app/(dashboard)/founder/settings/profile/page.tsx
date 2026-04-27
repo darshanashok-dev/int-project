@@ -2,15 +2,24 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { User, Mail, Shield, Save, Loader2, Camera } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { User as UserIcon, Mail, Shield, Save, Loader2, Camera } from 'lucide-react'
+import Image from 'next/image'
+
+interface UserProfile {
+  email?: string
+  user_metadata?: {
+    full_name?: string
+    bio?: string
+    avatar_url?: string | null
+  }
+}
 
 export default function ProfileIdentityPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<UserProfile | null>(null)
   const [fullName, setFullName] = useState('')
   const [bio, setBio] = useState('')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
@@ -80,9 +89,10 @@ export default function ProfileIdentityPage() {
 
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error uploading avatar:', error)
-      alert(`Error uploading avatar: ${error.message || 'Unknown error'}`)
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Error uploading avatar: ${message}`)
     } finally {
       setUploading(false)
     }
@@ -118,7 +128,7 @@ export default function ProfileIdentityPage() {
             <div>
               <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 px-1 opacity-70">Full Name</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input 
                   type="text" 
                   value={fullName}
@@ -175,7 +185,7 @@ export default function ProfileIdentityPage() {
             <div className="relative group">
               <div className="w-32 h-32 mx-auto bg-[#f1f3f4] rounded-[2.5rem] flex items-center justify-center text-[#202124] text-4xl font-black overflow-hidden border-4 border-white shadow-xl">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
                 ) : (
                   (fullName || 'U').charAt(0).toUpperCase()
                 )}

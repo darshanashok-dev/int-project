@@ -7,7 +7,6 @@ import {
   ChevronRight, 
   Download, 
   Send,
-  MessageCircle,
   TrendingUp,
   Activity,
   CheckCircle2,
@@ -18,13 +17,19 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+interface Milestone {
+  id: string
+  title: string
+  due_date: string | null
+  status: string
+}
+
 export default function MilestonesPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [milestones, setMilestones] = useState<any[]>([])
+  const [milestones, setMilestones] = useState<Milestone[]>([])
   const [showSuccess, setShowSuccess] = useState<string | null>(null)
   const [shareWith, setShareWith] = useState('All')
-  const [latestBroadcast, setLatestBroadcast] = useState<any>(null)
 
   useEffect(() => {
     async function loadData() {
@@ -54,16 +59,6 @@ export default function MilestonesPage() {
           if (data) setMilestones(data)
         }
 
-        // Fetch latest broadcast
-        const { data: latestBroadcast } = await supabase
-          .from('broadcasts')
-          .select('*')
-          .eq('founder_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
-        
-        if (latestBroadcast) setLatestBroadcast(latestBroadcast)
       } catch (err) {
         console.error('Error loading milestones data:', err)
       } finally {
@@ -160,7 +155,6 @@ export default function MilestonesPage() {
       if (error) throw error
 
       handleAction('Broadcast')
-      setLatestBroadcast({ title: broadcastTitle, content: broadcastContent })
       setBroadcastTitle('')
       setBroadcastContent('')
     } catch (err) {
@@ -307,7 +301,7 @@ export default function MilestonesPage() {
               {/* Vertical Line */}
               <div className="absolute left-6 top-2 bottom-2 w-0.5 bg-gray-100"></div>
 
-              {milestones.length > 0 ? (milestones as any[]).map((m, i) => (
+              {milestones.length > 0 ? milestones.map((m, i) => (
                 <div key={i} className="flex gap-8 relative group">
                   <div className={cn(
                     "w-12 h-12 rounded-xl flex items-center justify-center z-10 shrink-0 shadow-sm border-2 transition-colors",

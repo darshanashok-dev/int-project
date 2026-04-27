@@ -35,10 +35,10 @@ export default async function MentorDashboard() {
         <h2 className="text-lg font-medium text-foreground mb-4">Upcoming Sessions</h2>
         {sessions && sessions.length > 0 ? (
           <ul className="divide-y divide-border">
-            {sessions.map((s: { id: string, scheduled_at: string, status: string, startups?: { name: string } }) => (
+            {sessions.map((s) => (
               <li key={s.id} className="py-3 flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-foreground">{s.startups?.name}</p>
+                  <p className="font-medium text-foreground">{(s.startups as unknown as { name: string })?.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {new Date(s.scheduled_at).toLocaleString()}
                   </p>

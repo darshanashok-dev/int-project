@@ -34,7 +34,6 @@ export default async function FounderDashboard() {
 
   return (
     <FounderDashboardClient 
-      user={user} 
       startups={startups || []} 
       totalRaised={totalRaised}
       greeting={greeting}

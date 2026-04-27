@@ -17,11 +17,18 @@ import {
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
+interface Document {
+  id: string
+  name: string
+  size_bytes: number
+  updated_at: string
+}
+
 export default function DataRoomPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState(false)
-  const [documents, setDocuments] = useState<any[]>([])
+  const [uploading] = useState(false)
+  const [documents, setDocuments] = useState<Document[]>([])
   const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {

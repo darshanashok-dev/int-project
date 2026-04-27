@@ -16,11 +16,12 @@ Run the following SQL script to create the sync trigger. This ensures that every
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.users (id, email, role, created_at)
+  insert into public.users (id, email, full_name, role, created_at)
   values (
     new.id, 
     new.email, 
-    coalesce(new.raw_user_meta_data ->> 'role', 'founder'), -- Defaults to founder
+    new.raw_user_meta_data ->> 'full_name',
+    coalesce(new.raw_user_meta_data ->> 'role', 'founder'),
     new.created_at
   );
   return new;
