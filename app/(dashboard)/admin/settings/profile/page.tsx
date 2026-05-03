@@ -49,7 +49,7 @@ export default function AdminProfilePage() {
         return
       }
 
-      setProfile(user)
+      setProfile(user as unknown as AdminUserProfile)
       setFullName(user.user_metadata?.full_name || '')
       setBio(user.user_metadata?.bio || '')
       setPhone(user.user_metadata?.phone || '')
@@ -89,7 +89,7 @@ export default function AdminProfilePage() {
     }
 
     if (data.user) {
-      setProfile(data.user)
+      setProfile(data.user as unknown as AdminUserProfile)
     }
 
     setSuccess('Profile settings saved successfully.')
@@ -99,7 +99,7 @@ export default function AdminProfilePage() {
   if (loading) {
     return (
       <div className="max-w-[1200px] mx-auto space-y-6">
-        <div className="bg-white border border-border/50 rounded-2xl p-12 text-center shadow-sm">
+        <div className="bg-card border border-border/50 rounded-2xl p-12 text-center shadow-sm">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mx-auto" />
           <p className="text-muted-foreground mt-3 font-medium">Loading admin profile...</p>
         </div>
@@ -110,7 +110,7 @@ export default function AdminProfilePage() {
   return (
     <div className="max-w-[1200px] mx-auto space-y-6 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-[#202124] tracking-tight">Admin Profile</h1>
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">Admin Profile</h1>
         <p className="text-muted-foreground mt-1">Manage your personal admin account settings</p>
       </div>
 
@@ -121,14 +121,14 @@ export default function AdminProfilePage() {
       ) : null}
 
       {success ? (
-        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-4">
+        <div className="bg-emerald-500/10 border border-emerald-100 rounded-2xl px-5 py-4">
           <p className="text-sm font-semibold text-emerald-700">{success}</p>
         </div>
       ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white border border-border/50 rounded-2xl p-6 shadow-sm space-y-5">
-          <h2 className="text-lg font-bold text-[#202124]">Profile Settings</h2>
+        <div className="lg:col-span-2 bg-card border border-border/50 rounded-2xl p-6 shadow-sm space-y-5">
+          <h2 className="text-lg font-bold text-foreground">Profile Settings</h2>
 
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Full Name</label>
@@ -139,7 +139,7 @@ export default function AdminProfilePage() {
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
                 placeholder="Enter full name"
-                className="w-full h-11 pl-10 pr-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
+                className="w-full h-11 pl-10 pr-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
               />
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function AdminProfilePage() {
               value={bio}
               onChange={(event) => setBio(event.target.value)}
               placeholder="Write a short administrative bio..."
-              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-black/5"
+              className="w-full p-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-black/5"
             />
           </div>
 
@@ -163,7 +163,7 @@ export default function AdminProfilePage() {
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
                 placeholder="+91..."
-                className="w-full h-11 px-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
+                className="w-full h-11 px-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
               />
             </div>
 
@@ -174,7 +174,7 @@ export default function AdminProfilePage() {
                 value={department}
                 onChange={(event) => setDepartment(event.target.value)}
                 placeholder="Platform Operations"
-                className="w-full h-11 px-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
+                className="w-full h-11 px-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
               />
             </div>
           </div>
@@ -190,36 +190,36 @@ export default function AdminProfilePage() {
           </button>
         </div>
 
-        <div className="bg-white border border-border/50 rounded-2xl p-6 shadow-sm space-y-5">
-          <h3 className="text-lg font-bold text-[#202124]">Account Snapshot</h3>
+        <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm space-y-5">
+          <h3 className="text-lg font-bold text-foreground">Account Snapshot</h3>
 
           <div className="space-y-3">
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+            <div className="rounded-xl bg-secondary border border-slate-100 p-4">
               <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Email</p>
-              <p className="text-sm font-bold text-[#202124] mt-1 flex items-center gap-2 break-all">
+              <p className="text-sm font-bold text-foreground mt-1 flex items-center gap-2 break-all">
                 <Mail className="w-3.5 h-3.5 text-muted-foreground" />
                 {profile?.email || 'N/A'}
               </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+            <div className="rounded-xl bg-secondary border border-slate-100 p-4">
               <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Role</p>
-              <p className="text-sm font-bold text-[#202124] mt-1 flex items-center gap-2">
+              <p className="text-sm font-bold text-foreground mt-1 flex items-center gap-2">
                 <Shield className="w-3.5 h-3.5 text-indigo-600" />
                 {displayRole}
               </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+            <div className="rounded-xl bg-secondary border border-slate-100 p-4">
               <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Last Sign In</p>
-              <p className="text-sm font-bold text-[#202124] mt-1">
+              <p className="text-sm font-bold text-foreground mt-1">
                 {profile?.last_sign_in_at ? new Date(profile.last_sign_in_at).toLocaleString() : 'Never'}
               </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+            <div className="rounded-xl bg-secondary border border-slate-100 p-4">
               <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">User ID</p>
-              <p className="text-xs font-bold text-[#202124] mt-1 break-all">{profile?.id || 'N/A'}</p>
+              <p className="text-xs font-bold text-foreground mt-1 break-all">{profile?.id || 'N/A'}</p>
             </div>
           </div>
         </div>

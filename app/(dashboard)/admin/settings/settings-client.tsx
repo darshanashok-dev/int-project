@@ -90,7 +90,7 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
       ) : null}
 
       {settings.length === 0 ? (
-        <div className="py-20 text-center bg-white border border-dashed border-border rounded-3xl space-y-4">
+        <div className="py-20 text-center bg-card border border-dashed border-border rounded-3xl space-y-4">
           <AlertCircle className="w-10 h-10 text-slate-200 mx-auto" />
           <p className="text-muted-foreground font-medium">No system settings found in the database.</p>
           <button
@@ -105,10 +105,10 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
         </div>
       ) : (
         settings.map((setting) => (
-          <div key={setting.key} className="bg-white border border-border/50 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-all group">
+          <div key={setting.key} className="bg-card border border-border/50 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-all group">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex-1">
-                <h3 className="text-lg font-black text-[#202124] flex items-center gap-2">
+                <h3 className="text-lg font-black text-foreground flex items-center gap-2">
                   {setting.key
                     .split('_')
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -122,7 +122,7 @@ export function SettingsClient({ initialSettings }: SettingsClientProps) {
                 <input
                   type="text"
                   value={draftValues[setting.key] ?? ''}
-                  className="px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 font-bold text-sm min-w-[240px]"
+                  className="px-4 py-2.5 bg-secondary border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 font-bold text-sm min-w-[240px]"
                   onChange={(event) => {
                     const nextValue = event.target.value
                     setDraftValues((previous) => ({

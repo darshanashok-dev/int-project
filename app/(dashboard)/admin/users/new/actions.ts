@@ -82,7 +82,11 @@ export async function deleteUserAction(userId: string) {
 
     if (error) {
       console.error('Delete Auth Error:', error)
-      return { success: false, error: error.message }
+      const isConstraintError = error.message?.includes('Database error deleting user') || error.message?.includes('foreign key constraint')
+      const errorMessage = isConstraintError
+        ? 'Cannot delete user: They are referenced in other records (such as programs or scores). Please reassign them first.'
+        : error.message
+      return { success: false, error: errorMessage }
     }
 
     revalidatePath('/admin/users')

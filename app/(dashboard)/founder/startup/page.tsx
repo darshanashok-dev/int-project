@@ -23,40 +23,23 @@ const STAGES = [
   { id: 'series-b', name: 'Series B+', desc: 'Expansion & Growth' },
 ]
 
+import { Database } from '@/types/database'
+
+type Startup = Database['public']['Tables']['startups']['Row'] & { logo_url?: string | null }
+
 export default function StartupDetailsPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [startup, setStartup] = useState<{ 
-    id: string, 
-    name: string, 
-    sector: string, 
-    stage: string, 
-    strategy_summary?: string,
-    founded_date?: string,
-    elevator_pitch?: string,
-    active_round_name?: string,
-    funding_goal?: number,
-    logo_url?: string
-  } | null>(null)
-  const [originalStartup, setOriginalStartup] = useState<{ 
-    id: string, 
-    name: string, 
-    sector: string, 
-    stage: string, 
-    strategy_summary?: string,
-    founded_date?: string,
-    elevator_pitch?: string,
-    active_round_name?: string,
-    funding_goal?: number,
-    logo_url?: string
-  } | null>(null)
+  const [startup, setStartup] = useState<Startup | null>(null)
+  const [originalStartup, setOriginalStartup] = useState<Startup | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
     async function loadData() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: userData } = await supabase.auth.getUser()
+        const user = userData?.user
         if (!user) {
           setLoading(false)
           return
@@ -64,14 +47,16 @@ export default function StartupDetailsPage() {
 
         const { data, error } = await supabase
           .from('startups')
-          .select('*')
+          .select('id, name, sector, stage, strategy_summary, founded_date, elevator_pitch, active_round_name, funding_goal, logo_url, founder_id, status, created_at, target_market, revenue_model, competitive_advantage, strategy_updated_at')
           .eq('founder_id', user.id)
           .single()
 
         if (error) throw error
         if (data) {
-          setStartup(data)
-          setOriginalStartup(data)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setStartup(data as any)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setOriginalStartup(data as any)
         }
       } catch (err) {
         console.error('Error loading startup data:', err)
@@ -88,7 +73,8 @@ export default function StartupDetailsPage() {
 
     setSaving(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: userData } = await supabase.auth.getUser()
+      const user = userData?.user
       if (!user) return
 
       const fileExt = file.name.split('.').pop()
@@ -118,8 +104,8 @@ export default function StartupDetailsPage() {
   const handleSave = async () => {
     if (!startup) return
     setSaving(true)
-    const { error } = await supabase
-      .from('startups')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('startups') as any)
       .update({
         name: startup.name,
         sector: startup.sector,
@@ -158,7 +144,7 @@ export default function StartupDetailsPage() {
       {showSuccess && (
         <div className="fixed top-8 right-8 z-[100] animate-in slide-in-from-top-4 duration-300">
           <div className="bg-[#202124] text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-emerald-500/100 rounded-full flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -177,7 +163,7 @@ export default function StartupDetailsPage() {
             <ChevronRight className="w-3 h-3" />
             <span>Profile Management</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-[#202124]">Venture Core Details</h1>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">Venture Core Details</h1>
           <p className="text-sm md:text-base text-muted-foreground mt-2 font-medium">Maintain your startup&apos;s identity across the Polaris network.</p>
         </div>
         <div className="flex items-center gap-4">
@@ -207,7 +193,7 @@ export default function StartupDetailsPage() {
         {/* Main Content */}
         <div className="col-span-1 md:col-span-8 space-y-8">
           {/* Identity Branding Section */}
-          <div className="bg-white border border-border rounded-3xl p-8 shadow-sm">
+          <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
             <div className="flex items-start gap-6 mb-8">
               <div className="relative group/logo">
                 <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center text-white p-4 overflow-hidden border border-border/10 shadow-xl">
@@ -223,13 +209,13 @@ export default function StartupDetailsPage() {
                   </label>
                 </div>
                 {saving && (
-                  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center">
+                  <div className="absolute inset-0 bg-card/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center">
                     <Loader2 className="w-6 h-6 animate-spin text-black" />
                   </div>
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-extrabold text-[#202124] mb-1">Identity Branding</h2>
+                <h2 className="text-xl font-extrabold text-foreground mb-1">Identity Branding</h2>
                 <p className="text-muted-foreground font-medium">Update your public-facing logo and brand name.</p>
               </div>
             </div>
@@ -241,15 +227,15 @@ export default function StartupDetailsPage() {
                   type="text" 
                   value={startup.name}
                   onChange={e => setStartup({...startup, name: e.target.value})}
-                  className="w-full h-14 px-6 bg-[#f1f3f4] rounded-xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5"
+                  className="w-full h-14 px-6 bg-secondary rounded-xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5"
                 />
               </div>
               <div>
                 <label className="block text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mb-2 px-1">Core Sector</label>
                 <select 
-                  value={startup.sector}
+                  value={startup.sector || ''}
                   onChange={e => setStartup({...startup, sector: e.target.value})}
-                  className="w-full h-14 px-6 bg-[#f1f3f4] rounded-xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 appearance-none"
+                  className="w-full h-14 px-6 bg-secondary rounded-xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 appearance-none"
                 >
                   <option value="SaaS">SaaS</option>
                   <option value="Fintech">Fintech</option>
@@ -273,7 +259,7 @@ export default function StartupDetailsPage() {
                   value={startup.founded_date || ''}
                   onChange={e => setStartup({...startup, founded_date: e.target.value})}
                   placeholder="January 2023"
-                  className="w-full h-14 px-6 bg-[#f1f3f4] rounded-xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5"
+                  className="w-full h-14 px-6 bg-secondary rounded-xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5"
                 />
               </div>
               <div>
@@ -283,7 +269,7 @@ export default function StartupDetailsPage() {
                   value={startup.active_round_name || ''}
                   onChange={e => setStartup({...startup, active_round_name: e.target.value})}
                   placeholder="e.g. Series A Alpha"
-                  className="w-full h-14 px-6 bg-[#f1f3f4] rounded-xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5"
+                  className="w-full h-14 px-6 bg-secondary rounded-xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5"
                 />
               </div>
               <div>
@@ -293,15 +279,15 @@ export default function StartupDetailsPage() {
                   value={startup.funding_goal || ''}
                   onChange={e => setStartup({...startup, funding_goal: parseFloat(e.target.value) || 0})}
                   placeholder="e.g. 4000000"
-                  className="w-full h-14 px-6 bg-[#f1f3f4] rounded-xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5"
+                  className="w-full h-14 px-6 bg-secondary rounded-xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5"
                 />
               </div>
             </div>
           </div>
 
           {/* Detailed Narrative Section */}
-          <div className="bg-white border border-border rounded-3xl p-8 shadow-sm">
-            <h2 className="text-xl font-extrabold text-[#202124] mb-1">Detailed Narrative</h2>
+          <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+            <h2 className="text-xl font-extrabold text-foreground mb-1">Detailed Narrative</h2>
             <p className="text-muted-foreground font-medium mb-8">Craft the story that investors and partners see first.</p>
 
             <div className="space-y-6">
@@ -312,7 +298,7 @@ export default function StartupDetailsPage() {
                   value={startup.elevator_pitch || ''}
                   onChange={e => setStartup({...startup, elevator_pitch: e.target.value})}
                   placeholder="Describe your one-sentence elevator pitch..."
-                  className="w-full h-14 px-6 bg-[#f1f3f4] rounded-xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5"
+                  className="w-full h-14 px-6 bg-secondary rounded-xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5"
                 />
               </div>
               <div>
@@ -321,7 +307,7 @@ export default function StartupDetailsPage() {
                   rows={6}
                   value={startup.strategy_summary || ''}
                   onChange={e => setStartup({...startup, strategy_summary: e.target.value})}
-                  className="w-full p-6 bg-[#f1f3f4] rounded-xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 resize-none leading-relaxed"
+                  className="w-full p-6 bg-secondary rounded-xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 resize-none leading-relaxed"
                   placeholder="Describe your mission..."
                 />
               </div>
@@ -341,7 +327,7 @@ export default function StartupDetailsPage() {
               <div className="mb-6">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Phase</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-extrabold bg-white/10 px-3 py-1 rounded-full capitalize">{startup.stage}</span>
+                  <span className="text-sm font-extrabold bg-card/10 px-3 py-1 rounded-full capitalize">{startup.stage}</span>
                   <Zap className="w-3 h-3 text-yellow-400 fill-current" />
                 </div>
               </div>
@@ -350,9 +336,9 @@ export default function StartupDetailsPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-3xl font-black italic tracking-tighter">Active</span>
                   <div className="flex gap-1 h-6 items-end pb-1">
-                    <div className="w-1.5 h-3 bg-white/30 rounded-full animate-pulse"></div>
+                    <div className="w-1.5 h-3 bg-card/30 rounded-full animate-pulse"></div>
                     <div className="w-1.5 h-5 bg-blue-400 rounded-full"></div>
-                    <div className="w-1.5 h-4 bg-white/30 rounded-full animate-pulse delay-75"></div>
+                    <div className="w-1.5 h-4 bg-card/30 rounded-full animate-pulse delay-75"></div>
                   </div>
                 </div>
               </div>
@@ -364,8 +350,8 @@ export default function StartupDetailsPage() {
           </div>
 
           {/* Update Venture Stage */}
-          <div className="bg-white border border-border rounded-3xl p-8 shadow-sm">
-            <h3 className="text-lg font-extrabold text-[#202124] mb-6">Update Venture Stage</h3>
+          <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+            <h3 className="text-lg font-extrabold text-foreground mb-6">Update Venture Stage</h3>
             <div className="space-y-4">
               {STAGES.map(stage => {
                 const isActive = startup.stage === stage.id
@@ -381,7 +367,7 @@ export default function StartupDetailsPage() {
                     )}
                   >
                     <div className="flex-1">
-                      <p className="font-extrabold text-sm text-[#202124]">{stage.name}</p>
+                      <p className="font-extrabold text-sm text-foreground">{stage.name}</p>
                       <p className="text-[11px] font-medium text-muted-foreground">{stage.desc}</p>
                     </div>
                     {isActive ? (
@@ -396,7 +382,7 @@ export default function StartupDetailsPage() {
           </div>
 
           {/* Info Card */}
-          <div className="bg-blue-50 border border-blue-100 rounded-3xl p-6 flex gap-4">
+          <div className="bg-blue-500/10 border border-blue-100 rounded-3xl p-6 flex gap-4">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4 text-blue-600" />
             </div>

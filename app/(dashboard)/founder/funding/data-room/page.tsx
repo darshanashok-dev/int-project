@@ -17,12 +17,9 @@ import {
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-interface Document {
-  id: string
-  name: string
-  size_bytes: number
-  updated_at: string
-}
+import { Database } from '@/types/database'
+
+type Document = Database['public']['Tables']['documents']['Row']
 
 export default function DataRoomPage() {
   const supabase = createClient()
@@ -43,13 +40,15 @@ export default function DataRoomPage() {
           .eq('founder_id', user.id)
           .single()
 
-        if (startup) {
+        const startupRow = startup as { id: string } | null
+        if (startupRow) {
           const { data } = await supabase
             .from('documents')
-            .select('*')
-            .eq('startup_id', startup.id)
+            .select('id, name, size_bytes, updated_at, type, url, startup_id, created_at')
+            .eq('startup_id', startupRow.id)
             .order('updated_at', { ascending: false })
-          if (data) setDocuments(data)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (data) setDocuments(data as any)
         }
       } catch (err) {
         console.error('Error loading documents:', err)
@@ -86,7 +85,7 @@ export default function DataRoomPage() {
             <ChevronRight className="w-3 h-3" />
             <span>Secure Data Room</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-[#202124] tracking-tight">Venture Data Room</h1>
+          <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Venture Data Room</h1>
           <p className="text-muted-foreground mt-2 font-medium">Securely manage and share due diligence documents with institutional investors.</p>
         </div>
         <button 
@@ -107,17 +106,17 @@ export default function DataRoomPage() {
             placeholder="Search documents..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-12 pl-12 pr-4 bg-white border border-border rounded-xl font-bold text-sm focus:ring-2 focus:ring-black/5 transition-all shadow-sm"
+            className="w-full h-12 pl-12 pr-4 bg-card border border-border rounded-xl font-bold text-sm focus:ring-2 focus:ring-black/5 transition-all shadow-sm"
           />
         </div>
-        <button className="flex items-center gap-2 px-6 h-12 bg-white border border-border rounded-xl font-bold text-sm hover:bg-[#f1f3f4] transition-all shadow-sm">
+        <button className="flex items-center gap-2 px-6 h-12 bg-card border border-border rounded-xl font-bold text-sm hover:bg-secondary transition-all shadow-sm">
           <Filter className="w-4 h-4" />
           Filter
         </button>
       </div>
 
       {/* Documents Grid */}
-      <div className="bg-white border border-border rounded-[2.5rem] p-10 shadow-sm">
+      <div className="bg-card border border-border rounded-[2.5rem] p-10 shadow-sm">
         {filteredDocs.length > 0 ? (
           <div className="space-y-4">
             <div className="grid grid-cols-12 gap-4 px-6 pb-4 border-b border-border text-[10px] font-black text-muted-foreground uppercase tracking-widest">
@@ -129,29 +128,29 @@ export default function DataRoomPage() {
             
             <div className="divide-y divide-border/50">
               {filteredDocs.map((doc) => (
-                <div key={doc.id} className="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-[#f8f9fa] rounded-2xl transition-colors group">
+                <div key={doc.id} className="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-background rounded-2xl transition-colors group">
                   <div className="col-span-6 flex items-center gap-4">
                     <div className={cn(
                       "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
-                      doc.name.endsWith('.pdf') ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"
+                      doc.name.endsWith('.pdf') ? "bg-red-50 text-red-600" : "bg-emerald-500/10 text-emerald-600"
                     )}>
                       <FileText className="w-6 h-6" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-[#202124] truncate">{doc.name}</p>
-                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{(doc.size_bytes / 1024 / 1024).toFixed(1)} MB</p>
+                      <p className="font-bold text-foreground truncate">{doc.name}</p>
+                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{((doc.size_bytes || 0) / 1024 / 1024).toFixed(1)} MB</p>
                     </div>
                   </div>
                   <div className="col-span-2">
-                    <span className="px-2 py-1 bg-[#f1f3f4] rounded-lg text-[10px] font-black uppercase tracking-widest text-[#202124]">
+                    <span className="px-2 py-1 bg-secondary rounded-lg text-[10px] font-black uppercase tracking-widest text-foreground">
                       {doc.name.split('.').pop()?.toUpperCase() || 'FILE'}
                     </span>
                   </div>
                   <div className="col-span-2 text-xs font-bold text-muted-foreground">
-                    {new Date(doc.updated_at).toLocaleDateString()}
+                    {new Date(doc.updated_at || 0).toLocaleDateString()}
                   </div>
                   <div className="col-span-2 flex justify-end gap-2">
-                    <button className="p-2 hover:bg-white rounded-lg transition-colors text-muted-foreground hover:text-[#202124]">
+                    <button className="p-2 hover:bg-card rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                       <Download className="w-4 h-4" />
                     </button>
                     <button 
@@ -160,7 +159,7 @@ export default function DataRoomPage() {
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <button className="p-2 hover:bg-white rounded-lg transition-colors text-muted-foreground">
+                    <button className="p-2 hover:bg-card rounded-lg transition-colors text-muted-foreground">
                       <MoreVertical className="w-4 h-4" />
                     </button>
                   </div>
@@ -170,10 +169,10 @@ export default function DataRoomPage() {
           </div>
         ) : (
           <div className="text-center py-24">
-            <div className="w-20 h-20 bg-[#f1f3f4] rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted-foreground">
+            <div className="w-20 h-20 bg-secondary rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-muted-foreground">
               <FileText className="w-10 h-10" />
             </div>
-            <h4 className="text-2xl font-black text-[#202124] tracking-tight">Vault Empty</h4>
+            <h4 className="text-2xl font-black text-foreground tracking-tight">Vault Empty</h4>
             <p className="text-muted-foreground mt-2 max-w-[280px] mx-auto font-medium">
               Initialize your investor readiness by uploading core venture documents.
             </p>
@@ -183,7 +182,7 @@ export default function DataRoomPage() {
 
       {/* Security Footer */}
       <div className="flex items-center gap-4 p-6 bg-[#1a1c1e] text-white rounded-[2rem] shadow-xl">
-        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+        <div className="w-12 h-12 bg-card/10 rounded-2xl flex items-center justify-center">
           <Shield className="w-6 h-6 text-blue-400" />
         </div>
         <div>

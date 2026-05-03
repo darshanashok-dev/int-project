@@ -17,9 +17,9 @@ interface FounderDashboardClientProps {
   startups: {
     id: string
     name: string
-    sector: string
-    stage: string
-    status: string
+    sector: string | null
+    stage: string | null
+    status: string | null
   }[]
   totalRaised: number
   greeting: string
@@ -59,7 +59,7 @@ export function FounderDashboardClient({
       {/* Welcome Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold text-[#202124] tracking-tight">
+          <h1 className="text-4xl font-extrabold text-foreground tracking-tight">
             {greeting}
           </h1>
           <p className="text-muted-foreground mt-2 font-medium">
@@ -77,34 +77,34 @@ export function FounderDashboardClient({
 
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-        <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm">
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Total Ventures</p>
           <div className="flex items-baseline gap-2">
-            <h2 className="text-5xl font-black text-[#202124]">{startups?.length || 0}</h2>
+            <h2 className="text-5xl font-black text-foreground">{startups?.length || 0}</h2>
             <span className={cn(
               "text-xs font-bold px-2 py-0.5 rounded-lg",
-              hasVentures ? "text-emerald-600 bg-emerald-50" : "text-gray-400 bg-gray-100"
+              hasVentures ? "text-emerald-600 bg-emerald-500/10" : "text-gray-400 bg-gray-100"
             )}>
               {hasVentures ? 'Active' : 'Empty'}
             </span>
           </div>
         </div>
 
-        <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm">
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Aggregate Funding</p>
           <div className="flex items-baseline gap-2">
-            <h2 className="text-5xl font-black text-[#202124]">${(totalRaised / 1000000).toFixed(1)}M</h2>
+            <h2 className="text-5xl font-black text-foreground">${(totalRaised / 1000000).toFixed(1)}M</h2>
             <span className="text-xs font-bold text-blue-600">Total Raised</span>
           </div>
         </div>
 
-        <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Strategic Milestone</p>
           {hasVentures ? (
             <>
               <div className="flex items-baseline gap-2">
-                <h2 className="text-5xl font-black text-[#202124]">Q{Math.floor((new Date().getMonth() + 3) / 3)}</h2>
-                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-lg">Operational</span>
+                <h2 className="text-5xl font-black text-foreground">Q{Math.floor((new Date().getMonth() + 3) / 3)}</h2>
+                <span className="text-xs font-bold text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-lg">Operational</span>
               </div>
               <p className="mt-4 text-xs font-semibold text-muted-foreground">Target: 100% Readiness</p>
             </>
@@ -120,9 +120,9 @@ export function FounderDashboardClient({
       {/* Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         {/* Ventures List */}
-        <div className="col-span-1 md:col-span-12 bg-white border border-border rounded-[2.5rem] p-6 md:p-10 shadow-sm">
+        <div className="col-span-1 md:col-span-12 bg-card border border-border rounded-[2.5rem] p-6 md:p-10 shadow-sm">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl md:text-2xl font-black text-[#202124]">Your Ventures</h3>
+            <h3 className="text-xl md:text-2xl font-black text-foreground">Your Ventures</h3>
             {hasVentures && (
               <Link href="/founder/startup" className="text-xs md:text-sm font-bold text-muted-foreground hover:text-black transition-colors flex items-center gap-1 group">
                 Manage All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -135,19 +135,19 @@ export function FounderDashboardClient({
               <Link 
                 key={startup.id} 
                 href="/founder/startup"
-                className="flex items-center gap-6 p-6 rounded-[2rem] border border-transparent hover:border-border hover:bg-[#f8f9fa] transition-all group"
+                className="flex items-center gap-6 p-6 rounded-[2rem] border border-transparent hover:border-border hover:bg-background transition-all group"
               >
-                <div className="w-16 h-16 bg-[#f1f3f4] rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <Rocket className="w-8 h-8 text-[#202124]" />
+                <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Rocket className="w-8 h-8 text-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xl font-bold text-[#202124] truncate">{startup.name}</h4>
+                  <h4 className="text-xl font-bold text-foreground truncate">{startup.name}</h4>
                   <p className="text-sm font-medium text-muted-foreground truncate">{startup.sector} • {startup.stage}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <span className={cn(
                     "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                    startup.status === 'active' ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600"
+                    startup.status === 'active' ? "bg-emerald-500/10 text-emerald-600" : "bg-blue-500/10 text-blue-600"
                   )}>
                     {startup.status}
                   </span>
@@ -159,10 +159,10 @@ export function FounderDashboardClient({
               </Link>
             )) : (
               <div className="col-span-full py-20 text-center">
-                <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <div className="w-20 h-20 bg-emerald-500/10 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                   <Rocket className="w-10 h-10" />
                 </div>
-                <h4 className="text-2xl font-black text-[#202124] mb-2 tracking-tight">Empty Workspace</h4>
+                <h4 className="text-2xl font-black text-foreground mb-2 tracking-tight">Empty Workspace</h4>
                 <p className="text-muted-foreground mb-10 max-w-[280px] mx-auto font-medium leading-relaxed">
                   Every unicorn starts with a single step. Register your first venture to unlock the Polaris Suite.
                 </p>
@@ -183,20 +183,20 @@ export function FounderDashboardClient({
       {showSuggestions && hasVentures && (
         <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowSuggestions(false)} />
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-10 flex flex-col animate-in slide-in-from-right duration-500">
+          <div className="relative w-full max-w-md bg-card h-full shadow-2xl p-10 flex flex-col animate-in slide-in-from-right duration-500">
             <div className="flex items-center justify-between mb-12">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-[#202124]">Strategic Insights</h3>
+                  <h3 className="text-xl font-bold text-foreground">Strategic Insights</h3>
                   <p className="text-xs font-medium text-muted-foreground">Premium venture analytics</p>
                 </div>
               </div>
               <button 
                 onClick={() => setShowSuggestions(false)}
-                className="p-2 hover:bg-[#f1f3f4] rounded-full transition-colors"
+                className="p-2 hover:bg-secondary rounded-full transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -207,17 +207,17 @@ export function FounderDashboardClient({
               <input 
                 type="text" 
                 placeholder="Search insights..." 
-                className="w-full h-12 pl-10 pr-4 bg-[#f1f3f4] rounded-xl border-none text-sm font-bold focus:ring-2 focus:ring-black/5 transition-all"
+                className="w-full h-12 pl-10 pr-4 bg-secondary rounded-xl border-none text-sm font-bold focus:ring-2 focus:ring-black/5 transition-all"
               />
             </div>
 
             <div className="flex-1 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
               {SUGGESTIONS.map((s, i) => (
-                <div key={i} className="p-6 bg-white border border-border rounded-3xl hover:border-black/20 hover:shadow-xl transition-all group cursor-pointer active:scale-[0.98]">
-                  <span className="inline-block px-2 py-0.5 bg-[#f1f3f4] text-[10px] font-black uppercase tracking-widest rounded-md mb-3 text-[#202124]">
+                <div key={i} className="p-6 bg-card border border-border rounded-3xl hover:border-black/20 hover:shadow-xl transition-all group cursor-pointer active:scale-[0.98]">
+                  <span className="inline-block px-2 py-0.5 bg-secondary text-[10px] font-black uppercase tracking-widest rounded-md mb-3 text-foreground">
                     {s.type}
                   </span>
-                  <h4 className="text-lg font-bold text-[#202124] mb-2 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{s.title}</h4>
+                  <h4 className="text-lg font-bold text-foreground mb-2 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{s.title}</h4>
                   <p className="text-sm text-muted-foreground font-medium leading-relaxed">{s.desc}</p>
                 </div>
               ))}

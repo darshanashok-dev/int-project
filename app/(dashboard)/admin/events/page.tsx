@@ -4,20 +4,20 @@ import EventsClient from './EventsClient'
 
 export default async function EventsPage() {
   const supabase = createClient()
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user
+  } catch (err) {
+    console.error('Auth check failed:', err)
+  }
 
   if (!user) {
     redirect('/login')
   }
 
-  const role =
-    (typeof user.app_metadata?.role === 'string' && user.app_metadata.role) ||
-    (typeof user.user_metadata?.role === 'string' && user.user_metadata.role) ||
-    null
-
-  if (role !== 'admin') {
+  const rawRole = (user.user_metadata?.role || user.app_metadata?.role || '').toLowerCase()
+  if (!rawRole.includes('admin')) {
     redirect('/login')
   }
 
@@ -30,15 +30,16 @@ export default async function EventsPage() {
     supabase.from('event_registrations').select('event_id')
   ])
 
-  const registrationsByEvent = (registrations || []).reduce<Record<string, number>>((acc, row) => {
+  const registrationsByEvent = (registrations as { event_id: string }[] || []).reduce<Record<string, number>>((acc, row) => {
     acc[row.event_id] = (acc[row.event_id] || 0) + 1
     return acc
   }, {})
 
-  const programNameById = new Map((programs || []).map((program) => [program.id, `${program.name} (${program.cohort})`]))
+  const programNameById = new Map((programs as { id: string, name: string, cohort: string }[] || []).map((program) => [program.id, `${program.name} (${program.cohort})`]))
 
-  const normalizedEvents = (events || []).map((event) => ({
+  const normalizedEvents = (events as { id: string, program_id: string | null, title: string, type: string | null, date: string, location: string | null, created_at: string | null }[] || []).map((event) => ({
     ...event,
+    created_at: event.created_at || new Date().toISOString(),
     registrationsCount: registrationsByEvent[event.id] || 0,
     programName: event.program_id ? programNameById.get(event.program_id) || 'Unknown Program' : 'No Program'
   }))
@@ -46,7 +47,7 @@ export default async function EventsPage() {
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#202124] tracking-tight">Events Management</h1>
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">Events Management</h1>
         <p className="text-muted-foreground mt-1">Schedule and manage cohort events, demo days, and workshops</p>
       </div>
 

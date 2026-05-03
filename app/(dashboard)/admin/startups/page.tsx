@@ -1,23 +1,23 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import StartupTable from './StartupTable'
+import StartupTable, { Startup } from './StartupTable'
 
 export default async function StartupsManagement() {
   const supabase = createClient()
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user
+  } catch (err) {
+    console.error('Auth check failed:', err)
+  }
 
   if (!user) {
     redirect('/login')
   }
 
-  const role =
-    (typeof user.app_metadata?.role === 'string' && user.app_metadata.role) ||
-    (typeof user.user_metadata?.role === 'string' && user.user_metadata.role) ||
-    null
-
-  if (role !== 'admin') {
+  const rawRole = (user.user_metadata?.role || user.app_metadata?.role || '').toLowerCase()
+  if (!rawRole.includes('admin')) {
     redirect('/login')
   }
 
@@ -38,12 +38,12 @@ export default async function StartupsManagement() {
     <div className="max-w-[1200px] mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#202124] tracking-tight">Startup Oversight</h1>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Startup Oversight</h1>
           <p className="text-muted-foreground mt-1">Review, approve, and manage venture portfolios</p>
         </div>
       </div>
 
-      <StartupTable initialStartups={startups || []} />
+      <StartupTable initialStartups={(startups as unknown as Startup[]) || []} />
     </div>
   )
 }

@@ -43,14 +43,18 @@ export async function initializeDefaultSettings() {
   const userId = await getAdminUserId()
   const supabase = createClient()
 
-  const { error } = await supabase.from('admin_settings').upsert(
+  const settingsPayload: { key: string; value: string; description: string; updated_by: string; updated_at: string }[] = 
     DEFAULT_ADMIN_SETTINGS.map((setting) => ({
       key: setting.key,
       value: setting.value,
       description: setting.description,
       updated_by: userId,
       updated_at: new Date().toISOString()
-    })),
+    }))
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('admin_settings') as any).upsert(
+    settingsPayload,
     { onConflict: 'key' }
   )
 
@@ -65,8 +69,8 @@ export async function updateAdminSetting(key: string, value: string) {
   const userId = await getAdminUserId()
   const supabase = createClient()
 
-  const { error } = await supabase
-    .from('admin_settings')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from('admin_settings') as any)
     .update({
       value,
       updated_by: userId,

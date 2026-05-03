@@ -3,6 +3,14 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient, MissingAdminEnvError } from '@/lib/supabase/admin'
+import { z } from 'zod'
+
+const createMentorSchema = z.object({
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  expertise: z.string().optional(),
+  bio: z.string().optional()
+})
 
 interface CreateMentorInput {
   fullName: string
@@ -52,14 +60,12 @@ export async function createMentorAction(input: CreateMentorInput) {
     await assertAdminAccess()
     const supabase = createAdminClient()
 
-    const fullName = input.fullName.trim()
-    const email = input.email.trim().toLowerCase()
-    const expertise = input.expertise.trim()
-    const bio = input.bio.trim()
-
-    if (!email || !fullName) {
-      return { success: false, error: 'Full name and email are required.' }
+    const parsed = createMentorSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message || 'Invalid input' }
     }
+
+    const { fullName, email, expertise, bio } = parsed.data
 
     const { data: createdAuthUser, error: authError } = await supabase.auth.admin.createUser({
       email,

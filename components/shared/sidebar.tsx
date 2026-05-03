@@ -21,6 +21,7 @@ import { LucideIcon } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/shared/logo'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useState, useEffect } from 'react'
 
 const navConfigs: Record<string, { name: string, href: string, icon: LucideIcon }[]> = {
@@ -76,19 +77,26 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
   }, [])
 
   const role = (displayRole?.toLowerCase() || 'founder') as keyof typeof navConfigs
-  const navItems = navConfigs[role] || navConfigs.founder
-  const dashboardPath = role === 'founder' ? '/founder' : `/${role}`
+  
+  // Determine which nav config to show based on the current path context
+  const pathParts = pathname.split('/')
+  const pathRole = pathParts[1]
+  const isNavContextMatch = navConfigs[pathRole as keyof typeof navConfigs]
+  const activeNavRole = (isNavContextMatch ? pathRole : role) as keyof typeof navConfigs
+  
+  const navItems = navConfigs[activeNavRole] || navConfigs.founder
+  const dashboardPath = activeNavRole === 'founder' ? '/founder' : `/${activeNavRole}`
 
   return (
-    <div className="w-64 h-full bg-[#f8f9fa] border-r border-border flex flex-col p-5 overflow-y-auto shrink-0 transition-all duration-300">
+    <div className="w-full h-full bg-card flex flex-col p-5 overflow-y-auto shrink-0 transition-all duration-300 md:w-64 md:border-r md:border-border">
       {/* Branding Section */}
       <div className="mb-6">
         <Link href={dashboardPath} className="flex items-center gap-3 py-1">
-          <Logo className="w-8 h-8" iconClassName="w-5 h-5" />
+          <Logo className="w-11 h-11 shadow-sm" />
           <div>
-            <h1 className="font-bold text-base leading-tight text-[#202124]">Polaris</h1>
+            <h1 className="font-bold text-base leading-tight text-foreground">Polaris</h1>
             <p className="text-[9px] font-black text-muted-foreground tracking-widest uppercase opacity-80">
-              {role === 'admin' ? 'Admin Control' : role === 'founder' ? 'Founder Suite' : `${role} Dashboard`}
+              {activeNavRole === 'admin' ? 'Admin Control' : activeNavRole === 'founder' ? 'Founder Suite' : activeNavRole === 'investor' ? 'Investor Suite' : `${activeNavRole} Dashboard`}
             </p>
           </div>
         </Link>
@@ -103,29 +111,27 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group",
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
                 isActive 
-                  ? "bg-white shadow-sm ring-1 ring-black/5 text-foreground" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-black/5"
+                  ? "bg-card text-foreground shadow-sm font-bold border border-border/40" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/50"
               )}
             >
               <item.icon className={cn(
-                "w-5 h-5",
-                isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                "w-4 h-4 transition-colors",
+                isActive ? "text-foreground" : "group-hover:text-foreground"
               )} />
-              <span className="font-semibold text-sm">{item.name}</span>
+              <span className="text-sm">{item.name}</span>
             </Link>
           )
         })}
       </nav>
 
-      {/* Profile & Bottom Section */}
+      {/* Bottom Section */}
       <div className="mt-auto pt-6 flex flex-col gap-1 border-t border-border/60">
-        
-        {/* User Profile Block - Protected by mounted state */}
         <Link 
           href={`/${role}/settings/profile`}
-          className="px-3 py-4 mb-2 flex items-center gap-3 rounded-2xl bg-white/50 border border-transparent hover:border-border hover:bg-white transition-all group/profile"
+          className="px-3 py-4 mb-2 flex items-center gap-3 rounded-2xl bg-card/50 border border-transparent hover:border-border hover:bg-card transition-all group/profile"
         >
           <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-black/10 shrink-0 group-hover/profile:scale-105 transition-transform overflow-hidden">
             {mounted && user?.user_metadata?.avatar_url ? (
@@ -137,7 +143,7 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
             )}
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-sm text-[#202124] truncate min-h-[1.25rem]">
+            <p className="font-bold text-sm text-foreground truncate min-h-[1.25rem]">
               {mounted ? displayName : ''}
             </p>
             <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider truncate opacity-70 min-h-[0.75rem]">
@@ -146,33 +152,31 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
           </div>
         </Link>
 
+
+        <div className="flex items-center gap-2">
+          <Link 
+            href={`/${role}/settings`} 
+            className={cn(
+              "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
+              pathname === `/${role}/settings` 
+                ? "bg-card dark:bg-slate-800 text-black dark:text-white shadow-sm font-bold border border-border/40" 
+                : "text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-card/50 dark:hover:bg-slate-800/50"
+            )}
+          >
+            <Settings className="w-4 h-4" />
+            <span className="text-sm">Settings</span>
+          </Link>
+          <ThemeToggle />
+        </div>
+
         <Link 
-          href={`/${role}/settings`} 
-          className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
-            pathname === `/${role}/settings` 
-              ? "bg-black text-white" 
-              : "text-muted-foreground hover:text-foreground hover:bg-black/5"
-          )}
+          href="/help" 
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-card/50 dark:hover:bg-slate-800/50 transition-all"
         >
-          <Settings className={cn("w-5 h-5", pathname === `/${role}/settings` ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
-          <span className="text-sm font-semibold">Settings</span>
-        </Link>
-        
-        <Link 
-          href={`/${role}/support`} 
-          className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
-            pathname === `/${role}/support` 
-              ? "bg-black text-white" 
-              : "text-muted-foreground hover:text-foreground hover:bg-black/5"
-          )}
-        >
-          <HelpCircle className={cn("w-5 h-5", pathname === `/${role}/support` ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
-          <span className="text-sm font-semibold">Support</span>
+          <HelpCircle className="w-4 h-4" />
+          <span className="text-sm">Help Center</span>
         </Link>
       </div>
     </div>
   )
 }
-

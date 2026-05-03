@@ -17,9 +17,9 @@ export async function updateSession(request: NextRequest) {
 
   if (isMock) {
     if (mockAuth) {
-      // Mock user is "Alex Rivera" with "founder" role
-      const role = 'founder'
-      if (path === '/' || path === '/login' || path === '/register') {
+      // Read mock role from cookie, default to founder
+      const role = request.cookies.get('mock-role')?.value || 'founder'
+      if (path === '/login' || path === '/register') {
         url.pathname = `/${role}`
         return NextResponse.redirect(url)
       }
@@ -55,9 +55,12 @@ export async function updateSession(request: NextRequest) {
   )
 
   // This will refresh session if expired
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getUser()
+  const user = data?.user
 
-  const role = user?.user_metadata?.role || 'founder'
+  // Extract and normalize role
+  const rawRole = (user?.user_metadata?.role || user?.app_metadata?.role || 'founder').toLowerCase()
+  const role = protectedRoles.find(r => rawRole.includes(r)) || 'founder'
 
   if (user) {
     if (path === '/' || path === '/login' || path === '/register') {

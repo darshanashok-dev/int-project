@@ -106,7 +106,7 @@ export default function ProfileIdentityPage() {
       {showSuccess && (
         <div className="fixed top-8 right-8 z-[100] animate-in slide-in-from-top-4 duration-300">
           <div className="bg-[#202124] text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-emerald-500/100 rounded-full flex items-center justify-center">
               <Save className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -118,13 +118,13 @@ export default function ProfileIdentityPage() {
       )}
 
       <div>
-        <h1 className="text-4xl font-extrabold text-[#202124] tracking-tight">Profile Identity</h1>
+        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Profile Identity</h1>
         <p className="text-muted-foreground mt-2 font-medium">Manage your public founder persona and platform identity.</p>
       </div>
 
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-8 space-y-6">
-          <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm space-y-6">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm space-y-6">
             <div>
               <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 px-1 opacity-70">Full Name</label>
               <div className="relative">
@@ -134,7 +134,7 @@ export default function ProfileIdentityPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. Jane Doe"
-                  className="w-full h-12 pl-12 pr-4 bg-[#f1f3f4] rounded-xl border-none font-bold text-sm focus:ring-2 focus:ring-black/5 transition-all"
+                  className="w-full h-12 pl-12 pr-4 bg-secondary rounded-xl border-none font-bold text-sm focus:ring-2 focus:ring-black/5 transition-all"
                 />
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function ProfileIdentityPage() {
                   type="email" 
                   value={user?.email || ''} 
                   disabled
-                  className="w-full h-12 pl-12 pr-4 bg-[#f1f3f4] rounded-xl border-none font-bold text-sm opacity-50 cursor-not-allowed"
+                  className="w-full h-12 pl-12 pr-4 bg-secondary rounded-xl border-none font-bold text-sm opacity-50 cursor-not-allowed"
                 />
               </div>
               <p className="mt-2 text-[10px] font-bold text-muted-foreground flex items-center gap-1 px-1">
@@ -163,7 +163,7 @@ export default function ProfileIdentityPage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="A brief summary of your background and vision..."
-                className="w-full p-4 bg-[#f1f3f4] rounded-xl border-none font-bold text-sm focus:ring-2 focus:ring-black/5 resize-none transition-all"
+                className="w-full p-4 bg-secondary rounded-xl border-none font-bold text-sm focus:ring-2 focus:ring-black/5 resize-none transition-all"
               />
             </div>
 
@@ -181,9 +181,9 @@ export default function ProfileIdentityPage() {
         </div>
 
         <div className="col-span-4 space-y-6">
-          <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm text-center space-y-6">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm text-center space-y-6">
             <div className="relative group">
-              <div className="w-32 h-32 mx-auto bg-[#f1f3f4] rounded-[2.5rem] flex items-center justify-center text-[#202124] text-4xl font-black overflow-hidden border-4 border-white shadow-xl">
+              <div className="w-32 h-32 mx-auto bg-secondary rounded-[2.5rem] flex items-center justify-center text-foreground text-4xl font-black overflow-hidden border-4 border-white shadow-xl">
                 {avatarUrl ? (
                   <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
                 ) : (
@@ -202,7 +202,7 @@ export default function ProfileIdentityPage() {
               </label>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-[#202124]">{fullName || 'Profile Preview'}</h3>
+              <h3 className="text-xl font-bold text-foreground">{fullName || 'Profile Preview'}</h3>
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">Founder Role</p>
             </div>
             <p className="text-xs text-muted-foreground font-medium leading-relaxed italic">

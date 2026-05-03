@@ -22,6 +22,19 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
+    if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+      // Mock login logic
+      document.cookie = 'mock-auth=true; path=/'
+      document.cookie = `mock-role=${selectedRole.toLowerCase()}; path=/`
+      
+      // Artificial delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 800))
+      
+      router.push(`/${selectedRole.toLowerCase()}`)
+      router.refresh()
+      return
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
@@ -40,9 +53,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-[480px] p-12 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white relative z-10 transition-all">
+    <div className="w-full max-w-[480px] p-12 bg-card rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white relative z-10 transition-all">
       <div className="space-y-1 mb-10">
-        <h2 className="text-4xl font-extrabold text-[#202124] tracking-tight">Sign In</h2>
+        <h2 className="text-4xl font-extrabold text-foreground tracking-tight">Sign In</h2>
         <p className="text-sm font-medium text-muted-foreground leading-relaxed">
           Access your incubation metrics and project architecture.
         </p>
@@ -82,7 +95,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
+            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-foreground placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
             placeholder="name@company.com"
           />
         </div>
@@ -95,7 +108,7 @@ export default function LoginPage() {
             <button 
               type="button" 
               onClick={handleForgotPassword}
-              className="text-[10px] font-black text-[#202124] hover:underline uppercase tracking-widest"
+              className="text-[10px] font-black text-foreground hover:underline uppercase tracking-widest"
             >
               Forgot password?
             </button>
@@ -106,7 +119,7 @@ export default function LoginPage() {
             required
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
+            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-foreground placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
             placeholder="••••••••"
           />
         </div>

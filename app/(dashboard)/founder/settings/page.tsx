@@ -1,76 +1,125 @@
 'use client'
 
-import { User, Bell, Shield, CreditCard, ChevronRight, LogOut, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase/browser'
+import { 
+  User, 
+  Bell, 
+  Shield, 
+  CreditCard, 
+  ChevronRight, 
+  Rocket, 
+  FileText, 
+  Globe,
+  Settings as SettingsIcon
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { LogoutButton } from '@/components/shared/LogoutButton'
 
-const SETTINGS_PAGES = [
-  { id: 'profile', name: 'Profile Identity', desc: 'Manage your public founder persona.', icon: User },
-  { id: 'notifications', name: 'Alert Preferences', desc: 'Configure how you receive platform updates.', icon: Bell },
-  { id: 'security', name: 'Auth & Security', desc: 'Secure your account with 2FA and keys.', icon: Shield },
-  { id: 'billing', name: 'Billing & Tiers', desc: 'Manage your subscription and usage.', icon: CreditCard },
+const FOUNDER_SETTINGS = [
+  { 
+    id: 'profile', 
+    name: 'Founder Persona', 
+    desc: 'Manage your public identity and career trajectory.', 
+    icon: User,
+    color: 'bg-blue-500/10 text-blue-600'
+  },
+  { 
+    id: 'startup-dna', 
+    name: 'Startup DNA', 
+    desc: 'Configure default mission, vision, and core values.', 
+    icon: Rocket,
+    color: 'bg-emerald-500/10 text-emerald-600'
+  },
+  { 
+    id: 'deck-settings', 
+    name: 'Pitch Suite', 
+    desc: 'Manage pitch deck permissions and view tracking.', 
+    icon: FileText,
+    color: 'bg-amber-500/10 text-amber-600'
+  },
+  { 
+    id: 'notifications', 
+    name: 'Signal Preferences', 
+    desc: 'Customize alerts for investor interests and mentor feedback.', 
+    icon: Bell,
+    color: 'bg-purple-500/10 text-purple-600'
+  },
+  { 
+    id: 'security', 
+    name: 'Vault Security', 
+    desc: 'Multi-factor authentication and data room access keys.', 
+    icon: Shield,
+    color: 'bg-rose-500/10 text-rose-600'
+  },
+  { 
+    id: 'billing', 
+    name: 'Resource Tier', 
+    desc: 'Manage your Polaris subscription and cloud credits.', 
+    icon: CreditCard,
+    color: 'bg-indigo-500/10 text-indigo-600'
+  },
 ]
 
-export default function SettingsPage() {
+export default function FounderSettingsPage() {
   const router = useRouter()
-  const [loggingOut, setLoggingOut] = useState(false)
-
-  async function handleLogout() {
-    setLoggingOut(true)
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
-  }
 
   return (
-    <div className="max-w-4xl space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-4xl font-extrabold text-[#202124] tracking-tight">Platform Settings</h1>
-        <p className="text-muted-foreground mt-2 font-medium">Fine-tune your Polaris experience and founder profile.</p>
+    <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in duration-700">
+      <div className="flex items-center gap-6">
+        <div className="w-16 h-16 bg-black rounded-[2rem] flex items-center justify-center text-white shadow-2xl">
+          <SettingsIcon className="w-8 h-8" />
+        </div>
+        <div>
+          <h1 className="text-4xl font-black text-foreground tracking-tight">Founder Settings</h1>
+          <p className="text-muted-foreground mt-2 font-medium text-lg italic">Fine-tune your Polaris Command Center for optimal venture growth.</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {SETTINGS_PAGES.map((page) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {FOUNDER_SETTINGS.map((page) => (
           <button 
             key={page.id}
             onClick={() => {
               if (page.id === 'profile') router.push('/founder/settings/profile')
-              else alert(`${page.name} configuration coming soon.`)
+              else alert(`${page.name} module is being initialized in your current cohort.`)
             }}
-            className="bg-white border border-border rounded-[2rem] p-8 text-left hover:bg-[#f8f9fa] hover:border-black/10 transition-all group shadow-sm"
+            className="bg-card border border-border/50 rounded-[2.5rem] p-8 text-left hover:shadow-xl hover:border-black/10 transition-all group relative overflow-hidden"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-[#202124] group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <page.icon className="w-6 h-6" />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform", page.color)}>
+                <page.icon className="w-7 h-7" />
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              <h4 className="text-xl font-bold text-foreground mb-2">{page.name}</h4>
+              <p className="text-xs font-medium text-muted-foreground leading-relaxed flex-1">{page.desc}</p>
+              <div className="mt-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                Configure <ChevronRight className="w-3 h-3" />
+              </div>
             </div>
-            <h4 className="text-xl font-bold text-[#202124]">{page.name}</h4>
-            <p className="text-sm font-medium text-muted-foreground mt-1 leading-relaxed">{page.desc}</p>
           </button>
         ))}
-
-        {/* Logout Section */}
-        <button 
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="bg-white border border-border rounded-[2rem] p-8 text-left hover:bg-destructive/5 hover:border-destructive/20 transition-all group shadow-sm"
-        >
-          <div className="flex items-start justify-between mb-4">
-            <div className="w-12 h-12 bg-destructive/10 rounded-2xl flex items-center justify-center text-destructive group-hover:bg-destructive group-hover:text-white transition-colors">
-              {loggingOut ? <Loader2 className="w-6 h-6 animate-spin" /> : <LogOut className="w-6 h-6" />}
-            </div>
-          </div>
-          <h4 className="text-xl font-bold text-destructive">Account Logout</h4>
-          <p className="text-sm font-medium text-muted-foreground mt-1 leading-relaxed">Securely end your current Polaris session.</p>
-        </button>
       </div>
 
-      <div className="bg-secondary border border-border/50 rounded-[2rem] p-8 text-center">
-        <p className="text-sm font-bold text-muted-foreground">Looking for workspace-specific settings?</p>
-        <p className="text-xs font-medium text-muted-foreground/60 mt-1 italic">Venture-level configurations can be found in the &ldquo;My Startup&rdquo; section.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-border/50">
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black mb-4">Venture Collaboration</h3>
+            <p className="text-gray-400 text-sm font-medium leading-relaxed mb-8">
+              Enable public visibility for your ventures to attract top-tier investors and expert mentors.
+            </p>
+            <button className="px-8 py-3 bg-card text-black rounded-xl font-black text-sm hover:scale-105 transition-all">
+              Manage Visibility
+            </button>
+          </div>
+          <Globe className="absolute -bottom-10 -right-10 w-48 h-48 text-white/5 group-hover:rotate-12 transition-transform duration-1000" />
+        </div>
+        
+        <div className="flex flex-col justify-center">
+          <LogoutButton />
+        </div>
       </div>
     </div>
   )
+}
+
+function cn(...classes: string[]) {
+  return classes.filter(Boolean).join(' ')
 }

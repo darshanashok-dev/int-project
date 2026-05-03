@@ -43,9 +43,9 @@ export default function NewMentorPage() {
         Back to Mentors
       </Link>
 
-      <div className="bg-white border border-border/50 rounded-3xl p-8 shadow-sm space-y-6">
+      <div className="bg-card border border-border/50 rounded-3xl p-8 shadow-sm space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#202124] tracking-tight">Add Mentor</h1>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Add Mentor</h1>
           <p className="text-muted-foreground mt-1">Create a mentor account and profile in one step.</p>
         </div>
 
@@ -60,7 +60,7 @@ export default function NewMentorPage() {
             value={formData.fullName}
             onChange={(event) => setFormData((prev) => ({ ...prev, fullName: event.target.value }))}
             placeholder="e.g. Dr. Priya Sharma"
-            className="w-full h-11 px-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full h-11 px-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
           />
         </div>
 
@@ -71,7 +71,7 @@ export default function NewMentorPage() {
             value={formData.email}
             onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
             placeholder="mentor@company.com"
-            className="w-full h-11 px-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full h-11 px-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
           />
         </div>
 
@@ -82,7 +82,7 @@ export default function NewMentorPage() {
             value={formData.expertise}
             onChange={(event) => setFormData((prev) => ({ ...prev, expertise: event.target.value }))}
             placeholder="AI, B2B SaaS, Product Strategy"
-            className="w-full h-11 px-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full h-11 px-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
           />
         </div>
 
@@ -93,7 +93,7 @@ export default function NewMentorPage() {
             value={formData.bio}
             onChange={(event) => setFormData((prev) => ({ ...prev, bio: event.target.value }))}
             placeholder="Short profile about this mentor."
-            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full p-4 bg-secondary border border-slate-100 rounded-xl font-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
           />
         </div>
 

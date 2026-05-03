@@ -28,8 +28,8 @@ export default function NewVenturePage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const { error } = await supabase
-      .from('startups')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('startups') as any)
       .insert({
         founder_id: user.id,
         name: formData.name,
@@ -55,12 +55,12 @@ export default function NewVenturePage() {
         Back to Dashboard
       </Link>
 
-      <div className="bg-white border border-border rounded-[2.5rem] p-12 shadow-xl">
+      <div className="bg-card border border-border rounded-[2.5rem] p-12 shadow-xl">
         <div className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg">
           <Rocket className="w-8 h-8 fill-current" />
         </div>
         
-        <h1 className="text-4xl font-extrabold text-[#202124] mb-4">Launch New Venture</h1>
+        <h1 className="text-4xl font-extrabold text-foreground mb-4">Launch New Venture</h1>
         <p className="text-muted-foreground font-medium mb-10 leading-relaxed">
           Ready to build something world-changing? Let&apos;s start with the foundations of your new venture.
         </p>
@@ -74,7 +74,7 @@ export default function NewVenturePage() {
               placeholder="e.g. Aether Dynamics"
               value={formData.name}
               onChange={e => setFormData({...formData, name: e.target.value})}
-              className="w-full h-14 px-6 bg-[#f1f3f4] rounded-2xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 text-lg"
+              className="w-full h-14 px-6 bg-secondary rounded-2xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 text-lg"
             />
           </div>
 
@@ -84,7 +84,7 @@ export default function NewVenturePage() {
               <select 
                 value={formData.sector}
                 onChange={e => setFormData({...formData, sector: e.target.value})}
-                className="w-full h-14 px-6 bg-[#f1f3f4] rounded-2xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 appearance-none"
+                className="w-full h-14 px-6 bg-secondary rounded-2xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 appearance-none"
               >
                 <option value="SaaS">SaaS</option>
                 <option value="Fintech">Fintech</option>
@@ -98,7 +98,7 @@ export default function NewVenturePage() {
               <select 
                 value={formData.stage}
                 onChange={e => setFormData({...formData, stage: e.target.value})}
-                className="w-full h-14 px-6 bg-[#f1f3f4] rounded-2xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 appearance-none"
+                className="w-full h-14 px-6 bg-secondary rounded-2xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 appearance-none"
               >
                 <option value="pre-seed">Pre-Seed</option>
                 <option value="seed">Seed</option>

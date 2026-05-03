@@ -167,22 +167,22 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="bg-white border border-border/50 rounded-2xl p-4 shadow-sm">
+          <div key={stat.label} className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm">
             <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">{stat.label}</p>
-            <p className="text-2xl font-bold text-[#202124] mt-2">{stat.value}</p>
+            <p className="text-2xl font-bold text-foreground mt-2">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white border border-border/50 rounded-2xl p-5 shadow-sm space-y-4">
-        <h2 className="text-lg font-bold text-[#202124]">Create Event</h2>
+      <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold text-foreground">Create Event</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Program</label>
             <select
               value={formData.programId}
               onChange={(event) => setFormData((prev) => ({ ...prev, programId: event.target.value }))}
-              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
+              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-secondary text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
             >
               {programs.map((program) => (
                 <option key={program.id} value={program.id}>
@@ -199,7 +199,7 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
               value={formData.title}
               onChange={(event) => setFormData((prev) => ({ ...prev, title: event.target.value }))}
               placeholder="Demo Day Kickoff"
-              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
+              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-secondary text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
             />
           </div>
 
@@ -210,7 +210,7 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
               value={formData.type}
               onChange={(event) => setFormData((prev) => ({ ...prev, type: event.target.value }))}
               placeholder="Workshop"
-              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
+              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-secondary text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
             />
           </div>
 
@@ -220,7 +220,7 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
               type="datetime-local"
               value={formData.date}
               onChange={(event) => setFormData((prev) => ({ ...prev, date: event.target.value }))}
-              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
+              className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-secondary text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
             />
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
             value={formData.location}
             onChange={(event) => setFormData((prev) => ({ ...prev, location: event.target.value }))}
             placeholder="RNSIT Incubation Hall, Bengaluru"
-            className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
+            className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-secondary text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5"
           />
         </div>
 
@@ -247,8 +247,8 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
         </button>
       </div>
 
-      <div className="bg-white border border-border/50 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-border/50 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-border/50 bg-secondary/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -256,14 +256,14 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search events by title, type, location, or program..."
-              className="w-full pl-10 pr-4 py-2 bg-white border border-border/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-card border border-border/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 transition-all"
             />
           </div>
 
           <select
             value={typeFilter}
             onChange={(event) => setTypeFilter(event.target.value)}
-            className="appearance-none min-w-[150px] px-4 py-2 bg-white border border-border/50 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
+            className="appearance-none min-w-[150px] px-4 py-2 bg-card border border-border/50 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
           >
             {eventTypes.map((type) => (
               <option key={type} value={type}>
@@ -276,7 +276,7 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border/50 bg-slate-50/50">
+              <tr className="border-b border-border/50 bg-secondary/50">
                 <th className="px-6 py-4 text-xs font-black uppercase tracking-wider text-muted-foreground">Event</th>
                 <th className="px-6 py-4 text-xs font-black uppercase tracking-wider text-muted-foreground">Program</th>
                 <th className="px-6 py-4 text-xs font-black uppercase tracking-wider text-muted-foreground">Schedule</th>
@@ -293,14 +293,14 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
                 </tr>
               ) : (
                 filteredEvents.map((event) => (
-                  <tr key={event.id} className="hover:bg-slate-50/40 transition-colors">
+                  <tr key={event.id} className="hover:bg-secondary/40 transition-colors">
                     <td className="px-6 py-4">
-                      <p className="font-bold text-[#202124]">{event.title}</p>
+                      <p className="font-bold text-foreground">{event.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{event.type || 'General Event'}</p>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-[#202124]">{event.programName}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-foreground">{event.programName}</td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-[#202124] flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground flex items-center gap-2">
                         <CalendarDays className="w-4 h-4 text-muted-foreground" />
                         {new Date(event.date).toLocaleString()}
                       </p>
@@ -309,7 +309,7 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
                         {event.location || 'Location TBD'}
                       </p>
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-[#202124]">{event.registrationsCount}</td>
+                    <td className="px-6 py-4 text-sm font-bold text-foreground">{event.registrationsCount}</td>
                     <td className="px-6 py-4 text-right">
                       {isProcessing === event.id ? (
                         <Loader2 className="w-5 h-5 animate-spin text-blue-600 ml-auto" />
@@ -318,7 +318,7 @@ export default function EventsClient({ initialEvents, programs }: EventsClientPr
                           <button
                             type="button"
                             onClick={() => handleRescheduleEvent(event.id, event.date)}
-                            className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50"
+                            className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 hover:bg-secondary"
                           >
                             Reschedule
                           </button>

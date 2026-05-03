@@ -62,23 +62,23 @@ export default function NewProgramPage() {
         Back to Programs
       </Link>
 
-      <div className="bg-white border border-border/50 rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-50 rounded-bl-[5rem] -mr-10 -mt-10 opacity-50" />
+      <div className="bg-card border border-border/50 rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-bl-[5rem] -mr-10 -mt-10 opacity-50" />
         
         <div className="relative z-10 mb-10">
           <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-xl shadow-indigo-200">
             <FolderKanban className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-black text-[#202124] tracking-tight">Launch New Program</h1>
+          <h1 className="text-3xl font-black text-foreground tracking-tight">Launch New Program</h1>
           <p className="text-muted-foreground mt-2 font-medium">Define a new accelerator cohort and enrollment parameters.</p>
         </div>
 
         {isSuccess ? (
           <div className="py-12 text-center animate-in zoom-in duration-500">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-emerald-500" />
             </div>
-            <h2 className="text-2xl font-bold text-[#202124]">Program Created Successfully</h2>
+            <h2 className="text-2xl font-bold text-foreground">Program Created Successfully</h2>
             <p className="text-muted-foreground mt-2">The new cohort is now active and ready for applications.</p>
           </div>
         ) : (
@@ -91,14 +91,14 @@ export default function NewProgramPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#202124] ml-1">Program Name</label>
+                <label className="text-sm font-bold text-foreground ml-1">Program Name</label>
                 <div className="relative">
                   <Layers className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
                   <input 
                     required
                     type="text" 
                     placeholder="e.g. Summer Batch 2024"
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium text-sm"
+                    className="w-full pl-12 pr-4 py-4 bg-secondary border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-card transition-all font-medium text-sm"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
@@ -106,14 +106,14 @@ export default function NewProgramPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#202124] ml-1">Cohort Number/Label</label>
+                <label className="text-sm font-bold text-foreground ml-1">Cohort Number/Label</label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-muted-foreground/30 text-lg">#</div>
                   <input 
                     required
                     type="text" 
                     placeholder="e.g. 05"
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium text-sm"
+                    className="w-full pl-12 pr-4 py-4 bg-secondary border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-card transition-all font-medium text-sm"
                     value={formData.cohort}
                     onChange={(e) => setFormData({ ...formData, cohort: e.target.value })}
                   />
@@ -121,12 +121,12 @@ export default function NewProgramPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#202124] ml-1">Start Date</label>
+                <label className="text-sm font-bold text-foreground ml-1">Start Date</label>
                 <div className="relative">
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
                   <input 
                     type="date" 
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium text-sm"
+                    className="w-full pl-12 pr-4 py-4 bg-secondary border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-card transition-all font-medium text-sm"
                     value={formData.start_date}
                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                   />
@@ -134,12 +134,12 @@ export default function NewProgramPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#202124] ml-1">End Date</label>
+                <label className="text-sm font-bold text-foreground ml-1">End Date</label>
                 <div className="relative">
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
                   <input 
                     type="date" 
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium text-sm"
+                    className="w-full pl-12 pr-4 py-4 bg-secondary border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-card transition-all font-medium text-sm"
                     value={formData.end_date}
                     onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                   />
@@ -147,12 +147,12 @@ export default function NewProgramPage() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-bold text-[#202124] ml-1">Max Startups</label>
+                <label className="text-sm font-bold text-foreground ml-1">Max Startups</label>
                 <div className="relative">
                   <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
                   <input 
                     type="number" 
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium text-sm"
+                    className="w-full pl-12 pr-4 py-4 bg-secondary border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-card transition-all font-medium text-sm"
                     value={formData.max_startups}
                     onChange={(e) => setFormData({ ...formData, max_startups: parseInt(e.target.value) })}
                   />

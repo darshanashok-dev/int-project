@@ -23,6 +23,18 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
+    if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+      // Mock registration logic
+      document.cookie = 'mock-auth=true; path=/'
+      document.cookie = `mock-role=${role}; path=/`
+      
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      router.push(`/${role}`)
+      router.refresh()
+      return
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -53,13 +65,13 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="w-full max-w-[480px] p-12 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white text-center">
+      <div className="w-full max-w-[480px] p-12 bg-card rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white text-center">
         <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
           <ArrowRight className="w-10 h-10 rotate-[-45deg]" />
         </div>
-        <h2 className="text-3xl font-extrabold text-[#202124] mb-4">Check your email</h2>
+        <h2 className="text-3xl font-extrabold text-foreground mb-4">Check your email</h2>
         <p className="text-muted-foreground font-medium leading-relaxed">
-          We&apos;ve sent a confirmation link to <span className="font-bold text-[#202124]">{email}</span>. Click it to activate your account.
+          We&apos;ve sent a confirmation link to <span className="font-bold text-foreground">{email}</span>. Click it to activate your account.
         </p>
         <Link 
           href="/login" 
@@ -72,9 +84,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full max-w-[480px] p-12 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white relative z-10 transition-all animate-in fade-in duration-500">
+    <div className="w-full max-w-[480px] p-12 bg-card rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white relative z-10 transition-all animate-in fade-in duration-500">
       <div className="space-y-1 mb-10">
-        <h2 className="text-4xl font-extrabold text-[#202124] tracking-tight text-center">Join Polaris</h2>
+        <h2 className="text-4xl font-extrabold text-foreground tracking-tight text-center">Join Polaris</h2>
         <p className="text-sm font-medium text-muted-foreground leading-relaxed text-center py-2 px-4 max-w-[320px] mx-auto">
           Scale your venture with the next generation of architectural incubation.
         </p>
@@ -91,7 +103,7 @@ export default function RegisterPage() {
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
+            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-foreground placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
             placeholder="founder@venture.com"
           />
         </div>
@@ -107,7 +119,7 @@ export default function RegisterPage() {
             minLength={6}
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-[#202124] placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
+            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-foreground placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 transition-all text-sm"
             placeholder="••••••••"
           />
         </div>
@@ -120,7 +132,7 @@ export default function RegisterPage() {
             id="role"
             value={role}
             onChange={e => setRole(e.target.value as Role)}
-            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 transition-all text-sm appearance-none"
+            className="w-full h-14 px-6 rounded-2xl bg-secondary border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 transition-all text-sm appearance-none"
           >
             {ROLES.map(r => (
               <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
@@ -148,7 +160,7 @@ export default function RegisterPage() {
 
       <p className="mt-8 text-center text-sm font-medium text-muted-foreground">
         Already registered?{' '}
-        <Link href="/login" className="text-[#202124] font-bold hover:underline">Access Console</Link>
+        <Link href="/login" className="text-foreground font-bold hover:underline">Access Console</Link>
       </p>
     </div>
   )

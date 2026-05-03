@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data } = await supabase.auth.getUser()
+      const user = data?.user
       const role = user?.user_metadata?.role || 'founder'
       return NextResponse.redirect(`${origin}/${role}`)
     }

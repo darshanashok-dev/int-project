@@ -15,16 +15,10 @@ import {
   CheckCircle2
 } from 'lucide-react'
 
-interface Program {
-  id: string
-  name: string
-  cohort: string
-}
+import { Database } from '@/types/database'
 
-interface Startup {
-  id: string
-  name: string
-}
+type Program = Database['public']['Tables']['programs']['Row']
+type Startup = Database['public']['Tables']['startups']['Row']
 
 export default function NewApplicationPage() {
   const supabase = createClient()
@@ -50,27 +44,30 @@ export default function NewApplicationPage() {
         if (!user) return
 
         const [programsRes, startupsRes] = await Promise.all([
-          supabase.from('programs').select('*').order('created_at', { ascending: false }),
-          supabase.from('startups').select('*').eq('founder_id', user.id)
+          supabase.from('programs').select('id, name, cohort, created_at').order('created_at', { ascending: false }),
+          supabase.from('startups').select('id, name, founder_id').eq('founder_id', user.id)
         ])
 
-        if (startupsRes.data) {
-          setStartups(startupsRes.data)
-          if (startupsRes.data.length > 0) {
-            setFormData(prev => ({ ...prev, startup_id: startupsRes.data[0].id }))
+        const startupsArr = startupsRes.data as { id: string, name: string, founder_id: string }[] | null
+        const programsArr = programsRes.data as { id: string, name: string, cohort: string, created_at: string | null }[] | null
+
+        if (startupsArr) {
+          setStartups(startupsArr as Startup[])
+          if (startupsArr.length > 0) {
+            setFormData(prev => ({ ...prev, startup_id: startupsArr[0].id }))
           }
         }
 
-        if (programsRes.data && programsRes.data.length > 0) {
-          setPrograms(programsRes.data)
-          setFormData(prev => ({ ...prev, program_id: programsRes.data[0].id }))
+        if (programsArr && programsArr.length > 0) {
+          setPrograms(programsArr as Program[])
+          setFormData(prev => ({ ...prev, program_id: programsArr[0].id }))
         } else {
           // Fallback dummy programs if DB is empty
           const fallbacks = [
             { id: 'p1', name: 'Polaris Alpha', cohort: 'Spring 2024' },
             { id: 'p2', name: 'Polaris Beta', cohort: 'Summer 2024' }
           ]
-          setPrograms(fallbacks)
+          setPrograms(fallbacks as unknown as Program[])
           setFormData(prev => ({ ...prev, program_id: fallbacks[0].id }))
         }
       } catch (err) {
@@ -86,8 +83,8 @@ export default function NewApplicationPage() {
     if (!formData.startup_id || !formData.program_id) return
     setSaving(true)
     try {
-      const { error } = await supabase
-        .from('applications')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.from('applications') as any)
         .insert({
           startup_id: formData.startup_id,
           program_id: formData.program_id,
@@ -118,12 +115,12 @@ export default function NewApplicationPage() {
     <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       {/* Success Overlay */}
       {showSuccess && (
-        <div className="fixed inset-0 z-[100] bg-white/80 backdrop-blur-md flex items-center justify-center animate-in fade-in duration-500">
+        <div className="fixed inset-0 z-[100] bg-card/80 backdrop-blur-md flex items-center justify-center animate-in fade-in duration-500">
           <div className="text-center space-y-6">
-            <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-2xl animate-bounce">
+            <div className="w-24 h-24 bg-emerald-500/10 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-2xl animate-bounce">
               <CheckCircle2 className="w-12 h-12" />
             </div>
-            <h2 className="text-4xl font-black text-[#202124]">Draft Initialized</h2>
+            <h2 className="text-4xl font-black text-foreground">Draft Initialized</h2>
             <p className="text-muted-foreground font-medium">Redirecting to your application suite...</p>
           </div>
         </div>
@@ -156,7 +153,7 @@ export default function NewApplicationPage() {
           <ChevronRight className="w-3 h-3" />
           <span>New Submission</span>
         </div>
-        <h1 className="text-5xl font-black text-[#202124] tracking-tight">Begin New Application</h1>
+        <h1 className="text-5xl font-black text-foreground tracking-tight">Begin New Application</h1>
         <p className="text-lg text-muted-foreground font-medium max-w-2xl">
           Craft your venture narrative for the upcoming Polaris cohort. Your progress is auto-saved as you draft.
         </p>
@@ -165,13 +162,13 @@ export default function NewApplicationPage() {
       <div className="grid grid-cols-12 gap-8">
         {/* Main Form */}
         <div className="col-span-8 space-y-8">
-          <div className="bg-white border border-border rounded-[3rem] p-10 shadow-sm space-y-10">
+          <div className="bg-card border border-border rounded-[3rem] p-10 shadow-sm space-y-10">
             <div className="space-y-6">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white">
                   <Rocket className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-bold text-[#202124]">Core Venture Identity</h3>
+                <h3 className="text-xl font-bold text-foreground">Core Venture Identity</h3>
               </div>
               
               <div className="grid grid-cols-2 gap-6">
@@ -180,7 +177,7 @@ export default function NewApplicationPage() {
                   <select 
                     value={formData.startup_id}
                     onChange={(e) => setFormData({ ...formData, startup_id: e.target.value })}
-                    className="w-full h-14 px-6 bg-[#f1f3f4] rounded-2xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 appearance-none"
+                    className="w-full h-14 px-6 bg-secondary rounded-2xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 appearance-none"
                   >
                     {startups.map(s => (
                       <option key={s.id} value={s.id}>{s.name}</option>
@@ -192,7 +189,7 @@ export default function NewApplicationPage() {
                   <select 
                     value={formData.program_id}
                     onChange={(e) => setFormData({ ...formData, program_id: e.target.value })}
-                    className="w-full h-14 px-6 bg-[#f1f3f4] rounded-2xl border-none font-bold text-[#202124] focus:ring-2 focus:ring-black/5 appearance-none"
+                    className="w-full h-14 px-6 bg-secondary rounded-2xl border-none font-bold text-foreground focus:ring-2 focus:ring-black/5 appearance-none"
                   >
                     {programs.map(p => (
                       <option key={p.id} value={p.id}>{p.name} ({p.cohort})</option>
@@ -204,10 +201,10 @@ export default function NewApplicationPage() {
 
             <div className="space-y-6 pt-6 border-t border-border">
               <div className="flex items-center gap-4 mb-2">
-                <div className="w-10 h-10 bg-[#f1f3f4] rounded-xl flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-[#202124]" />
+                <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-foreground" />
                 </div>
-                <h3 className="text-xl font-bold text-[#202124]">Strategic Pitch</h3>
+                <h3 className="text-xl font-bold text-foreground">Strategic Pitch</h3>
               </div>
               
               <div className="space-y-4">
@@ -215,7 +212,7 @@ export default function NewApplicationPage() {
                   <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Problem & Solution</label>
                   <textarea 
                     placeholder="Describe the core problem and how your venture solves it uniquely..."
-                    className="w-full min-h-[160px] p-6 bg-[#f1f3f4] rounded-[2rem] border-none font-medium text-[#202124] focus:ring-2 focus:ring-black/5 resize-none leading-relaxed"
+                    className="w-full min-h-[160px] p-6 bg-secondary rounded-[2rem] border-none font-medium text-foreground focus:ring-2 focus:ring-black/5 resize-none leading-relaxed"
                   />
                 </div>
               </div>
@@ -238,14 +235,14 @@ export default function NewApplicationPage() {
             <div className="mt-8 pt-6 border-t border-white/10">
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Polaris Selection Committee</span>
             </div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/10 blur-[80px] rounded-full group-hover:bg-blue-500/20 transition-all" />
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/100/10 blur-[80px] rounded-full group-hover:bg-blue-500/100/20 transition-all" />
           </div>
 
-          <div className="bg-white border border-border rounded-[2.5rem] p-8 shadow-sm text-center">
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm text-center">
+            <div className="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
               <Zap className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-[#202124] mb-2">Priority Review</h4>
+            <h4 className="font-bold text-foreground mb-2">Priority Review</h4>
             <p className="text-xs text-muted-foreground font-medium leading-relaxed">
               Complete your draft within 48 hours for early-access review by our investment team.
             </p>

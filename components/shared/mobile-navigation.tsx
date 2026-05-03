@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Sidebar } from '@/components/shared/sidebar'
+import { Logo } from '@/components/shared/logo'
 import { usePathname } from 'next/navigation'
 
 interface MobileNavigationProps {
@@ -36,18 +37,16 @@ export function MobileNavigation({ user, displayName, displayRole }: MobileNavig
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-border z-40">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white">
-            <span className="font-black text-xs">P</span>
-          </div>
-          <span className="font-bold text-[#202124]">Polaris</span>
+      <div className="md:hidden flex items-center justify-between p-4 bg-card border-b border-border z-40">
+        <div className="flex items-center gap-3">
+          <Logo className="w-8 h-8 shadow-sm" />
+          <span className="font-black text-lg tracking-tighter uppercase text-foreground">Polaris</span>
         </div>
         <button 
           onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-[#f1f3f4] rounded-xl transition-colors"
+          className="p-2 hover:bg-secondary rounded-xl transition-colors"
         >
-          <Menu className="w-6 h-6 text-[#202124]" />
+          <Menu className="w-6 h-6 text-foreground" />
         </button>
       </div>
 
@@ -58,14 +57,14 @@ export function MobileNavigation({ user, displayName, displayRole }: MobileNavig
             className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
             onClick={() => setIsOpen(false)} 
           />
-          <div className="absolute inset-y-0 left-0 w-72 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-500">
+          <div className="absolute inset-y-0 left-0 w-full max-w-[300px] bg-card shadow-2xl flex flex-col animate-in slide-in-from-left duration-500">
             <div className="flex items-center justify-between p-6 border-b border-border/50">
-              <span className="font-black text-xl text-[#202124]">Menu</span>
+              <span className="font-black text-xl text-foreground">Menu</span>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-[#f1f3f4] rounded-xl transition-colors"
+                className="p-2 hover:bg-secondary rounded-xl transition-colors"
               >
-                <X className="w-6 h-6 text-[#202124]" />
+                <X className="w-6 h-6 text-foreground" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">

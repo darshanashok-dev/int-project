@@ -6,11 +6,18 @@ import dynamic from 'next/dynamic'
 // only activate once the browser has synchronized the user session, effectively
 // silencing all hydration mismatched caused by icons and metadata-driven text.
 const Sidebar = dynamic(() => import('@/components/shared/sidebar').then(mod => mod.Sidebar), { ssr: false })
-import { MobileNavigation } from '@/components/shared/mobile-navigation'
+const MobileNavigation = dynamic(() => import('@/components/shared/mobile-navigation').then(mod => mod.MobileNavigation), { ssr: false })
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user
+  } catch (err) {
+    console.error('Auth check failed:', err)
+    return redirect('/login?error=connection')
+  }
 
   if (!user) redirect('/login')
 
@@ -36,7 +43,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       />
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-        <main className="h-full overflow-y-auto bg-[#f8f9fa] p-4 md:p-12">
+        <main className="h-full overflow-y-auto bg-background p-4 md:p-12">
           <div className="max-w-[1400px] mx-auto">
             {children}
           </div>
