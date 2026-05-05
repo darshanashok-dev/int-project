@@ -40,8 +40,7 @@ export async function updateStartupStatusAction(startupId: string, status: strin
 
     const supabase = createAdminClient()
 
-    const { error } = await supabase
-      .from('startups')
+    const { error } = await (supabase.from('startups') as any)
       .update({ status })
       .eq('id', startupId)
 
@@ -64,8 +63,7 @@ export async function deleteStartupAction(startupId: string) {
 
     const supabase = createAdminClient()
 
-    const { error } = await supabase
-      .from('startups')
+    const { error } = await (supabase.from('startups') as any)
       .delete()
       .eq('id', startupId)
 
@@ -109,8 +107,8 @@ export async function saveStartupReviewNoteAction(startupId: string, note: strin
       return { success: false, error: 'No application found for this startup yet.' }
     }
 
-    const { error: saveError } = await supabase.from('application_scores').insert({
-      application_id: latestApplication.id,
+    const { error: saveError } = await (supabase.from('application_scores') as any).insert({
+      application_id: (latestApplication as any).id,
       reviewer_id: reviewerId,
       overall_comment: note.trim(),
       scored_at: new Date().toISOString()

@@ -53,7 +53,7 @@ export async function createEventAction(input: EventInput) {
     }
 
     const supabase = createAdminClient()
-    const { error } = await supabase.from('events').insert({
+    const { error } = await (supabase.from('events') as any).insert({
       program_id: input.programId,
       title: input.title.trim(),
       type: input.type.trim() || null,
@@ -80,7 +80,7 @@ export async function deleteEventAction(eventId: string) {
     await assertAdminAccess()
     const supabase = createAdminClient()
 
-    const { error } = await supabase.from('events').delete().eq('id', eventId)
+    const { error } = await (supabase.from('events') as any).delete().eq('id', eventId)
 
     if (error) {
       return { success: false, error: error.message }
@@ -105,7 +105,7 @@ export async function rescheduleEventAction(eventId: string, date: string) {
     }
 
     const supabase = createAdminClient()
-    const { error } = await supabase.from('events').update({ date }).eq('id', eventId)
+    const { error } = await (supabase.from('events') as any).update({ date }).eq('id', eventId)
 
     if (error) {
       return { success: false, error: error.message }

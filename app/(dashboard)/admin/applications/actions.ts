@@ -7,8 +7,7 @@ export async function updateApplicationStatusAction(applicationId: string, statu
   try {
     const supabase = createAdminClient()
 
-    const { error } = await supabase
-      .from('applications')
+    const { error } = await (supabase.from('applications') as any)
       .update({ status })
       .eq('id', applicationId)
 

@@ -1,137 +1,148 @@
-import { createClient } from '@/lib/supabase/server'
-import { Calendar, Clock, MapPin, Search, Filter, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
-import { SessionBasic } from '@/types/dashboard'
-import { cn } from '@/lib/utils'
+'use client'
 
-export default async function MentorSessionsPage() {
-  const supabase = createClient()
-  const { data } = await supabase.auth.getUser()
-  const user = data?.user
+import { useState } from 'react'
+import { useSessions, useCreateSession } from '@/lib/hooks/use-sessions'
+import { useStartupDiscovery } from '@/lib/hooks/use-startup-discovery'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { format } from 'date-fns'
+import { toast } from 'sonner'
+import { Plus, Calendar, Clock, MessageSquare } from 'lucide-react'
 
-  if (!user) return null
+export default function MentorSessionsPage() {
+  const { data: sessions, isLoading } = useSessions()
+  const { data: startups } = useStartupDiscovery({ sector: 'all', stage: 'all', search: '' })
+  const { mutate: createSession, isPending } = useCreateSession()
+  const [open, setOpen] = useState(false)
 
-  // Fetch Mentor ID
-  const { data: mentor } = await (supabase
-    .from('mentors')
-    .select('id')
-    .eq('user_id', user.id)
-    .single() as any)
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      startup_id: formData.get('startup_id'),
+      title: formData.get('title'),
+      scheduled_at: formData.get('date'),
+      duration_minutes: parseInt(formData.get('duration') as string),
+      notes: formData.get('notes'),
+    }
 
-  const mentorId = mentor?.id
-
-  let sessionsData: SessionBasic[] = []
-  if (mentorId) {
-    const { data: sessions } = await supabase
-      .from('sessions')
-      .select('id, scheduled_at, status, startup:startups(name)')
-      .eq('mentor_id', mentorId)
-      .order('scheduled_at', { ascending: false })
-    
-    sessionsData = (sessions as any[])?.map(s => ({
-      ...s,
-      startups: s.startup
-    })) || []
+    createSession(data, {
+      onSuccess: () => {
+        toast.success('Session logged successfully')
+        setOpen(false)
+      },
+      onError: () => toast.error('Failed to log session')
+    })
   }
 
-  // Mock data if empty
-  const MOCK_SESSIONS: SessionBasic[] = [
-    { id: '1', scheduled_at: new Date(Date.now() + 86400000).toISOString(), status: 'scheduled', startups: { name: 'AeroDynamics' } },
-    { id: '2', scheduled_at: new Date(Date.now() + 172800000).toISOString(), status: 'scheduled', startups: { name: 'BioSynth' } },
-    { id: '3', scheduled_at: new Date(Date.now() - 86400000).toISOString(), status: 'completed', startups: { name: 'Quantum Leap' } },
-    { id: '4', scheduled_at: new Date(Date.now() - 259200000).toISOString(), status: 'completed', startups: { name: 'CloudScale' } },
-  ]
-
-  const finalSessions = sessionsData.length > 0 ? sessionsData : MOCK_SESSIONS
-
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Mentorship Sessions</h1>
-          <p className="text-muted-foreground mt-2 font-medium">Manage your schedule and advisory meetings.</p>
+          <h1 className="text-3xl font-black tracking-tight">Mentoring Sessions</h1>
+          <p className="text-muted-foreground">Keep track of your interactions with startups.</p>
         </div>
-        <button className="flex items-center gap-2 px-8 py-4 bg-black text-white rounded-2xl font-bold text-sm shadow-xl hover:shadow-2xl transition-all active:scale-[0.98]">
-          <Calendar className="w-4 h-4" />
-          Request New Slot
-        </button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="rounded-xl font-bold gap-2">
+              <Plus className="h-4 w-4" /> Log Session
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <DialogHeader>
+                <DialogTitle>Log New Session</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2">
+                <Label>Startup</Label>
+                <Select name="startup_id" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Startup" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(startups as any[])?.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Session Title</Label>
+                <Input name="title" required placeholder="e.g. Product Strategy Sync" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input name="date" type="datetime-local" required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Duration (mins)</Label>
+                  <Input name="duration" type="number" required defaultValue="60" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Notes</Label>
+                <Textarea name="notes" placeholder="What was discussed?" />
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={isPending} className="w-full">
+                  {isPending ? 'Logging...' : 'Save Session'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search sessions..." 
-              className="w-full h-12 pl-12 pr-4 bg-secondary rounded-xl border-none text-sm font-bold focus:ring-2 focus:ring-black/5 transition-all"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-xs font-bold hover:bg-gray-200 transition-colors">
-              <Filter className="w-3.5 h-3.5" />
-              Filter
-            </button>
-            <button className="px-4 py-2 rounded-xl bg-black text-white text-xs font-bold shadow-lg">
-              Upcoming
-            </button>
-            <button className="px-4 py-2 rounded-xl text-muted-foreground text-xs font-bold hover:bg-secondary transition-colors">
-              History
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-          {finalSessions.map((session) => (
-            <div 
-              key={session.id}
-              className="group flex flex-col md:flex-row md:items-center justify-between p-8 rounded-[2rem] border border-[#f1f3f4] hover:border-black/10 hover:bg-background transition-all"
-            >
-              <div className="flex items-center gap-8 mb-6 md:mb-0">
-                <div className="w-20 h-20 bg-card border border-[#f1f3f4] rounded-3xl flex flex-col items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">
-                    {new Date(session.scheduled_at).toLocaleDateString('en-US', { month: 'short' })}
-                  </span>
-                  <span className="text-3xl font-black text-foreground">
-                    {new Date(session.scheduled_at).toLocaleDateString('en-US', { day: 'numeric' })}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-foreground mb-2">{session.startups?.name || 'Venture Advisory'}</h3>
-                  <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-muted-foreground">
-                    <span className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-lg border border-[#f1f3f4]">
-                      <Clock className="w-4 h-4 text-blue-500" />
-                      {new Date(session.scheduled_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                    <span className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-lg border border-[#f1f3f4]">
-                      <MapPin className="w-4 h-4 text-emerald-500" />
-                      Virtual Meeting
-                    </span>
-                    <span className={cn(
-                      "px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest",
-                      session.status === 'completed' ? "bg-emerald-500/10 text-emerald-600" : "bg-blue-500/10 text-blue-600"
-                    )}>
-                      {session.status}
-                    </span>
+      <div className="grid gap-6">
+        {isLoading ? (
+          <p>Loading sessions...</p>
+        ) : sessions?.length === 0 ? (
+          <p className="text-muted-foreground">No sessions logged yet.</p>
+        ) : (
+          (sessions as any[])?.map((session) => (
+            <Card key={session.id} className="border-l-4 border-l-indigo-600">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-black">{session.title}</h3>
+                    <p className="text-sm font-bold text-indigo-600">with {(session.startups as any)?.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      {format(new Date(session.scheduled_at), 'MMM dd, yyyy')}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground justify-end">
+                      <Clock className="h-4 w-4" />
+                      {session.duration_minutes} mins
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                {session.status === 'scheduled' ? (
-                  <button className="flex-1 md:flex-none px-8 py-4 bg-black text-white rounded-2xl font-black text-xs shadow-xl shadow-black/10 hover:shadow-2xl transition-all active:scale-[0.98]">
-                    Join Call
-                  </button>
-                ) : (
-                  <button className="flex-1 md:flex-none px-8 py-4 bg-secondary text-foreground rounded-2xl font-black text-xs hover:bg-black hover:text-white transition-all flex items-center justify-center gap-2">
-                    Review Notes
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                {session.notes && (
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="h-4 w-4 mt-1 text-slate-400" />
+                      <p className="text-sm text-slate-600 italic">{session.notes}</p>
+                    </div>
+                  </div>
                 )}
-              </div>
-            </div>
-          ))}
-        </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   )

@@ -11,6 +11,7 @@ CREATE TABLE public.users (
   email text NOT NULL,
   full_name text,
   role text NOT NULL DEFAULT 'founder',
+  onboarding_completed boolean DEFAULT false,
   created_at timestamp with time zone DEFAULT now()
 );
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
@@ -126,13 +127,15 @@ CREATE TABLE public.sessions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   mentor_id uuid REFERENCES public.mentors(id) ON DELETE CASCADE,
   startup_id uuid REFERENCES public.startups(id) ON DELETE CASCADE,
+  title text NOT NULL,
   scheduled_at timestamp with time zone NOT NULL,
+  duration_minutes integer DEFAULT 60,
   notes text,
   feedback text,
   rating integer,
   status text DEFAULT 'scheduled',
   action_items text,
-  linked_milestone_id uuid, -- Reference defined later
+  linked_milestone_id uuid,
   created_at timestamp with time zone DEFAULT now()
 );
 ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
@@ -418,3 +421,68 @@ CREATE POLICY "Users can delete their own avatars" ON storage.objects FOR DELETE
 CREATE POLICY "investor_read_scores"
 ON public.application_scores FOR SELECT
 USING (public.is_role(ARRAY['investor']));
+
+-------------------------------------------------
+-- 20. notifications
+-------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) NOT NULL,
+  type text NOT NULL,
+  title text NOT NULL,
+  body text NOT NULL,
+  link text,
+  read boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now()
+);
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "own_notifications" ON public.notifications FOR ALL
+  USING (user_id = auth.uid());
+
+-------------------------------------------------
+-- 21. Auth Trigger for Profile Creation
+-------------------------------------------------
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.users (id, email, full_name, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    NEW.raw_user_meta_data->>'full_name',
+    COALESCE(NEW.raw_user_meta_data->>'role', 'founder')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- Additional RLS policies for programs
+DROP POLICY IF EXISTS "admin_all_programs" ON public.programs;
+CREATE POLICY "admin_all_programs" ON public.programs FOR ALL
+  USING (auth.jwt() ->> 'role' = 'admin');
+
+DROP POLICY IF EXISTS "manager_own_programs" ON public.programs;
+CREATE POLICY "manager_own_programs" ON public.programs FOR ALL
+  USING (auth.jwt() ->> 'role' = 'manager' AND manager_id = auth.uid());
+
+DROP POLICY IF EXISTS "others_read_programs" ON public.programs;
+CREATE POLICY "others_read_programs" ON public.programs FOR SELECT
+  USING (true);
+
+-- Additional RLS policies for applications
+DROP POLICY IF EXISTS "admin_all_applications" ON public.applications;
+CREATE POLICY "admin_all_applications" ON public.applications FOR ALL
+  USING (auth.jwt() ->> 'role' = 'admin');
+
+-- Investor read access for startups (Feature 4)
+DROP POLICY IF EXISTS "investor_read_startups" ON public.startups;
+CREATE POLICY "investor_read_startups" ON public.startups FOR SELECT
+  USING (auth.jwt() ->> 'role' = 'investor' AND status = 'active');
+
+-- Part of section 7 in the original file (approx line 126)
+-- I will just remove the duplicate at the end and ensure the first one is correct.

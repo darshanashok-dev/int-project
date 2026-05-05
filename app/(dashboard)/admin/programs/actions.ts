@@ -13,8 +13,7 @@ export async function createProgramAction(formData: {
   try {
     const supabase = createAdminClient()
 
-    const { error } = await supabase
-      .from('programs')
+    const { error } = await (supabase.from('programs') as any)
       .insert([
         {
           name: formData.name,

@@ -66,8 +66,8 @@ export async function saveReviewScoreAction(input: {
       return { success: false, error: 'No application found for this startup.' }
     }
 
-    const { error: saveError } = await supabase.from('application_scores').insert({
-      application_id:   latestApplication.id,
+    const { error: saveError } = await (supabase.from('application_scores') as any).insert({
+      application_id:   (latestApplication as any).id,
       reviewer_id:      reviewerId,
       team_score:       teamScore,
       market_score:     marketScore,

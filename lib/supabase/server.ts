@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
+
 export function createClient() {
   const cookieStore = cookies()
   return createServerClient<Database>(
@@ -9,14 +10,11 @@ export function createClient() {
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: (c) => {
-          try {
-            c.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
-          } catch {
-            // Called from a Server Component — middleware handles session refresh
-          }
-        },
-      }
+        setAll: (c) =>
+          c.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          ),
+      },
     }
   )
 }

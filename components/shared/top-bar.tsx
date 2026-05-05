@@ -1,4 +1,4 @@
-'use client'
+import { NotificationBell } from "@/components/notifications/notification-bell"
 
 export function TopBar() {
   return (
@@ -7,7 +7,7 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-6">
-        {/* Profile info removed as per user request, but keeping container stable */}
+        <NotificationBell />
       </div>
     </header>
   )

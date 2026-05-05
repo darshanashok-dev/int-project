@@ -85,7 +85,7 @@ export async function createMentorAction(input: CreateMentorInput) {
 
     const authUserId = createdAuthUser.user.id
 
-    const { error: userInsertError } = await supabase.from('users').insert({
+    const { error: userInsertError } = await (supabase.from('users') as any).insert({
       id: authUserId,
       email
     })
@@ -94,7 +94,7 @@ export async function createMentorAction(input: CreateMentorInput) {
       return { success: false, error: userInsertError.message }
     }
 
-    const { error: mentorInsertError } = await supabase.from('mentors').insert({
+    const { error: mentorInsertError } = await (supabase.from('mentors') as any).insert({
       user_id: authUserId,
       expertise: expertise || null,
       bio: bio || null

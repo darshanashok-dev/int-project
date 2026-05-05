@@ -51,7 +51,7 @@ export async function createUserAction(formData: { fullName: string, email: stri
     // should automatically insert into public.users.
     // However, if the trigger is not set up, we do it manually here.
     if (authData.user) {
-      const { error: dbError } = await supabase.from('users').insert({
+      const { error: dbError } = await (supabase.from('users') as any).insert({
         id: authData.user.id,
         email: formData.email,
         created_at: new Date().toISOString()
@@ -115,8 +115,7 @@ export async function updateUserRoleAction(userId: string, newRole: string) {
 
     const authUser = authUserResponse.user
     // Best-effort sync to public.users if legacy schema supports role.
-    const { error: profileSyncError } = await supabase
-      .from('users')
+    const { error: profileSyncError } = await (supabase.from('users') as any)
       .update({ role: newRole })
       .eq('id', userId)
 

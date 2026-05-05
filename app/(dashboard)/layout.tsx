@@ -1,13 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import dynamic from 'next/dynamic'
+import { NotificationListener } from '@/components/notifications/notification-listener'
 
 // Disabling SSR for interactive layout components ensures that the Sidebar and TopBar
 // only activate once the browser has synchronized the user session, effectively
 // silencing all hydration mismatched caused by icons and metadata-driven text.
 const Sidebar = dynamic(() => import('@/components/shared/sidebar').then(mod => mod.Sidebar), { ssr: false })
 const MobileNavigation = dynamic(() => import('@/components/shared/mobile-navigation').then(mod => mod.MobileNavigation), { ssr: false })
+import { TopBar } from '@/components/shared/top-bar'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
@@ -36,8 +38,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
       const { data } = await supabase.auth.getUser()
       user = data?.user
       if (user) {
-        displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
-        displayRole = user.user_metadata?.role || 'Founder'
+        const { data: profileData } = await supabase
+          .from('users')
+          .select('full_name, role')
+          .eq('id', user.id)
+          .single()
+        
+        const profile = profileData as any
+        displayName = profile?.full_name || user.email?.split('@')[0] || 'User'
+        displayRole = profile?.role || 'Founder'
       }
     } catch (err) {
       console.error('Auth check failed:', err)
@@ -47,8 +56,29 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!user) redirect('/login')
 
+  // Onboarding check
+  if (!isMock && user) {
+    const supabase = createClient()
+    const { data: profileData } = await supabase
+      .from('users')
+      .select('onboarding_completed, role')
+      .eq('id', user.id)
+      .single()
+    
+    const profile = profileData as any
+
+    const headersList = headers()
+    const currentUrl = headersList.get('x-url') || ''
+    const pathname = new URL(currentUrl, 'http://localhost').pathname
+    
+    if (profile && !profile.onboarding_completed && !pathname.includes('/onboarding')) {
+      redirect(`/${profile.role.toLowerCase()}/onboarding`)
+    }
+  }
+
   return (
     <div className="flex h-screen bg-background overflow-hidden font-sans flex-col md:flex-row">
+      <NotificationListener />
       {/* Sidebar for Desktop */}
       <div className="hidden md:flex">
         <Sidebar 
@@ -66,6 +96,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       />
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        <TopBar />
         <main className="h-full overflow-y-auto bg-background p-4 md:p-12">
           <div className="max-w-[1400px] mx-auto">
             {children}

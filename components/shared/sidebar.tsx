@@ -25,24 +25,22 @@ import { useState, useEffect } from 'react'
 const navConfigs: Record<string, { name: string, href: string, icon: LucideIcon }[]> = {
   founder: [
     { name: 'Dashboard', href: '/founder', icon: LayoutDashboard },
-    { name: 'My Startup', href: '/founder/startup', icon: Briefcase },
-    { name: 'Applications', href: '/founder/applications', icon: FileSignature },
+    { name: 'Apply', href: '/founder/apply', icon: FileSignature },
     { name: 'Milestones', href: '/founder/milestones', icon: Milestone },
-    { name: 'Funding', href: '/founder/funding', icon: Coins },
+    { name: 'My Startup', href: '/founder/startup', icon: Briefcase },
   ],
   admin: [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Startups', href: '/admin/startups', icon: Briefcase },
     { name: 'Programs', href: '/admin/programs', icon: FolderKanban },
-    { name: 'Mentors', href: '/admin/mentors', icon: GraduationCap },
-    { name: 'Events', href: '/admin/events', icon: Calendar },
+    { name: 'Applications', href: '/admin/applications', icon: FileSignature },
     { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
   ],
   investor: [
     { name: 'Dashboard', href: '/investor', icon: LayoutDashboard },
+    { name: 'Discovery', href: '/investor/discovery', icon: FileSignature },
     { name: 'Portfolio', href: '/investor/portfolio', icon: Briefcase },
-    { name: 'Pipeline', href: '/investor/pipeline', icon: FileSignature },
   ],
   manager: [
     { name: 'Dashboard', href: '/manager', icon: LayoutDashboard },
@@ -51,8 +49,8 @@ const navConfigs: Record<string, { name: string, href: string, icon: LucideIcon 
   ],
   mentor: [
     { name: 'Dashboard', href: '/mentor', icon: LayoutDashboard },
-    { name: 'Sessions', href: '/mentor/sessions', icon: Users },
-    { name: 'Startups', href: '/mentor/startups', icon: Briefcase },
+    { name: 'Sessions', href: '/mentor/sessions', icon: Calendar },
+    { name: 'Portfolio', href: '/mentor/startups', icon: Briefcase },
   ]
 }
 

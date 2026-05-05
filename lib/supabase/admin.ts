@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 
 export class MissingAdminEnvError extends Error {
   constructor(missingVars: string[]) {
@@ -28,7 +29,7 @@ export function createAdminClient() {
   const url = supabaseUrl as string
   const serviceRoleKey = supabaseServiceRoleKey as string
 
-  return createClient(url, serviceRoleKey, {
+  return createClient<Database>(url, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
