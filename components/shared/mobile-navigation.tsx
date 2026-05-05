@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Sidebar } from '@/components/shared/sidebar'
-import { Logo } from '@/components/shared/logo'
 import { usePathname } from 'next/navigation'
 
 interface MobileNavigationProps {
@@ -39,8 +38,7 @@ export function MobileNavigation({ user, displayName, displayRole }: MobileNavig
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 bg-card border-b border-border z-40">
         <div className="flex items-center gap-3">
-          <Logo className="w-8 h-8 shadow-sm" />
-          <span className="font-black text-lg tracking-tighter uppercase text-foreground">Polaris</span>
+          <span className="font-black text-lg tracking-tighter uppercase text-indigo-600">Polaris</span>
         </div>
         <button 
           onClick={() => setIsOpen(true)}

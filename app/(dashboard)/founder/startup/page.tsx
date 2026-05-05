@@ -9,11 +9,8 @@ import {
   Clock,
   CheckCircle2,
   Circle,
-  Rocket,
-  Upload,
-  Loader2
+  Rocket
 } from 'lucide-react'
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 const STAGES = [
@@ -25,7 +22,7 @@ const STAGES = [
 
 import { Database } from '@/types/database'
 
-type Startup = Database['public']['Tables']['startups']['Row'] & { logo_url?: string | null }
+type Startup = Database['public']['Tables']['startups']['Row']
 
 export default function StartupDetailsPage() {
   const supabase = createClient()
@@ -67,39 +64,6 @@ export default function StartupDetailsPage() {
     loadData()
   }, [supabase])
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !startup) return
-
-    setSaving(true)
-    try {
-      const { data: userData } = await supabase.auth.getUser()
-      const user = userData?.user
-      if (!user) return
-
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${user.id}-logo-${startup.id}-${Math.random()}.${fileExt}`
-      const filePath = fileName
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file)
-
-      if (uploadError) throw uploadError
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath)
-
-      setStartup({ ...startup, logo_url: publicUrl })
-    } catch (err: unknown) {
-      console.error('Error uploading logo:', err)
-      const message = err instanceof Error ? err.message : 'Unknown error'
-      alert('Error uploading logo: ' + message)
-    } finally {
-      setSaving(false)
-    }
-  }
 
   const handleSave = async () => {
     if (!startup) return
@@ -114,8 +78,7 @@ export default function StartupDetailsPage() {
         founded_date: startup.founded_date,
         elevator_pitch: startup.elevator_pitch,
         active_round_name: startup.active_round_name,
-        funding_goal: startup.funding_goal,
-        logo_url: startup.logo_url
+        funding_goal: startup.funding_goal
       })
       .eq('id', startup.id)
     
@@ -192,33 +155,9 @@ export default function StartupDetailsPage() {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         {/* Main Content */}
         <div className="col-span-1 md:col-span-8 space-y-8">
-          {/* Identity Branding Section */}
           <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-            <div className="flex items-start gap-6 mb-8">
-              <div className="relative group/logo">
-                <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center text-white p-4 overflow-hidden border border-border/10 shadow-xl">
-                  {startup.logo_url ? (
-                    <Image src={startup.logo_url} alt="Logo" width={80} height={80} className="object-contain" />
-                  ) : (
-                    <Rocket className="w-full h-full fill-current" />
-                  )}
-                  <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/logo:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
-                    <Upload className="w-6 h-6 text-white mb-1" />
-                    <span className="text-[8px] font-black uppercase text-white tracking-widest">Update</span>
-                    <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={saving} />
-                  </label>
-                </div>
-                {saving && (
-                  <div className="absolute inset-0 bg-card/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center">
-                    <Loader2 className="w-6 h-6 animate-spin text-black" />
-                  </div>
-                )}
-              </div>
-              <div>
-                <h2 className="text-xl font-extrabold text-foreground mb-1">Identity Branding</h2>
-                <p className="text-muted-foreground font-medium">Update your public-facing logo and brand name.</p>
-              </div>
-            </div>
+            <h2 className="text-xl font-extrabold text-foreground mb-1">Venture Profile</h2>
+            <p className="text-muted-foreground font-medium mb-8">Maintain your startup&apos;s core identity and funding details.</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="col-span-2">

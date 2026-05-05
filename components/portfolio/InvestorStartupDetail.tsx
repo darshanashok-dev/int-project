@@ -119,7 +119,6 @@ export function InvestorStartupDetail({
   startup,
   latestAdminScore,
   initialInterest,
-  investorId: _investorId,
 }: InvestorStartupDetailProps) {
   // ── Interest form state ────────────────────────────────────────────────────
   const [signalType, setSignalType] = useState<SignalType>(

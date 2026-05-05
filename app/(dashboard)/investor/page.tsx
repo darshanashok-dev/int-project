@@ -30,15 +30,11 @@ type StartupRow = {
   elevator_pitch: string | null
 }
 
+import { getSessionUser } from '@/lib/auth/get-session-user'
+
 export default async function InvestorDashboard() {
   const supabase = createClient()
-  let user = null
-  try {
-    const { data } = await supabase.auth.getUser()
-    user = data?.user
-  } catch (err) {
-    console.error('Auth check failed:', err)
-  }
+  const user = await getSessionUser()
   if (!user) return null
 
   const { data: interests } = await supabase

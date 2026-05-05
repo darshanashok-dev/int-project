@@ -20,8 +20,6 @@ import {
 import { LucideIcon } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { Logo } from '@/components/shared/logo'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useState, useEffect } from 'react'
 
 const navConfigs: Record<string, { name: string, href: string, icon: LucideIcon }[]> = {
@@ -92,9 +90,8 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
       {/* Branding Section */}
       <div className="mb-6">
         <Link href={dashboardPath} className="flex items-center gap-3 py-1">
-          <Logo className="w-11 h-11 shadow-sm" />
           <div>
-            <h1 className="font-bold text-base leading-tight text-foreground">Polaris</h1>
+            <h1 className="font-bold text-base leading-tight text-foreground text-indigo-600">Polaris</h1>
             <p className="text-[9px] font-black text-muted-foreground tracking-widest uppercase opacity-80">
               {activeNavRole === 'admin' ? 'Admin Control' : activeNavRole === 'founder' ? 'Founder Suite' : activeNavRole === 'investor' ? 'Investor Suite' : `${activeNavRole} Dashboard`}
             </p>
@@ -159,19 +156,18 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
             className={cn(
               "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
               pathname === `/${role}/settings` 
-                ? "bg-card dark:bg-slate-800 text-black dark:text-white shadow-sm font-bold border border-border/40" 
-                : "text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-card/50 dark:hover:bg-slate-800/50"
+                ? "bg-card text-black shadow-sm font-bold border border-border/40" 
+                : "text-muted-foreground hover:text-foreground hover:bg-card/50"
             )}
           >
             <Settings className="w-4 h-4" />
             <span className="text-sm">Settings</span>
           </Link>
-          <ThemeToggle />
         </div>
 
         <Link 
           href="/help" 
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-card/50 dark:hover:bg-slate-800/50 transition-all"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card/50 transition-all"
         >
           <HelpCircle className="w-4 h-4" />
           <span className="text-sm">Help Center</span>

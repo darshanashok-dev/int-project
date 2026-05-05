@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import dynamic from 'next/dynamic'
 import { StartupBasic } from '@/types/dashboard'
+import { getSessionUser } from '@/lib/auth/get-session-user'
 
-// Disabling SSR for the dashboard client to permanently resolve the persistent hydration mismatch
-// caused by environment/state differences between server and browser.
 const FounderDashboardClient = dynamic(
   () => import('@/components/dashboard/founder-dashboard-client').then(mod => mod.FounderDashboardClient),
   { ssr: false }
@@ -11,13 +10,7 @@ const FounderDashboardClient = dynamic(
 
 export default async function FounderDashboard() {
   const supabase = createClient()
-  let user = null
-  try {
-    const { data } = await supabase.auth.getUser()
-    user = data?.user
-  } catch (err) {
-    console.error('Auth check failed:', err)
-  }
+  const user = await getSessionUser()
   if (!user) return null
 
   const { data: startups } = await supabase

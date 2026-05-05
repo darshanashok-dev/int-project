@@ -4,35 +4,35 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%; /* #f8f9fa */
-    --foreground: 210 11% 15%; /* #202124 */
+    --background: 210 40% 98%; /* Slate-50 #F8FAFC */
+    --foreground: 222 47% 11%; /* Slate-900 #0F172A */
 
     --card: 0 0% 100%;
-    --card-foreground: 210 11% 15%;
+    --card-foreground: 222 47% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 210 11% 15%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 210 11% 15%; /* Premium Black #202124 */
+    --primary: 243 75% 59%; /* Indigo-600 #4F46E5 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 10% 97%; /* #f1f3f4 neutral gray */
-    --secondary-foreground: 210 11% 15%;
+    --secondary: 210 40% 96%; /* Slate-100 #F1F5F9 */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 10% 97%;
-    --muted-foreground: 210 8% 45%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%; /* Slate-500 #64748B */
 
-    --accent: 214 82% 95%; 
-    --accent-foreground: 210 11% 15%;
+    --accent: 240 100% 97%; /* Indigo-50 #EEF2FF */
+    --accent-foreground: 243 75% 59%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 210 14% 89%; 
-    --input: 210 10% 97%; /* #f1f3f4 */
-    --ring: 210 11% 15%;
+    --border: 214 32% 91%; /* Slate-200 #E2E8F0 */
+    --input: 210 40% 96%;
+    --ring: 243 75% 59%;
 
-    --radius: 1.5rem; /* More rounded premium look */
+    --radius: 1rem;
   }
 
   .dark {

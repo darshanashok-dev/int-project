@@ -1,16 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { ManagerDashboardClient } from '@/components/dashboard/manager-dashboard-client'
 import { ProgramBasic, ApplicationBasic, StartupBasic } from '@/types/dashboard'
+import { getSessionUser } from '@/lib/auth/get-session-user'
 
 export default async function ManagerDashboard() {
   const supabase = createClient()
-  let user = null
-  try {
-    const { data } = await supabase.auth.getUser()
-    user = data?.user
-  } catch (err) {
-    console.error('Auth check failed:', err)
-  }
+  const user = await getSessionUser()
 
   if (!user) return null
 

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import dynamic from 'next/dynamic'
 
 // Disabling SSR for interactive layout components ensures that the Sidebar and TopBar
@@ -9,20 +10,42 @@ const Sidebar = dynamic(() => import('@/components/shared/sidebar').then(mod => 
 const MobileNavigation = dynamic(() => import('@/components/shared/mobile-navigation').then(mod => mod.MobileNavigation), { ssr: false })
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient()
+  const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+  const cookieStore = cookies()
+  const mockAuth = cookieStore.get('mock-auth')?.value === 'true'
+
   let user = null
-  try {
-    const { data } = await supabase.auth.getUser()
-    user = data?.user
-  } catch (err) {
-    console.error('Auth check failed:', err)
-    return redirect('/login?error=connection')
+  let displayName = 'User'
+  let displayRole = 'Founder'
+
+  if (isMock && mockAuth) {
+    const mockRole = cookieStore.get('mock-role')?.value || 'founder'
+    displayName = 'Mock User'
+    displayRole = mockRole.charAt(0).toUpperCase() + mockRole.slice(1)
+    user = {
+      id: 'mock-id',
+      email: 'mock@example.com',
+      user_metadata: { full_name: displayName, role: displayRole },
+      app_metadata: {},
+      aud: 'authenticated',
+      created_at: new Date().toISOString()
+    } as any
+  } else {
+    const supabase = createClient()
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+      if (user) {
+        displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+        displayRole = user.user_metadata?.role || 'Founder'
+      }
+    } catch (err) {
+      console.error('Auth check failed:', err)
+      return redirect('/login?error=connection')
+    }
   }
 
   if (!user) redirect('/login')
-
-  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
-  const displayRole = user.user_metadata?.role || 'Founder'
 
   return (
     <div className="flex h-screen bg-background overflow-hidden font-sans flex-col md:flex-row">

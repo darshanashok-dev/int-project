@@ -1,4 +1,3 @@
-import { Logo } from '@/components/shared/logo'
 import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -11,9 +10,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       {/* Header Branding */}
       <div className="flex flex-col items-center gap-4 relative z-10 mb-8">
-        <Logo className="w-14 h-14 shadow-md" />
         <div className="text-center">
-          <h1 className="text-3xl font-black text-foreground tracking-tight">Polaris</h1>
+          <h1 className="text-3xl font-black text-foreground tracking-tight text-indigo-600">Polaris</h1>
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Venture Incubation Systems</p>
         </div>
       </div>

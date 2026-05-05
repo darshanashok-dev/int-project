@@ -14,14 +14,25 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { PortfolioAnalytics } from '@/components/portfolio/PortfolioAnalytics'
 
+import { cookies } from 'next/headers'
+
 export default async function AdminDashboard() {
   const supabase = createClient()
+  const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+  const cookieStore = cookies()
+  const mockAuth = cookieStore.get('mock-auth')?.value === 'true'
+
   let user = null
-  try {
-    const { data } = await supabase.auth.getUser()
-    user = data?.user
-  } catch (err) {
-    console.error('Auth check failed:', err)
+
+  if (isMock && mockAuth) {
+    user = { id: 'mock-id', email: 'mock@example.com' }
+  } else {
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch (err) {
+      console.error('Auth check failed:', err)
+    }
   }
 
   if (!user) return null
