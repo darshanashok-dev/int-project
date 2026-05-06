@@ -6,7 +6,7 @@ By unifying founders, administrators, mentors, and investors into a single cohes
 
 ---
 
-## 🎨 Design System & Aesthetics
+##  Design System & Aesthetics
 Polaris is built with a premium, sleek visual identity inspired by modern SaaS interfaces:
 - **Tailored Palettes**: High-contrast dark and light modes built around elegant HSL colors (Zinc, Slate, and Cobalt).
 - **Dynamic Micro-Animations**: Built-in visual feedback with smooth hover effects and responsive page entries using Tailwind's animation primitives.
@@ -15,44 +15,41 @@ Polaris is built with a premium, sleek visual identity inspired by modern SaaS i
 
 ---
 
-## 🚀 Key Roles & Feature Catalog
+##  Key Roles & Feature Catalog
 
 Polaris separates governance and operations into five distinct, role-based workflows:
 
-### 👑 1. Admin Control Panel
+###  1. Admin Control Panel
 The ultimate ecosystem dashboard for program directors and operations managers:
 - **Governance**: Overview of all incubated startups, user management tables, and cohort tracking.
 - **Evaluation & Scoring**: Interactive review screens to score applications (Team, Market, Traction, Uniqueness) out of 10.
 - **Ecosystem Analytics**: Real-time Recharts visualizations showing milestone distribution, funding per startup, and session engagement.
 - **Mentor Matching**: Dynamic assignment dropdowns to match seasoned advisors with specific startups.
 
-### 🚀 2. Founder Suite
+###  2. Founder Suite
 A focused workspace for early-stage teams to build momentum and log milestones:
 - **Milestone Telemetry**: Live milestone lists with interactive complete/pending toggles, real-time sync with Supabase Postgres listeners, and an animated green **"Live"** telemetry indicator.
 - **Application Portal**: Multi-step program application forms.
 - **Venture profile**: Central repository for company sector, stage, elevator pitch, target market, and revenue model.
 
-### 💼 3. Investor Deal Flow
+###  3. Investor Deal Flow
 A secure, read-only observer platform for venture capitalists and angel networks:
 - **Advisory Banner**: Prominent warning explaining secure read-only privileges.
 - **Discovery Portal**: Quick-scan lists of active startups, showing completion percentages, stage, sector, and total capital raised.
 - **Milestone Velocity Chart**: Dynamic Recharts LineChart showing milestone completions over time.
 
-### 🧠 4. Mentor Hub
+###  4. Mentor Hub
 A structured interface for architectural advisors and program partners:
 - **Session logs**: Dynamic scheduling and log forms to document advisory feedback, notes, and session ratings (1-5).
 - **Cohort Oversight**: Fast lookup of assigned startups and active advisory portfolios.
 
-### 🛡️ 5. Manager Dashboard
+###  5. Manager Dashboard
 An operational command center focused on cohorts, events, and scheduling:
 - **Event Coordination**: Administrative control over program workshops, mid-cohort reviews, and Demo Day.
 
 ---
 
-## 🛠️ Technical Architecture & Stack
-
-Polaris leverages a cutting-edge **Venture Stack** for maximum stability, speed, and strict type-safety:
-
+## 
 - **Framework**: [Next.js 14 App Router](https://nextjs.org/) (utilizing Server Components, Server Actions, Middleware protection)
 - **Database**: [Supabase](https://supabase.com/) (PostgreSQL, Realtime Postgres Changes, SSR Client generation)
 - **State Management**: [TanStack React Query v5](https://tanstack.com/query) (for optimized query caching and stale-time management)
@@ -76,7 +73,7 @@ sequenceDiagram
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 ├── app/                  # Next.js 14 App Router pages, layouts, and sub-dashboard groups
@@ -99,7 +96,7 @@ sequenceDiagram
 
 ---
 
-## ⚙️ Getting Started & Setup
+##  Getting Started & Setup
 
 ### 1. Clone & Install Dependencies
 ```bash
