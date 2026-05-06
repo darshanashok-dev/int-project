@@ -33,11 +33,14 @@ import { useState } from 'react'
 import { signalInterest } from '../../actions'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function InvestorStartupDetailPage() {
   const { id } = useParams()
   const router = useRouter()
-  const { data: startupData, isLoading } = useStartupDetail(id as string)
+  const { data: startupData, isLoading, isError, error, refetch } = useStartupDetail(id as string)
   const startup = startupData as any
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -59,8 +62,9 @@ export default function InvestorStartupDetailPage() {
     }
   }
 
-  if (isLoading) return <div className="p-8 text-center">Loading startup details...</div>
-  if (!startup) return <div className="p-8 text-center">Startup not found.</div>
+  if (isLoading) return <LoadingState message="Loading startup details..." />
+  if (isError) return <ErrorState message={error?.message} onRetry={refetch} />
+  if (!startup) return <ErrorState message="Startup profile not found." />
 
   const startupName = startup.name || 'Startup'
 

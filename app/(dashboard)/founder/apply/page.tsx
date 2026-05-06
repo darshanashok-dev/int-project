@@ -9,10 +9,13 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Loader2, Rocket, Calendar, Users } from 'lucide-react'
 import { format } from 'date-fns'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function FounderApplyPage() {
-  const { data: startupData, isLoading: startupLoading } = useMyStartup()
-  const { data: programsData, isLoading: programsLoading } = usePrograms()
+  const { data: startupData, isLoading: startupLoading, isError: startupError, error: sError, refetch: refetchStartup } = useMyStartup()
+  const { data: programsData, isLoading: programsLoading, isError: programsError, error: pError, refetch: refetchPrograms } = usePrograms()
   const startup = startupData as any
   const programs = programsData as any[]
   const { mutate: createApplication, isPending: isSubmitting } = useCreateApplication()
@@ -29,7 +32,18 @@ export default function FounderApplyPage() {
     })
   }
 
-  if (startupLoading || programsLoading) return <div className="p-8 text-center">Loading...</div>
+  if (startupLoading || programsLoading) return <LoadingState message="Loading application details..." />
+  if (startupError || programsError) {
+    return (
+      <ErrorState 
+        message={sError?.message || pError?.message} 
+        onRetry={() => {
+          refetchStartup()
+          refetchPrograms()
+        }} 
+      />
+    )
+  }
 
   return (
     <div className="space-y-8">

@@ -16,11 +16,14 @@ import { ArrowLeft, CheckCircle, XCircle, UserPlus } from 'lucide-react'
 import { useMentors, useAssignMentor } from '@/lib/hooks/use-mentors'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useState } from 'react'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function ApplicationReviewPage() {
   const { id } = useParams()
   const router = useRouter()
-  const { data: applicationData, isLoading } = useApplication(id as string)
+  const { data: applicationData, isLoading, isError, error, refetch } = useApplication(id as string)
   const application = applicationData as any
   const { mutate: submitScore, isPending: isScoring } = useScoreApplication(id as string)
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateApplicationStatus(id as string)
@@ -62,8 +65,9 @@ export default function ApplicationReviewPage() {
     })
   }
 
-  if (isLoading) return <div className="p-8 text-center">Loading application details...</div>
-  if (!application) return <div className="p-8 text-center">Application not found.</div>
+  if (isLoading) return <LoadingState message="Loading application details..." />
+  if (isError) return <ErrorState message={error?.message} onRetry={refetch} />
+  if (!application) return <ErrorState message="Application not found." />
 
   const startup = application.startups
 

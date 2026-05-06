@@ -20,12 +20,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { Plus, Calendar, Clock, MessageSquare } from 'lucide-react'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function MentorSessionsPage() {
-  const { data: sessions, isLoading } = useSessions()
+  const { data: sessions, isLoading, isError, error, refetch } = useSessions()
   const { data: startups } = useStartupDiscovery({ sector: 'all', stage: 'all', search: '' })
   const { mutate: createSession, isPending } = useCreateSession()
   const [open, setOpen] = useState(false)
+
+  if (isLoading) return <LoadingState message="Loading sessions..." />
+  if (isError) return <ErrorState message={error?.message} onRetry={refetch} />
+
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -107,9 +114,7 @@ export default function MentorSessionsPage() {
       </div>
 
       <div className="grid gap-6">
-        {isLoading ? (
-          <p>Loading sessions...</p>
-        ) : sessions?.length === 0 ? (
+        {sessions?.length === 0 ? (
           <p className="text-muted-foreground">No sessions logged yet.</p>
         ) : (
           (sessions as any[])?.map((session) => (

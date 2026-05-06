@@ -21,11 +21,14 @@ import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { Plus, CheckCircle2, Circle } from 'lucide-react'
 import { useState } from 'react'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function FounderMilestonesPage() {
-  const { data: startupData, isLoading: startupLoading } = useMyStartup()
+  const { data: startupData, isLoading: startupLoading, isError: startupError, error: sError, refetch: refetchStartup } = useMyStartup()
   const startup = startupData as any
-  const { data: milestones, isLoading: milestonesLoading } = useMilestones(startup?.id || '')
+  const { data: milestones, isLoading: milestonesLoading, isError: milestonesError, error: mError, refetch: refetchMilestones } = useMilestones(startup?.id || '')
   const { mutate: updateMilestone } = useUpdateMilestone(startup?.id || '')
   const { mutate: createMilestone } = useCreateMilestone(startup?.id || '')
   
@@ -52,7 +55,18 @@ export default function FounderMilestonesPage() {
     })
   }
 
-  if (startupLoading || milestonesLoading) return <div className="p-8 text-center">Loading milestones...</div>
+  if (startupLoading || milestonesLoading) return <LoadingState message="Loading milestones..." />
+  if (startupError || milestonesError) {
+    return (
+      <ErrorState 
+        message={sError?.message || mError?.message} 
+        onRetry={() => {
+          refetchStartup()
+          refetchMilestones()
+        }} 
+      />
+    )
+  }
 
   return (
     <div className="space-y-8">

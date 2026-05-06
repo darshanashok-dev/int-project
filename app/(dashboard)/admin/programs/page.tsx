@@ -7,10 +7,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { Layers, PlayCircle, Users } from 'lucide-react'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function AdminProgramsPage() {
-  const { data: programsData, isLoading } = usePrograms()
+  const { data: programsData, isLoading, isError, error, refetch } = usePrograms()
   const programs = programsData as any[]
+
+  if (isLoading) return <LoadingState message="Loading cohorts..." />
+  if (isError) return <ErrorState message={error?.message} onRetry={refetch} />
+
 
   const activePrograms = programs?.filter(p => {
     const end = p.end_date ? new Date(p.end_date) : null
@@ -81,11 +88,7 @@ export default function AdminProgramsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">Loading cohorts...</TableCell>
-                </TableRow>
-              ) : programs?.length === 0 ? (
+              {programs?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">No cohorts found.</TableCell>
                 </TableRow>

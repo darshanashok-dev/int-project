@@ -8,9 +8,16 @@ import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { Eye } from 'lucide-react'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function AdminApplicationsPage() {
-  const { data: applications, isLoading } = useApplications()
+  const { data: applications, isLoading, isError, error, refetch } = useApplications()
+
+  if (isLoading) return <LoadingState message="Loading applications..." />
+  if (isError) return <ErrorState message={error?.message} onRetry={refetch} />
+
 
   return (
     <div className="space-y-8">
@@ -35,11 +42,7 @@ export default function AdminApplicationsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">Loading applications...</TableCell>
-                </TableRow>
-              ) : applications?.length === 0 ? (
+              {applications?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">No applications found.</TableCell>
                 </TableRow>

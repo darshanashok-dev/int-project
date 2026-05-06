@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Search, MapPin, TrendingUp, DollarSign } from 'lucide-react'
 import Link from 'next/link'
+import { ErrorState } from '@/components/shared/error-state'
+
 
 export default function InvestorDiscoveryPage() {
   const [filters, setFilters] = useState({
@@ -17,7 +19,10 @@ export default function InvestorDiscoveryPage() {
     search: ''
   })
 
-  const { data: startups, isLoading } = useStartupDiscovery(filters)
+  const { data: startups, isLoading, isError, error, refetch } = useStartupDiscovery(filters)
+
+  if (isError) return <ErrorState message={error?.message} onRetry={refetch} />
+
 
   return (
     <div className="space-y-8">
