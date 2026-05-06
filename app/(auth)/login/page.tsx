@@ -151,6 +151,47 @@ export default function LoginPage() {
           Create Account
         </Link>
       </div>
+
+      <div className="mt-8 pt-6 border-t border-gray-100 space-y-3 relative z-10">
+        <p className="text-center text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+          Quick Demo Credentials
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('admin@polaris.com')
+              setPassword('admin123')
+              setSelectedRole('Admin')
+            }}
+            className="py-2.5 rounded-xl text-[10px] font-bold bg-indigo-500/10 text-indigo-600 border border-indigo-200/50 hover:bg-indigo-500 hover:text-white transition-all"
+          >
+            Admin
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('founder@polaris.com')
+              setPassword('founder123')
+              setSelectedRole('Founder')
+            }}
+            className="py-2.5 rounded-xl text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-200/50 hover:bg-emerald-500 hover:text-white transition-all"
+          >
+            Founder
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('investor@polaris.com')
+              setPassword('investor123')
+              setSelectedRole('Investor')
+            }}
+            className="py-2.5 rounded-xl text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-200/50 hover:bg-amber-500 hover:text-white transition-all"
+          >
+            Investor
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Polaris",
-  description: "Startup Incubation Management Platform",
+  title: 'Polaris — Startup Incubation Platform',
+  description: 'Full-stack incubation management for colleges. Five roles, one platform.',
 };
 
 import { Providers } from "@/components/providers";

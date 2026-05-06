@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   CheckCircle2, 
@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils'
 import { updateStartupStatusAction } from '../actions'
 import { saveReviewScoreAction } from '@/lib/actions/review-score'
 import { assignMentorAction, removeMentorAssignmentAction } from '@/lib/actions/mentors'
+import { supabase } from '@/lib/supabase/browser'
 
 interface StartupReviewActionsProps {
   startup: {
@@ -60,6 +61,28 @@ export default function StartupReviewActions({
   const [tractionScore, setTractionScore] = useState<number | ''>(latestScores?.traction_score ?? '')
   const [uniquenessScore, setUniquenessScore] = useState<number | ''>(latestScores?.uniqueness_score ?? '')
   const [validationError, setValidationError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`realtime-admin-startup-${startup.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'milestones',
+          filter: `startup_id=eq.${startup.id}`
+        },
+        () => {
+          router.refresh()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [startup.id, router])
 
   const handleStatusUpdate = async (newStatus: string) => {
     setIsProcessing(true)
@@ -176,7 +199,13 @@ export default function StartupReviewActions({
       <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/100/20 blur-[80px] rounded-full" />
       
       <div>
-        <h3 className="font-bold text-lg mb-1">Evaluation & Actions</h3>
+        <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
+          Evaluation & Actions
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+        </h3>
         <p className="text-sm text-gray-400 font-medium">Update venture status</p>
       </div>
 

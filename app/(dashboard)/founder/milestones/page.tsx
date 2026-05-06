@@ -3,6 +3,7 @@
 import { useMyStartup } from '@/lib/hooks/use-startups'
 import { useMilestones, useUpdateMilestone, useCreateMilestone } from '@/lib/hooks/use-milestones'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -20,8 +21,8 @@ import { milestoneSchema, type MilestoneFormData } from '@/lib/validations/miles
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { Plus, CheckCircle2, Circle } from 'lucide-react'
-import { useState } from 'react'
-import { LoadingState } from '@/components/shared/loading-state'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase/browser'
 import { ErrorState } from '@/components/shared/error-state'
 
 
@@ -40,6 +41,30 @@ export default function FounderMilestonesPage() {
     }
   })
 
+  useEffect(() => {
+    if (!startup?.id) return
+
+    const channel = supabase
+      .channel(`realtime-milestones-${startup.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'milestones',
+          filter: `startup_id=eq.${startup.id}`
+        },
+        () => {
+          refetchMilestones()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [startup?.id, refetchMilestones])
+
   const onToggleStatus = (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
     updateMilestone({ id, status: newStatus, completed_at: newStatus === 'completed' ? new Date().toISOString() : null })
@@ -55,7 +80,24 @@ export default function FounderMilestonesPage() {
     })
   }
 
-  if (startupLoading || milestonesLoading) return <LoadingState message="Loading milestones..." />
+  if (startupLoading || milestonesLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48 rounded-xl" />
+            <Skeleton className="h-4 w-72 rounded-lg" />
+          </div>
+          <Skeleton className="h-10 w-36 rounded-xl" />
+        </div>
+        <div className="grid gap-4">
+          <Skeleton className="h-24 w-full rounded-3xl" />
+          <Skeleton className="h-24 w-full rounded-3xl" />
+          <Skeleton className="h-24 w-full rounded-3xl" />
+        </div>
+      </div>
+    )
+  }
   if (startupError || milestonesError) {
     return (
       <ErrorState 
@@ -72,7 +114,13 @@ export default function FounderMilestonesPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-black tracking-tight">Milestones</h1>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
+            Milestones
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+          </h1>
           <p className="text-muted-foreground">Track your startup's growth and achievements.</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

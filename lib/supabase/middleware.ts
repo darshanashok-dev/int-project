@@ -24,14 +24,21 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  const publicPaths = ['/', '/login', '/register', '/forgot-password']
-  const isPublic = publicPaths.some((p) => pathname.startsWith(p))
+  const role = user?.user_metadata?.role || 'founder'
+  const protectedPrefixes = ['/admin', '/founder', '/mentor', '/investor', '/manager']
+  const isProtected = protectedPrefixes.some(prefix => pathname === prefix || pathname.startsWith(prefix + '/'))
 
-  const response = user && isPublic
-    ? NextResponse.redirect(new URL(`/${user.user_metadata?.role ?? 'founder'}/dashboard`, request.url))
-    : !user && !isPublic
-      ? NextResponse.redirect(new URL('/login', request.url))
-      : supabaseResponse
+  let response = supabaseResponse
+
+  if (user) {
+    if (pathname === '/') {
+      response = NextResponse.redirect(new URL(`/${role}`, request.url))
+    }
+  } else {
+    if (isProtected) {
+      response = NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
 
   response.headers.set('x-url', request.url)
   return response

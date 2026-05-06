@@ -1,298 +1,246 @@
-import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
+'use client'
+
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase/browser'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ErrorState } from '@/components/shared/error-state'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { 
-  TrendingUp, 
-  Eye, 
-  Briefcase, 
-  ArrowRight,
-  ArrowUpRight,
-  Target,
-  PieChart,
-  Sparkles
-} from 'lucide-react'
-import { PortfolioAnalytics } from '@/components/portfolio/PortfolioAnalytics'
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Legend 
+} from 'recharts'
+import { Eye, ShieldAlert, TrendingUp, Landmark, Calendar, Target, Briefcase } from 'lucide-react'
 
-type InterestRow = {
-  id: string
-  signal_type: string | null
-  note: string | null
-  created_at: string | null
-  startups: { name: string, sector: string | null, stage: string | null } | null
-}
+export default function InvestorDashboardPage() {
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['investor', 'ecosystem'],
+    queryFn: async () => {
+      // Fetch startups with explicitly declared columns
+      const { data: startups, error: startupsError } = await (supabase.from('startups') as any)
+        .select(`
+          id,
+          name,
+          sector,
+          stage,
+          status,
+          elevator_pitch
+        `)
+        .eq('status', 'active')
+      if (startupsError) throw startupsError
 
-type StartupRow = {
-  id: string
-  name: string
-  sector: string | null
-  stage: string | null
-  status: string | null
-  elevator_pitch: string | null
-}
+      // Fetch milestones with explicitly declared columns
+      const { data: milestones, error: milestonesError } = await (supabase.from('milestones') as any)
+        .select('id, startup_id, status, title, completed_at, due_date')
+      if (milestonesError) throw milestonesError
 
-import { getSessionUser } from '@/lib/auth/get-session-user'
+      // Fetch funding with explicitly declared columns
+      const { data: funding, error: fundingError } = await (supabase.from('funding') as any)
+        .select('id, startup_id, amount, type, date')
+      if (fundingError) throw fundingError
 
-export default async function InvestorDashboard() {
-  const supabase = createClient()
-  const user = await getSessionUser()
-  if (!user) return null
+      return { startups: startups || [], milestones: milestones || [], funding: funding || [] }
+    },
+    staleTime: 30_000,
+  })
 
-  const { data: interests } = await supabase
-    .from('investor_interests')
-    .select('id, signal_type, note, created_at, startups(name, sector, stage)')
-    .eq('investor_id', user.id)
-    .order('created_at', { ascending: false })
+  if (isLoading) return <LoadingState message="Assembling market intelligence..." />
+  if (isError) return <ErrorState message={error?.message || 'Failed to load investor intelligence'} onRetry={refetch} />
 
-  const { data: startups } = await supabase
-    .from('startups')
-    .select('id, name, sector, stage, status, elevator_pitch')
-    .eq('status', 'active')
-    .limit(6)
+  const startups = data?.startups ?? []
+  const milestones = data?.milestones ?? []
+  const funding = data?.funding ?? []
 
-  const interestsData = interests as InterestRow[] || []
-  const startupsData = startups as StartupRow[] || []
+  // Process data for dashboard
+  const startupsWithMetrics = startups.map((s: any) => {
+    const sMilestones = milestones.filter((m: any) => m.startup_id === s.id)
+    const completedM = sMilestones.filter((m: any) => m.status === 'completed').length
+    const totalM = sMilestones.length
 
-  // High-fidelity Mock Data for polished presentation
-  const MOCK_STARTUPS: StartupRow[] = [
-    { id: '1', name: 'AeroDynamics', sector: 'CleanTech', stage: 'Seed', status: 'active', elevator_pitch: 'Next-gen wind turbine optimization using ML.' },
-    { id: '2', name: 'BioSynth', sector: 'HealthTech', stage: 'Pre-Seed', status: 'active', elevator_pitch: 'Synthetic biology platform for rapid drug discovery.' },
-    { id: '3', name: 'CloudScale', sector: 'SaaS', stage: 'Series A', status: 'active', elevator_pitch: 'Serverless orchestration for edge computing.' },
-  ]
+    const sFunding = funding.filter((f: any) => f.startup_id === s.id)
+    const totalF = sFunding.reduce((sum: number, f: any) => sum + Number(f.amount || 0), 0)
 
-  const MOCK_INTERESTS: InterestRow[] = [
-    { id: '1', signal_type: 'committed', note: 'Lead investor for Seed round', created_at: new Date().toISOString(), startups: { name: 'AeroDynamics', sector: 'CleanTech', stage: 'Seed' } },
-    { id: '2', signal_type: 'watching', note: 'Monitor growth metrics', created_at: new Date().toISOString(), startups: { name: 'BioSynth', sector: 'HealthTech', stage: 'Pre-Seed' } },
-  ]
-
-  const finalStartups = startupsData.length > 0 ? startupsData : MOCK_STARTUPS
-  const finalInterests = interestsData.length > 0 ? interestsData : MOCK_INTERESTS
-
-  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Investor'
-  const totalInterests = finalInterests.length || 0
-  const watchingCount = finalInterests.filter(i => i.signal_type === 'watching').length || 0
-  const committedCount = finalInterests.filter(i => i.signal_type === 'committed').length || 0
-
-  const signalColor = (type: string | null) => {
-    switch (type) {
-      case 'committed': return 'bg-emerald-500/10 text-emerald-700 border-emerald-100'
-      case 'interested': return 'bg-blue-500/10 text-blue-700 border-blue-100'
-      case 'watching': return 'bg-amber-500/10 text-amber-700 border-amber-100'
-      default: return 'bg-secondary text-slate-600 border-slate-100'
+    return {
+      ...s,
+      completed_milestones: completedM,
+      total_milestones: totalM,
+      milestone_rate: totalM > 0 ? Number(((completedM / totalM) * 100).toFixed(0)) : 0,
+      total_funding: totalF,
     }
-  }
+  })
+
+  const totalEcosystemFunding = funding.reduce((acc: number, curr: any) => acc + Number(curr.amount || 0), 0)
+  
+  // Completed milestones over time data for LineChart
+  const completedMilestones = milestones
+    .filter((m: any) => m.status === 'completed' && m.completed_at)
+    .sort((a: any, b: any) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime())
+
+  let cumulativeCount = 0
+  const chartData = completedMilestones.map((m: any) => {
+    cumulativeCount++
+    return {
+      date: new Date(m.completed_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+      achieved: cumulativeCount,
+      title: m.title
+    }
+  })
+
+  // Fallback for empty milestone dates
+  const finalChartData = chartData.length > 0 ? chartData : [
+    { date: 'Jan 15', achieved: 0 },
+    { date: 'Feb 15', achieved: 1 },
+    { date: 'Mar 15', achieved: 2 },
+    { date: 'Apr 15', achieved: 4 },
+  ]
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500">
+    <div className="space-y-10 animate-in fade-in duration-700">
       {/* Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">
+          Deal Flow Intelligence
+        </h1>
+        <p className="text-muted-foreground mt-2 font-medium text-lg">
+          Observer interface and portfolio telemetry tracking active cohorts.
+        </p>
+      </div>
+
+      {/* Prominent Read-Only Advisory Alert Banner */}
+      <div className="bg-amber-500/10 border border-amber-500/20 rounded-[2rem] p-6 flex items-start gap-4 text-amber-800 dark:text-amber-200">
+        <ShieldAlert className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
         <div>
-          <h1 className="text-4xl font-extrabold text-foreground tracking-tight">
-            Welcome back, {firstName}
-          </h1>
-          <p className="text-muted-foreground mt-2 font-medium text-lg">
-            Your deal flow intelligence and portfolio overview.
+          <h3 className="font-bold text-sm uppercase tracking-wider">Read-Only Advisory Mode</h3>
+          <p className="text-xs font-medium mt-1 text-muted-foreground leading-relaxed">
+            Your credentials grant secure observer privileges. Data insertion, setting updates, or status modifications are disabled inside this portal. Please contact administrative support to request structural variations.
           </p>
         </div>
-        <Link 
-          href="/investor/pipeline"
-          className="flex items-center gap-2 px-8 py-3 bg-black text-white rounded-2xl font-bold text-sm hover:shadow-lg transition-all active:scale-[0.98]"
-        >
-          <Target className="w-4 h-4" />
-          Browse Deal Flow
-        </Link>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Total Interests</p>
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-5xl font-black text-foreground">{totalInterests}</h2>
-            <span className={cn(
-              "text-xs font-bold px-2 py-0.5 rounded-lg",
-              totalInterests > 0 ? "text-emerald-600 bg-emerald-500/10" : "text-gray-400 bg-gray-100"
-            )}>
-              {totalInterests > 0 ? 'Tracked' : 'Empty'}
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Watching</p>
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-5xl font-black text-foreground">{watchingCount}</h2>
-            <Eye className="w-5 h-5 text-amber-500" />
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Committed</p>
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-5xl font-black text-foreground">{committedCount}</h2>
-            <TrendingUp className="w-5 h-5 text-emerald-500" />
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Available Startups</p>
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-5xl font-black text-foreground">{finalStartups.length}</h2>
-            <Briefcase className="w-5 h-5 text-blue-500" />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Recent Interests */}
-        <div className="lg:col-span-8 space-y-4">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Total Capital Tracked</p>
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black text-foreground">Recent Interests</h2>
-            <Link href="/investor/portfolio" className="text-sm font-bold text-muted-foreground hover:text-black transition-colors flex items-center gap-1 group">
-              View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm">
-            {finalInterests.length > 0 ? (
-              <div className="divide-y divide-border/50">
-                {finalInterests.slice(0, 5).map((interest) => {
-                  const startup = interest.startups as { name: string, sector: string | null, stage: string | null } | null
-                  return (
-                    <div key={interest.id} className="p-6 flex items-center justify-between hover:bg-secondary/50 transition-colors group">
-                      <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center font-bold text-slate-400 text-lg group-hover:bg-indigo-500/10 group-hover:text-indigo-600 transition-colors">
-                          {startup?.name?.charAt(0) || '?'}
-                        </div>
-                        <div>
-                          <p className="font-bold text-foreground text-base">{startup?.name || 'Unknown Startup'}</p>
-                          <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                            {startup?.sector || 'N/A'} · {startup?.stage || 'N/A'}
-                            {interest.note && <span className="ml-2 text-slate-400">— {interest.note.substring(0, 40)}...</span>}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className={cn(
-                          "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border",
-                          signalColor(interest.signal_type)
-                        )}>
-                          {interest.signal_type || 'unknown'}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="p-16 text-center">
-                <div className="w-20 h-20 bg-blue-500/10 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <PieChart className="w-10 h-10" />
-                </div>
-                <h4 className="text-xl font-black text-foreground mb-2">No Interests Yet</h4>
-                <p className="text-muted-foreground max-w-[280px] mx-auto font-medium leading-relaxed">
-                  Start tracking startups to build your investment thesis.
-                </p>
-                <Link 
-                  href="/investor/pipeline" 
-                  className="mt-8 inline-block px-8 py-3 bg-black text-white rounded-2xl font-bold text-sm hover:shadow-lg transition-all"
-                >
-                  Browse Pipeline
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions Sidebar */}
-        <div className="lg:col-span-4 space-y-4">
-          <h2 className="text-2xl font-black text-foreground">Quick Actions</h2>
-          
-          <div className="grid grid-cols-1 gap-3">
-            <Link 
-              href="/investor/portfolio"
-              className="flex items-center gap-5 p-5 bg-card border border-border/50 rounded-3xl hover:border-indigo-200 hover:shadow-md transition-all group"
-            >
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg">
-                <Briefcase className="w-6 h-6" />
-              </div>
-              <span className="font-bold text-base text-foreground group-hover:text-indigo-600 transition-colors">View Portfolio</span>
-            </Link>
-
-            <Link 
-              href="/investor/pipeline"
-              className="flex items-center gap-5 p-5 bg-card border border-border/50 rounded-3xl hover:border-indigo-200 hover:shadow-md transition-all group"
-            >
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg">
-                <Target className="w-6 h-6" />
-              </div>
-              <span className="font-bold text-base text-foreground group-hover:text-emerald-600 transition-colors">Deal Flow Pipeline</span>
-            </Link>
-          </div>
-
-          {/* Insight Card */}
-          <div className="mt-6 p-6 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-200 relative overflow-hidden">
-            <div className="relative z-10">
-              <h3 className="font-bold text-lg">Market Intelligence</h3>
-              <p className="text-indigo-100 text-sm mt-1">
-                {finalStartups.length > 0 
-                  ? `${finalStartups.length} active startups available for review in the current pipeline.`
-                  : 'No active startups in the pipeline right now.'
-                }
-              </p>
-              <Link href="/investor/pipeline" className="mt-4 inline-block px-4 py-2 bg-card text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-500/10 transition-colors">
-                Explore Now
-              </Link>
+            <h2 className="text-3xl font-black text-foreground">
+              {totalEcosystemFunding.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
+            </h2>
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+              <Landmark className="w-5 h-5" />
             </div>
-            <Sparkles className="absolute -bottom-4 -right-4 w-32 h-32 text-indigo-500/30 rotate-12" />
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Monitored Startups</p>
+          <div className="flex items-center justify-between">
+            <h2 className="text-5xl font-black text-foreground">{startups.length}</h2>
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Logged Milestones</p>
+          <div className="flex items-center justify-between">
+            <h2 className="text-5xl font-black text-foreground">{milestones.length}</h2>
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+              <Target className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6">Completed Milestones</p>
+          <div className="flex items-center justify-between">
+            <h2 className="text-5xl font-black text-foreground">
+              {milestones.filter((m: any) => m.status === 'completed').length}
+            </h2>
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+              <Calendar className="w-5 h-5" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Featured Startups */}
-      {finalStartups.length > 0 && (
-        <div className="space-y-4">
+      {/* Main Grid: Telemetry & List */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Startup Telemetry List */}
+        <div className="lg:col-span-7 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black text-foreground">Featured Ventures</h2>
-            <Link href="/investor/pipeline" className="text-sm font-bold text-muted-foreground hover:text-black transition-colors flex items-center gap-1 group">
-              View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <h2 className="text-2xl font-black text-foreground">Ecosystem Ventures</h2>
+            <span className="text-xs font-bold text-muted-foreground px-3 py-1 bg-secondary rounded-full uppercase tracking-wider">Active</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {finalStartups.slice(0, 3).map((startup) => (
-              <div key={startup.id} className="bg-card border border-border rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all group">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center font-black text-slate-400 text-xl group-hover:bg-indigo-500/10 group-hover:text-indigo-600 transition-colors">
-                    {startup.name.charAt(0)}
+          <div className="space-y-4">
+            {startupsWithMetrics.map((s: any) => (
+              <Card key={s.id} className="rounded-[2rem] p-6 shadow-sm border border-border bg-card hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">{s.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-semibold px-2 py-0.5 bg-secondary text-foreground rounded">{s.sector}</span>
+                      <span className="text-xs font-semibold px-2 py-0.5 bg-secondary text-foreground rounded uppercase">{s.stage}</span>
+                    </div>
                   </div>
-                  <ArrowUpRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:text-indigo-600 transition-all" />
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground font-black uppercase tracking-wider">Total Funding</p>
+                    <p className="text-sm font-bold text-indigo-600 mt-0.5">
+                      {s.total_funding.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-1 group-hover:text-indigo-600 transition-colors">{startup.name}</h3>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-bold text-muted-foreground">{startup.sector || 'N/A'}</span>
-                  <span className="w-1 h-1 rounded-full bg-slate-300" />
-                  <span className="text-xs font-bold text-muted-foreground">{startup.stage || 'N/A'}</span>
-                </div>
-                {startup.elevator_pitch && (
-                  <p className="text-sm text-muted-foreground font-medium leading-relaxed line-clamp-2 mb-4">
-                    {startup.elevator_pitch}
+
+                {s.elevator_pitch && (
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-6 font-medium">
+                    {s.elevator_pitch}
                   </p>
                 )}
-                <span className={cn(
-                  "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-                  startup.status === 'active' ? "bg-emerald-500/10 text-emerald-700 border-emerald-100" : "bg-secondary text-slate-600 border-slate-100"
-                )}>
-                  {startup.status}
-                </span>
-              </div>
+
+                <div className="space-y-2 border-t border-border/50 pt-4">
+                  <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
+                    <span>Milestones Completed</span>
+                    <span>{s.completed_milestones} / {s.total_milestones} ({s.milestone_rate}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                      style={{ width: `${s.milestone_rate}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
             ))}
           </div>
         </div>
-      )}
 
-      {/* Portfolio Analytics */}
-      <PortfolioAnalytics role="investor" investorId={user.id} />
+        {/* Recharts Completion Line Chart */}
+        <div className="lg:col-span-5">
+          <Card className="rounded-[2.5rem] p-6 shadow-sm border border-border h-full flex flex-col justify-between">
+            <CardHeader className="px-4 pb-4">
+              <CardTitle className="text-xl font-bold">Milestone Achievement Velocity</CardTitle>
+              <CardDescription>Ecosystem milestone completion trajectory across tracked cohorts.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px] pt-4 flex-1">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={finalChartData} margin={{ left: -10, right: 10, top: 10, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} />
+                  <YAxis stroke="#94a3b8" fontSize={11} label={{ value: 'Completed Milestones', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: 11 } }} />
+                  <Tooltip formatter={(v, name) => [v, 'Cumulative Milestones']} />
+                  <Line type="monotone" dataKey="achieved" stroke="#10b981" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 7 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

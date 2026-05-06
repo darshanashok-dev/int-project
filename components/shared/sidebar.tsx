@@ -15,12 +15,16 @@ import {
   FolderKanban,
   GraduationCap,
   Calendar,
-  BarChart3
+  BarChart3,
+  Rocket,
+  Sun,
+  Moon
 } from 'lucide-react'
 import { LucideIcon } from 'lucide-react'
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 const navConfigs: Record<string, { name: string, href: string, icon: LucideIcon }[]> = {
   founder: [
@@ -67,6 +71,7 @@ interface SidebarProps {
 export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }: SidebarProps) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -88,8 +93,9 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
       {/* Branding Section */}
       <div className="mb-6">
         <Link href={dashboardPath} className="flex items-center gap-3 py-1">
+          <Rocket className="w-5 h-5 text-indigo-600 shrink-0" />
           <div>
-            <h1 className="font-bold text-base leading-tight text-foreground text-indigo-600">Polaris</h1>
+            <h1 className="font-extrabold text-base leading-tight text-foreground tracking-tight">Polaris</h1>
             <p className="text-[9px] font-black text-muted-foreground tracking-widest uppercase opacity-80">
               {activeNavRole === 'admin' ? 'Admin Control' : activeNavRole === 'founder' ? 'Founder Suite' : activeNavRole === 'investor' ? 'Investor Suite' : `${activeNavRole} Dashboard`}
             </p>
@@ -100,7 +106,7 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
       {/* Main Navigation */}
       <nav className="flex-1 flex flex-col gap-1.5">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== dashboardPath && pathname.startsWith(item.href))
+          const isActive = pathname === item.href || (item.href !== dashboardPath && pathname.startsWith(item.href + '/'))
           return (
             <Link
               key={item.href}
@@ -161,6 +167,13 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
             <Settings className="w-4 h-4" />
             <span className="text-sm">Settings</span>
           </Link>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card/50 border border-transparent hover:border-border/40 transition-all shrink-0"
+            aria-label="Toggle theme"
+          >
+            {mounted && (theme === 'dark' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-600" />)}
+          </button>
         </div>
 
         <Link 

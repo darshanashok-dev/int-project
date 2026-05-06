@@ -1,88 +1,135 @@
-# Polaris — Startup Incubation Management Platform
+# Polaris — Venture Incubation & Command Center
 
-RNS Institute of Technology, Bengaluru | Team Polaris
+Welcome to **Polaris**, a state-of-the-art, enterprise-grade Venture Incubation & Ecosystem Management Platform. Built for modern startup accelerators, technology business incubators, and university venture programs, Polaris streamlines the entire startup lifecycle—from competitive application vetting to milestone telemetry tracking, mentorship logging, investment diligence, and cohort administration.
 
-Polaris is a premium, enterprise-grade Startup Incubation Management Platform designed to streamline and manage the entire lifecycle of startup cohorts — from initial application vetting to milestone tracking, mentoring, funding synchronization, and Demo Day. 
-
-By unifying all stakeholders into a single, cohesive command center, Polaris removes the friction of managing complex incubation timelines, allowing startup cohorts to focus on velocity and scale.
+By unifying founders, administrators, mentors, and investors into a single cohesive, high-performance command center, Polaris removes operational friction and allows early-stage companies to focus entirely on growth velocity and technical scale.
 
 ---
 
-## 🚀 Key Roles & Dashboards
-
-Polaris features five distinct, role-based modules tailored to the unique goals of each stakeholder in the ecosystem:
-
-| Role | Responsibility | Key Features |
-| :--- | :--- | :--- |
-| 👑 **Admin** | Ecosystem Governance | Cohort planning, application review board, scoring system, and mentor matching. |
-| 🚀 **Founder** | Venture Growth | Startup profile builder, cohort application, milestone tracking, and funding history. |
-| 🧠 **Mentor** | Advisory & Sessions | Mentoring log, cohort oversight, direct session scheduling, and advisory feedback. |
-| 💼 **Investor** | Diligence & Tracking | Startup discovery portal, stage-by-stage filtration, and soft/hard interest signaling. |
-| 🛡️ **Manager** | Operations & Programs | Workshop organization, event schedules, and performance analytics. |
+## 🎨 Design System & Aesthetics
+Polaris is built with a premium, sleek visual identity inspired by modern SaaS interfaces:
+- **Tailored Palettes**: High-contrast dark and light modes built around elegant HSL colors (Zinc, Slate, and Cobalt).
+- **Dynamic Micro-Animations**: Built-in visual feedback with smooth hover effects and responsive page entries using Tailwind's animation primitives.
+- **Data Visualizations**: Responsive charts using Recharts that translate raw venture activities into beautiful, actionable intelligence.
+- **Glassmorphism & Contrast**: Layered cards, custom gradients, and border-border structures that convey a highly polished, state-of-the-art presentation.
 
 ---
 
-## 🛠️ Technology Stack
+## 🚀 Key Roles & Feature Catalog
 
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router, Server Actions, Middleware)
-- **Database & Auth**: [Supabase](https://supabase.com/) (SSR Auth, PostgreSQL, Realtime Subscriptions)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand) (Client-side global state)
-- **Query & Cache**: [TanStack Query v5](https://tanstack.com/query/latest) (Robust server-state management)
-- **Styling & UI**: [Tailwind CSS](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/) (Highly responsive, customized dark/light mode system)
-- **Form Validation**: [React Hook Form](https://react-hook-form.com/) with [Zod v4](https://zod.dev/)
+Polaris separates governance and operations into five distinct, role-based workflows:
+
+### 👑 1. Admin Control Panel
+The ultimate ecosystem dashboard for program directors and operations managers:
+- **Governance**: Overview of all incubated startups, user management tables, and cohort tracking.
+- **Evaluation & Scoring**: Interactive review screens to score applications (Team, Market, Traction, Uniqueness) out of 10.
+- **Ecosystem Analytics**: Real-time Recharts visualizations showing milestone distribution, funding per startup, and session engagement.
+- **Mentor Matching**: Dynamic assignment dropdowns to match seasoned advisors with specific startups.
+
+### 🚀 2. Founder Suite
+A focused workspace for early-stage teams to build momentum and log milestones:
+- **Milestone Telemetry**: Live milestone lists with interactive complete/pending toggles, real-time sync with Supabase Postgres listeners, and an animated green **"Live"** telemetry indicator.
+- **Application Portal**: Multi-step program application forms.
+- **Venture profile**: Central repository for company sector, stage, elevator pitch, target market, and revenue model.
+
+### 💼 3. Investor Deal Flow
+A secure, read-only observer platform for venture capitalists and angel networks:
+- **Advisory Banner**: Prominent warning explaining secure read-only privileges.
+- **Discovery Portal**: Quick-scan lists of active startups, showing completion percentages, stage, sector, and total capital raised.
+- **Milestone Velocity Chart**: Dynamic Recharts LineChart showing milestone completions over time.
+
+### 🧠 4. Mentor Hub
+A structured interface for architectural advisors and program partners:
+- **Session logs**: Dynamic scheduling and log forms to document advisory feedback, notes, and session ratings (1-5).
+- **Cohort Oversight**: Fast lookup of assigned startups and active advisory portfolios.
+
+### 🛡️ 5. Manager Dashboard
+An operational command center focused on cohorts, events, and scheduling:
+- **Event Coordination**: Administrative control over program workshops, mid-cohort reviews, and Demo Day.
+
+---
+
+## 🛠️ Technical Architecture & Stack
+
+Polaris leverages a cutting-edge **Venture Stack** for maximum stability, speed, and strict type-safety:
+
+- **Framework**: [Next.js 14 App Router](https://nextjs.org/) (utilizing Server Components, Server Actions, Middleware protection)
+- **Database**: [Supabase](https://supabase.com/) (PostgreSQL, Realtime Postgres Changes, SSR Client generation)
+- **State Management**: [TanStack React Query v5](https://tanstack.com/query) (for optimized query caching and stale-time management)
+- **Forms & Validation**: [React Hook Form](https://react-hook-form.com/) combined with [Zod schemas](https://zod.dev/) for server-to-client data validation.
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/) components for consistent typography, borders, and transitions.
+
+### Realtime Synchronization Flow
+
+```mermaid
+sequenceDiagram
+    participant Founder as Founder Client
+    participant Supabase as Supabase Realtime
+    participant Admin as Admin Client
+    
+    Founder->>Supabase: Toggle Milestone Complete (Postgres Mutate)
+    Supabase-->>Founder: Realtime Event (postgres_changes)
+    Founder->>Founder: React Query Invalidation (UI refreshes with pulsing green dot)
+    Supabase-->>Admin: Realtime Event (postgres_changes)
+    Admin->>Admin: Next.js router.refresh() (Admin panel syncs immediately)
+```
 
 ---
 
 ## 📂 Project Structure
 
 ```
-├── app/                  # Next.js 14 App Router pages and layouts
-│   ├── (auth)/           # Authentication routes (login, register)
-│   ├── (dashboard)/      # Protected dashboard views (admin, founder, mentor, investor)
-│   ├── api/              # Route handlers
-│   └── globals.css       # Core stylesheet with HSL color tokens
-├── components/           # Reusable UI components
-│   ├── admin/            # Admin-specific components
-│   ├── shared/           # Cross-dashboard layouts and components (sidebar, loading, error)
-│   └── ui/               # Core atomic primitives (shadcn)
-├── lib/                  # Helper utilities and custom hooks
-│   ├── hooks/            # Custom TanStack Query custom hooks
-│   ├── supabase/         # SSR Supabase clients (client, server, admin)
-│   └── validations/      # Zod validation schemas
-└── types/                # TypeScript type definitions and database definitions
+├── app/                  # Next.js 14 App Router pages, layouts, and sub-dashboard groups
+│   ├── (auth)/           # Authentication flows (login, registration)
+│   ├── (dashboard)/      # Protected multi-role dashboards (admin, founder, mentor, investor, manager)
+│   ├── api/              # API Route Handlers
+│   └── globals.css       # Core stylesheet with HSL tokens and dark-mode parameters
+├── components/           # Atomic UI elements and layouts
+│   ├── portfolio/        # Portfolio analytics components
+│   ├── shared/           # Cross-dashboard layouts (sidebar, loading spinner, error layouts)
+│   └── ui/               # Standard shadcn primitives (Card, Button, Dialog, Input, Skeleton)
+├── lib/                  # Helper modules and hooks
+│   ├── actions/          # Type-safe Next.js Server Actions
+│   ├── hooks/            # Custom React Query Hooks (use-analytics, use-milestones, use-startups)
+│   ├── supabase/         # SSR Supabase Client definitions (browser, server, middleware)
+│   └── validations/      # Zod validation schemas (milestones, applications, profiles)
+├── scripts/              # Command-line utility scripts (seed-demo.ts)
+└── types/                # TypeScript interfaces and auto-generated database types
 ```
 
 ---
 
-## ⚙️ Getting Started
+## ⚙️ Getting Started & Setup
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/darshanashok-dev/int-project
+git clone https://github.com/darshanashok-dev/int-project.git
 cd int-project
 npm install
 ```
 
 ### 2. Configure Environment Variables
-Copy `.env.example` to `.env.local` and configure your Supabase credentials:
+Copy `.env.example` to `.env.local` and add your database credentials:
 ```bash
 cp .env.example .env.local
 ```
-Fill in the following values in your `.env.local`:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `NEXT_PUBLIC_MOCK_MODE=true` (Toggle `true` to use the high-fidelity mock data layer for local demonstrations)
+Fill in the following keys in your `.env.local` file:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+NEXT_PUBLIC_MOCK_MODE=false
+```
 
-### 3. Initialize Database (Local Supabase)
-If you are developing against local Supabase:
+### 3. Database Seeding
+To populate the database with complete, high-fidelity demo data (Programs, active Startups, Milestone metrics, Sessions, Funding rounds, and Cohort events), run our idempotent seeder:
 ```bash
-npx supabase start
-npx supabase db reset  # Applies migrations and seeds development data
+npx tsx scripts/seed-demo.ts
 ```
 
 ### 4. Run Development Server
+Start the Next.js local server:
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the platform.
+Open [http://localhost:3000](http://localhost:3000) in your browser to explore the platform. Use our **Quick Demo Credentials** on the Sign In page to fast-track your presentation tour across all roles.
