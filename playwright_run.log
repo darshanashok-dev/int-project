@@ -1,0 +1,680 @@
+
+Running 33 tests using 6 workers
+
+[1A[2K[1/33] [chromium] › e2e/admin-flow.spec.ts:14:7 › Admin Dashboard Flow › should display sidebar with admin navigation items
+[1A[2K[2/33] [chromium] › e2e/admin-flow.spec.ts:33:7 › Admin Dashboard Flow › should navigate to Applications page
+[1A[2K[3/33] [chromium] › e2e/admin-flow.spec.ts:23:7 › Admin Dashboard Flow › should navigate to Startups page
+[1A[2K[4/33] [chromium] › e2e/admin-flow.spec.ts:9:7 › Admin Dashboard Flow › should load the admin dashboard overview
+[1A[2K[5/33] [chromium] › e2e/admin-flow.spec.ts:18:7 › Admin Dashboard Flow › should navigate to Users management page
+[1A[2K[6/33] [chromium] › e2e/admin-flow.spec.ts:28:7 › Admin Dashboard Flow › should navigate to Programs page
+[1A[2K  1) [chromium] › e2e/admin-flow.spec.ts:9:7 › Admin Dashboard Flow › should load the admin dashboard overview 
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/admin-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-flow-Admin-Dashboard-c319a-he-admin-dashboard-overview-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-flow-Admin-Dashboard-c319a-he-admin-dashboard-overview-chromium/error-context.md
+
+
+[1A[2K  2) [chromium] › e2e/admin-flow.spec.ts:28:7 › Admin Dashboard Flow › should navigate to Programs page 
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/admin-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-flow-Admin-Dashboard-2f500-d-navigate-to-Programs-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-flow-Admin-Dashboard-2f500-d-navigate-to-Programs-page-chromium/error-context.md
+
+
+[1A[2K  3) [chromium] › e2e/admin-flow.spec.ts:23:7 › Admin Dashboard Flow › should navigate to Startups page 
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/admin-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-flow-Admin-Dashboard-25ecd-d-navigate-to-Startups-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-flow-Admin-Dashboard-25ecd-d-navigate-to-Startups-page-chromium/error-context.md
+
+
+[1A[2K  4) [chromium] › e2e/admin-flow.spec.ts:18:7 › Admin Dashboard Flow › should navigate to Users management page 
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/admin-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-flow-Admin-Dashboard-6b093-te-to-Users-management-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-flow-Admin-Dashboard-6b093-te-to-Users-management-page-chromium/error-context.md
+
+
+[1A[2K  5) [chromium] › e2e/admin-flow.spec.ts:14:7 › Admin Dashboard Flow › should display sidebar with admin navigation items 
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/admin-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-flow-Admin-Dashboard-1b950-with-admin-navigation-items-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-flow-Admin-Dashboard-1b950-with-admin-navigation-items-chromium/error-context.md
+
+
+[1A[2K  6) [chromium] › e2e/admin-flow.spec.ts:33:7 › Admin Dashboard Flow › should navigate to Applications page 
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/admin-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-flow-Admin-Dashboard-789d4-vigate-to-Applications-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-flow-Admin-Dashboard-789d4-vigate-to-Applications-page-chromium/error-context.md
+
+
+[1A[2K[7/33] [chromium] › e2e/admin-flow.spec.ts:38:7 › Admin Dashboard Flow › should navigate to Reports page
+[1A[2K[8/33] [chromium] › e2e/auth.spec.ts:28:7 › Authentication Flows › should login as founder and reach the founder dashboard
+[1A[2K[9/33] [chromium] › e2e/auth.spec.ts:5:7 › Authentication Flows › should display the login page with correct elements
+[1A[2K[10/33] [chromium] › e2e/auth.spec.ts:20:7 › Authentication Flows › should populate demo credentials when quick-fill button is clicked
+[1A[2K[11/33] [chromium] › e2e/auth.spec.ts:33:7 › Authentication Flows › should login as admin and reach the admin dashboard
+[1A[2K[12/33] [chromium] › e2e/auth.spec.ts:13:7 › Authentication Flows › should display role selection chips
+[1A[2K  7) [chromium] › e2e/auth.spec.ts:28:7 › Authentication Flows › should login as founder and reach the founder dashboard 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/auth.spec.ts:29:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--a5f29-reach-the-founder-dashboard-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--a5f29-reach-the-founder-dashboard-chromium/error-context.md
+
+
+[1A[2K  8) [chromium] › e2e/admin-flow.spec.ts:38:7 › Admin Dashboard Flow › should navigate to Reports page 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/admin-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin-flow-Admin-Dashboard-285ec-ld-navigate-to-Reports-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin-flow-Admin-Dashboard-285ec-ld-navigate-to-Reports-page-chromium/error-context.md
+
+
+[1A[2K  9) [chromium] › e2e/auth.spec.ts:5:7 › Authentication Flows › should display the login page with correct elements 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+      4 | test.describe('Authentication Flows', () => {
+      5 |   test('should display the login page with correct elements', async ({ page }) => {
+    > 6 |     await page.goto('/login')
+        |                ^
+      7 |     await expect(page.locator('h2')).toContainText('Sign In')
+      8 |     await expect(page.locator('#email')).toBeVisible()
+      9 |     await expect(page.locator('#password')).toBeVisible()
+        at /home/da/idt/project/e2e/auth.spec.ts:6:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--116b0--page-with-correct-elements-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--116b0--page-with-correct-elements-chromium/error-context.md
+
+
+[1A[2K  10) [chromium] › e2e/auth.spec.ts:20:7 › Authentication Flows › should populate demo credentials when quick-fill button is clicked 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+      19 |
+      20 |   test('should populate demo credentials when quick-fill button is clicked', async ({ page }) => {
+    > 21 |     await page.goto('/login')
+         |                ^
+      22 |     // Click the "Admin" demo button
+      23 |     await page.locator('button', { hasText: 'Admin' }).last().click()
+      24 |     await expect(page.locator('#email')).toHaveValue('admin@polaris.com')
+        at /home/da/idt/project/e2e/auth.spec.ts:21:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--c334c-uick-fill-button-is-clicked-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--c334c-uick-fill-button-is-clicked-chromium/error-context.md
+
+
+[1A[2K  11) [chromium] › e2e/auth.spec.ts:33:7 › Authentication Flows › should login as admin and reach the admin dashboard 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/auth.spec.ts:34:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--01812-d-reach-the-admin-dashboard-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--01812-d-reach-the-admin-dashboard-chromium/error-context.md
+
+
+[1A[2K  12) [chromium] › e2e/auth.spec.ts:13:7 › Authentication Flows › should display role selection chips 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+      12 |
+      13 |   test('should display role selection chips', async ({ page }) => {
+    > 14 |     await page.goto('/login')
+         |                ^
+      15 |     for (const role of ['Founder', 'Admin', 'Mentor', 'Investor', 'Manager']) {
+      16 |       await expect(page.locator('button[type="button"]', { hasText: role })).toBeVisible()
+      17 |     }
+        at /home/da/idt/project/e2e/auth.spec.ts:14:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--83efa-isplay-role-selection-chips-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--83efa-isplay-role-selection-chips-chromium/error-context.md
+
+
+[1A[2K[13/33] [chromium] › e2e/auth.spec.ts:38:7 › Authentication Flows › should navigate to register page from login
+[1A[2K[14/33] [chromium] › e2e/auth.spec.ts:45:7 › Authentication Flows › should display register form with role selector
+[1A[2K[15/33] [chromium] › e2e/founder-flow.spec.ts:9:7 › Founder Dashboard Flow › should load the founder dashboard
+[1A[2K[16/33] [chromium] › e2e/auth.spec.ts:52:7 › Authentication Flows › should redirect unauthenticated users from protected routes
+[1A[2K[17/33] [chromium] › e2e/founder-flow.spec.ts:19:7 › Founder Dashboard Flow › should navigate to Apply page
+[1A[2K[18/33] [chromium] › e2e/founder-flow.spec.ts:15:7 › Founder Dashboard Flow › should display sidebar with founder navigation items
+[1A[2K  13) [chromium] › e2e/auth.spec.ts:38:7 › Authentication Flows › should navigate to register page from login 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+      37 |
+      38 |   test('should navigate to register page from login', async ({ page }) => {
+    > 39 |     await page.goto('/login')
+         |                ^
+      40 |     await page.click('text=Create Account')
+      41 |     await expect(page).toHaveURL(/.*register.*/)
+      42 |     await expect(page.locator('h2')).toContainText('Join Polaris')
+        at /home/da/idt/project/e2e/auth.spec.ts:39:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--c5bad-to-register-page-from-login-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--c5bad-to-register-page-from-login-chromium/error-context.md
+
+
+[1A[2K  14) [chromium] › e2e/auth.spec.ts:45:7 › Authentication Flows › should display register form with role selector 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/register
+    Call log:
+    [2m  - navigating to "http://localhost:3005/register", waiting until "load"[22m
+
+
+      44 |
+      45 |   test('should display register form with role selector', async ({ page }) => {
+    > 46 |     await page.goto('/register')
+         |                ^
+      47 |     await expect(page.locator('#email')).toBeVisible()
+      48 |     await expect(page.locator('#password')).toBeVisible()
+      49 |     await expect(page.locator('#role')).toBeVisible()
+        at /home/da/idt/project/e2e/auth.spec.ts:46:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--db4cd-ter-form-with-role-selector-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--db4cd-ter-form-with-role-selector-chromium/error-context.md
+
+
+[1A[2K  15) [chromium] › e2e/founder-flow.spec.ts:9:7 › Founder Dashboard Flow › should load the founder dashboard 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/founder-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/founder-flow-Founder-Dashb-ae72b--load-the-founder-dashboard-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/founder-flow-Founder-Dashb-ae72b--load-the-founder-dashboard-chromium/error-context.md
+
+
+[1A[2K  16) [chromium] › e2e/auth.spec.ts:52:7 › Authentication Flows › should redirect unauthenticated users from protected routes 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/admin
+    Call log:
+    [2m  - navigating to "http://localhost:3005/admin", waiting until "load"[22m
+
+
+      53 |     // Clear any cookies first
+      54 |     await page.context().clearCookies()
+    > 55 |     await page.goto('/admin')
+         |                ^
+      56 |     // Should end up at login
+      57 |     await page.waitForURL('**/login**', { timeout: 10000 })
+      58 |     await expect(page).toHaveURL(/.*login.*/)
+        at /home/da/idt/project/e2e/auth.spec.ts:55:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flows--b7540-users-from-protected-routes-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flows--b7540-users-from-protected-routes-chromium/error-context.md
+
+
+[1A[2K  17) [chromium] › e2e/founder-flow.spec.ts:19:7 › Founder Dashboard Flow › should navigate to Apply page 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/founder-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/founder-flow-Founder-Dashb-69443-ould-navigate-to-Apply-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/founder-flow-Founder-Dashb-69443-ould-navigate-to-Apply-page-chromium/error-context.md
+
+
+[1A[2K  18) [chromium] › e2e/founder-flow.spec.ts:15:7 › Founder Dashboard Flow › should display sidebar with founder navigation items 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/founder-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/founder-flow-Founder-Dashb-f260e-th-founder-navigation-items-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/founder-flow-Founder-Dashb-f260e-th-founder-navigation-items-chromium/error-context.md
+
+
+[1A[2K[19/33] [chromium] › e2e/founder-flow.spec.ts:34:7 › Founder Dashboard Flow › should display the Polaris branding in sidebar
+[1A[2K[20/33] [chromium] › e2e/investor-flow.spec.ts:14:7 › Investor Dashboard Flow › should display sidebar with investor navigation items
+[1A[2K[21/33] [chromium] › e2e/investor-flow.spec.ts:18:7 › Investor Dashboard Flow › should navigate to Discovery page
+[1A[2K[22/33] [chromium] › e2e/investor-flow.spec.ts:9:7 › Investor Dashboard Flow › should load the investor dashboard
+[1A[2K[23/33] [chromium] › e2e/founder-flow.spec.ts:24:7 › Founder Dashboard Flow › should navigate to Milestones page
+[1A[2K[24/33] [chromium] › e2e/founder-flow.spec.ts:29:7 › Founder Dashboard Flow › should navigate to My Startup page
+[1A[2K  19) [chromium] › e2e/founder-flow.spec.ts:34:7 › Founder Dashboard Flow › should display the Polaris branding in sidebar 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/founder-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/founder-flow-Founder-Dashb-4482c-Polaris-branding-in-sidebar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/founder-flow-Founder-Dashb-4482c-Polaris-branding-in-sidebar-chromium/error-context.md
+
+
+[1A[2K  20) [chromium] › e2e/investor-flow.spec.ts:14:7 › Investor Dashboard Flow › should display sidebar with investor navigation items 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/investor-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/investor-flow-Investor-Das-c65e9-h-investor-navigation-items-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/investor-flow-Investor-Das-c65e9-h-investor-navigation-items-chromium/error-context.md
+
+
+[1A[2K  21) [chromium] › e2e/investor-flow.spec.ts:18:7 › Investor Dashboard Flow › should navigate to Discovery page 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/investor-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/investor-flow-Investor-Das-5f67e--navigate-to-Discovery-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/investor-flow-Investor-Das-5f67e--navigate-to-Discovery-page-chromium/error-context.md
+
+
+[1A[2K  22) [chromium] › e2e/investor-flow.spec.ts:9:7 › Investor Dashboard Flow › should load the investor dashboard 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/investor-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/investor-flow-Investor-Das-b43a1-load-the-investor-dashboard-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/investor-flow-Investor-Das-b43a1-load-the-investor-dashboard-chromium/error-context.md
+
+
+[1A[2K  23) [chromium] › e2e/founder-flow.spec.ts:24:7 › Founder Dashboard Flow › should navigate to Milestones page 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/founder-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/founder-flow-Founder-Dashb-bcb3e-navigate-to-Milestones-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/founder-flow-Founder-Dashb-bcb3e-navigate-to-Milestones-page-chromium/error-context.md
+
+
+[1A[2K  24) [chromium] › e2e/founder-flow.spec.ts:29:7 › Founder Dashboard Flow › should navigate to My Startup page 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3005/login
+    Call log:
+    [2m  - navigating to "http://localhost:3005/login", waiting until "load"[22m
+
+
+       at helpers/test-utils.ts:15
+
+      13 |  */
+      14 | export async function loginAs(page: Page, role: Role) {
+    > 15 |   await page.goto('/login')
+         |              ^
+      16 |
+      17 |   // Fill credentials (any values work in mock mode)
+      18 |   await page.fill('#email', `${role}@polaris.com`)
+        at loginAs (/home/da/idt/project/e2e/helpers/test-utils.ts:15:14)
+        at /home/da/idt/project/e2e/founder-flow.spec.ts:6:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/founder-flow-Founder-Dashb-67d12-navigate-to-My-Startup-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/founder-flow-Founder-Dashb-67d12-navigate-to-My-Startup-page-chromium/error-context.md
+
+
+[1A[2K[25/33] [chromium] › e2e/investor-flow.spec.ts:23:7 › Investor Dashboard Flow › should navigate to Portfolio page
+[1A[2K[26/33] [chromium] › e2e/manager-flow.spec.ts:14:7 › Manager Dashboard Flow › should display sidebar with manager navigation items
+[1A[2K[27/33] [chromium] › e2e/manager-flow.spec.ts:9:7 › Manager Dashboard Flow › should load the manager dashboard
+[1A[2K[28/33] [chromium] › e2e/manager-flow.spec.ts:18:7 › Manager Dashboard Flow › should navigate to Programs page
+[1A[2K[29/33] [chromium] › e2e/manager-flow.spec.ts:23:7 › Manager Dashboard Flow › should navigate to Startups page
+[1A[2K[30/33] [chromium] › e2e/mentor-flow.spec.ts:9:7 › Mentor Dashboard Flow › should load the mentor dashboard
+[1A[2K[31/33] [chromium] › e2e/mentor-flow.spec.ts:14:7 › Mentor Dashboard Flow › should display sidebar with mentor navigation items
+[1A[2K[32/33] [chromium] › e2e/mentor-flow.spec.ts:18:7 › Mentor Dashboard Flow › should navigate to Sessions page
+[1A[2K[33/33] [chromium] › e2e/mentor-flow.spec.ts:23:7 › Mentor Dashboard Flow › should navigate to Portfolio page
+[1A[2K  25) [chromium] › e2e/investor-flow.spec.ts:23:7 › Investor Dashboard Flow › should navigate to Portfolio page 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/investor-flow-Investor-Das-ccc15--navigate-to-Portfolio-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/investor-flow-Investor-Das-ccc15--navigate-to-Portfolio-page-chromium/error-context.md
+
+
+[1A[2K  25 failed
+    [chromium] › e2e/admin-flow.spec.ts:9:7 › Admin Dashboard Flow › should load the admin dashboard overview 
+    [chromium] › e2e/admin-flow.spec.ts:14:7 › Admin Dashboard Flow › should display sidebar with admin navigation items 
+    [chromium] › e2e/admin-flow.spec.ts:18:7 › Admin Dashboard Flow › should navigate to Users management page 
+    [chromium] › e2e/admin-flow.spec.ts:23:7 › Admin Dashboard Flow › should navigate to Startups page 
+    [chromium] › e2e/admin-flow.spec.ts:28:7 › Admin Dashboard Flow › should navigate to Programs page 
+    [chromium] › e2e/admin-flow.spec.ts:33:7 › Admin Dashboard Flow › should navigate to Applications page 
+    [chromium] › e2e/admin-flow.spec.ts:38:7 › Admin Dashboard Flow › should navigate to Reports page 
+    [chromium] › e2e/auth.spec.ts:5:7 › Authentication Flows › should display the login page with correct elements 
+    [chromium] › e2e/auth.spec.ts:13:7 › Authentication Flows › should display role selection chips 
+    [chromium] › e2e/auth.spec.ts:20:7 › Authentication Flows › should populate demo credentials when quick-fill button is clicked 
+    [chromium] › e2e/auth.spec.ts:28:7 › Authentication Flows › should login as founder and reach the founder dashboard 
+    [chromium] › e2e/auth.spec.ts:33:7 › Authentication Flows › should login as admin and reach the admin dashboard 
+    [chromium] › e2e/auth.spec.ts:38:7 › Authentication Flows › should navigate to register page from login 
+    [chromium] › e2e/auth.spec.ts:45:7 › Authentication Flows › should display register form with role selector 
+    [chromium] › e2e/auth.spec.ts:52:7 › Authentication Flows › should redirect unauthenticated users from protected routes 
+    [chromium] › e2e/founder-flow.spec.ts:9:7 › Founder Dashboard Flow › should load the founder dashboard 
+    [chromium] › e2e/founder-flow.spec.ts:15:7 › Founder Dashboard Flow › should display sidebar with founder navigation items 
+    [chromium] › e2e/founder-flow.spec.ts:19:7 › Founder Dashboard Flow › should navigate to Apply page 
+    [chromium] › e2e/founder-flow.spec.ts:24:7 › Founder Dashboard Flow › should navigate to Milestones page 
+    [chromium] › e2e/founder-flow.spec.ts:29:7 › Founder Dashboard Flow › should navigate to My Startup page 
+    [chromium] › e2e/founder-flow.spec.ts:34:7 › Founder Dashboard Flow › should display the Polaris branding in sidebar 
+    [chromium] › e2e/investor-flow.spec.ts:9:7 › Investor Dashboard Flow › should load the investor dashboard 
+    [chromium] › e2e/investor-flow.spec.ts:14:7 › Investor Dashboard Flow › should display sidebar with investor navigation items 
+    [chromium] › e2e/investor-flow.spec.ts:18:7 › Investor Dashboard Flow › should navigate to Discovery page 
+    [chromium] › e2e/investor-flow.spec.ts:23:7 › Investor Dashboard Flow › should navigate to Portfolio page 
+  8 passed (4.7m)

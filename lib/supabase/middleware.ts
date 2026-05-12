@@ -21,7 +21,25 @@ export async function updateSession(request: NextRequest) {
       },
     }
   )
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+  const mockAuth = request.cookies.get('mock-auth')?.value === 'true'
+
+  if (isMock && mockAuth) {
+    const mockRole = request.cookies.get('mock-role')?.value || 'founder'
+    user = {
+      id: 'mock-id',
+      user_metadata: { role: mockRole },
+      role: 'authenticated'
+    } as any
+  } else {
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user ?? null
+    } catch (err) {
+      user = null
+    }
+  }
   const { pathname } = request.nextUrl
 
   const role = user?.user_metadata?.role || 'founder'
