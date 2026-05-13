@@ -35,6 +35,36 @@ export default function StartupDetailsPage() {
   useEffect(() => {
     async function loadData() {
       try {
+        const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+        
+        if (isMock) {
+          const mockData = {
+            id: 'mock-startup-1',
+            name: 'Nova Dynamics',
+            sector: 'AI',
+            stage: 'seed',
+            strategy_summary: 'Building the next generation of autonomous enterprise agents to streamline internal operations and data workflows.',
+            founded_date: 'March 2025',
+            elevator_pitch: 'Autonomous AI agents that actually understand your enterprise data.',
+            active_round_name: 'Seed Extension',
+            funding_goal: 2500000,
+            logo_url: null,
+            founder_id: 'mock-id',
+            status: 'active',
+            created_at: new Date().toISOString(),
+            target_market: 'B2B Enterprise',
+            revenue_model: 'SaaS Subscription',
+            competitive_advantage: 'Proprietary context-aware LLM routing',
+            strategy_updated_at: new Date().toISOString()
+          }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setStartup(mockData as any)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setOriginalStartup(mockData as any)
+          setLoading(false)
+          return
+        }
+
         const { data: userData } = await supabase.auth.getUser()
         const user = userData?.user
         if (!user) {
@@ -48,12 +78,31 @@ export default function StartupDetailsPage() {
           .eq('founder_id', user.id)
           .single()
 
-        if (error) throw error
+        if (error && error.code !== 'PGRST116') throw error // PGRST116 is no rows returned
+        
         if (data) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setStartup(data as any)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setOriginalStartup(data as any)
+        } else {
+          // Provide default empty state if no startup is found to allow them to fill it
+           const emptyStartup = {
+            id: 'new-startup',
+            name: '',
+            sector: 'SaaS',
+            stage: 'pre-seed',
+            strategy_summary: '',
+            founded_date: '',
+            elevator_pitch: '',
+            active_round_name: '',
+            funding_goal: 0,
+            founder_id: user.id
+          }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setStartup(emptyStartup as any)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setOriginalStartup(emptyStartup as any)
         }
       } catch (err) {
         console.error('Error loading startup data:', err)

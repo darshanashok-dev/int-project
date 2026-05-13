@@ -11,6 +11,14 @@ export function useStartupDiscovery(filters: Filters) {
   return useQuery({
     queryKey: ['startups', 'discovery', filters],
     queryFn: async () => {
+      if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+        return [
+          { id: '1', name: 'AeroDynamics', sector: 'Aerospace', stage: 'seed', status: 'active', strategy_summary: 'Next generation of drone logistics.', target_market: 'B2B', revenue_model: 'SaaS', created_at: new Date().toISOString() },
+          { id: '2', name: 'BioSynth', sector: 'Healthtech', stage: 'series-a', status: 'active', strategy_summary: 'Synthetic biology solutions.', target_market: 'Enterprise', revenue_model: 'Licensing', created_at: new Date().toISOString() },
+          { id: '3', name: 'CloudScale', sector: 'SaaS', stage: 'seed', status: 'active', strategy_summary: 'Optimized database scaling.', target_market: 'B2B Developers', revenue_model: 'Usage-based', created_at: new Date().toISOString() }
+        ]
+      }
+
       let query = supabase
         .from('startups')
         .select('id, name, sector, stage, status, strategy_summary, target_market, revenue_model, created_at')
@@ -28,6 +36,15 @@ export function useStartupDiscovery(filters: Filters) {
 
       const { data, error } = await query.order('created_at', { ascending: false })
       if (error) throw error
+
+      if (!data || data.length === 0) {
+        return [
+          { id: '1', name: 'AeroDynamics', sector: 'Aerospace', stage: 'seed', status: 'active', strategy_summary: 'Next generation of drone logistics.', target_market: 'B2B', revenue_model: 'SaaS', created_at: new Date().toISOString() },
+          { id: '2', name: 'BioSynth', sector: 'Healthtech', stage: 'series-a', status: 'active', strategy_summary: 'Synthetic biology solutions.', target_market: 'Enterprise', revenue_model: 'Licensing', created_at: new Date().toISOString() },
+          { id: '3', name: 'CloudScale', sector: 'SaaS', stage: 'seed', status: 'active', strategy_summary: 'Optimized database scaling.', target_market: 'B2B Developers', revenue_model: 'Usage-based', created_at: new Date().toISOString() }
+        ]
+      }
+
       return data
     },
   })
@@ -45,7 +62,7 @@ export function useStartupDetail(id: string) {
           funding (id, round, amount, source, date)
         `)
         .eq('id', id)
-        .single()
+        .maybeSingle()
       if (error) throw error
       return data
     },

@@ -21,6 +21,30 @@ export default function InvestorDashboardPage() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['investor', 'ecosystem'],
     queryFn: async () => {
+      if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+        return {
+          startups: [
+            { id: '1', name: 'AeroDynamics', sector: 'Aerospace', stage: 'seed', status: 'active', elevator_pitch: 'Autonomous drone logistics for instant local delivery network hubs.' },
+            { id: '2', name: 'BioSynth', sector: 'Healthtech', stage: 'series-a', status: 'active', elevator_pitch: 'Synthetic biology and genomics software accelerating therapeutics discovery.' },
+            { id: '3', name: 'CloudScale', sector: 'SaaS', stage: 'seed', status: 'active', elevator_pitch: 'Automated cloud resource allocator scaling underlying container clusters effortlessly.' },
+            { id: '4', name: 'DeFiX', sector: 'Fintech', stage: 'series-a', status: 'active', elevator_pitch: 'Global unified liquidity protocols for decentralized institutional finance platforms.' }
+          ],
+          milestones: [
+            { id: 'm1', startup_id: '1', status: 'completed', title: 'Beta Test Launch', completed_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: 'm2', startup_id: '1', status: 'completed', title: 'FAA License Approved', completed_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: 'm3', startup_id: '2', status: 'completed', title: 'Initial Clinical Trials', completed_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString() },
+            { id: 'm4', startup_id: '3', status: 'pending', title: 'Series A Closing', completed_at: null },
+            { id: 'm5', startup_id: '4', status: 'completed', title: 'Liquidity Engine V2', completed_at: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString() }
+          ],
+          funding: [
+            { id: 'f1', startup_id: '1', amount: 120000000, type: 'seed', date: '2026-01-10' }, 
+            { id: 'f2', startup_id: '2', amount: 250000000, type: 'series-a', date: '2026-02-15' },
+            { id: 'f3', startup_id: '3', amount: 80000000, type: 'pre-seed', date: '2026-03-20' },
+            { id: 'f4', startup_id: '4', amount: 450000000, type: 'series-a', date: '2026-04-05' }
+          ]
+        }
+      }
+
       // Fetch startups with explicitly declared columns
       const { data: startups, error: startupsError } = await (supabase.from('startups') as any)
         .select(`

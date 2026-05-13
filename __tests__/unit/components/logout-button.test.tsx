@@ -1,5 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // Mock supabase browser client
 const mockSignOut = jest.fn().mockResolvedValue({ error: null })
@@ -13,6 +14,15 @@ jest.mock('@/lib/supabase/browser', () => ({
 
 import { LogoutButton } from '@/components/shared/LogoutButton'
 
+function renderWithProviders(ui: React.ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  })
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+  )
+}
+
 describe('LogoutButton', () => {
   const mocks = (globalThis as any).__mocks__
 
@@ -23,17 +33,17 @@ describe('LogoutButton', () => {
   })
 
   it('should render the logout button text', () => {
-    render(<LogoutButton />)
+    renderWithProviders(<LogoutButton />)
     expect(screen.getByText('Account Logout')).toBeInTheDocument()
   })
 
   it('should render the description text', () => {
-    render(<LogoutButton />)
+    renderWithProviders(<LogoutButton />)
     expect(screen.getByText(/Securely end your current Polaris session/)).toBeInTheDocument()
   })
 
   it('should call supabase.auth.signOut() in real mode', async () => {
-    render(<LogoutButton />)
+    renderWithProviders(<LogoutButton />)
     fireEvent.click(screen.getByRole('button'))
 
     await waitFor(() => {
@@ -41,12 +51,12 @@ describe('LogoutButton', () => {
     })
   })
 
-  it('should navigate to "/" after logout', async () => {
-    render(<LogoutButton />)
+  it('should navigate to "/login" after logout', async () => {
+    renderWithProviders(<LogoutButton />)
     fireEvent.click(screen.getByRole('button'))
 
     await waitFor(() => {
-      expect(mocks.router.push).toHaveBeenCalledWith('/')
+      expect(mocks.router.push).toHaveBeenCalledWith('/login')
       expect(mocks.router.refresh).toHaveBeenCalled()
     })
   })
@@ -57,12 +67,12 @@ describe('LogoutButton', () => {
     // Spy on document.cookie setter
     const cookieSpy = jest.spyOn(document, 'cookie', 'set')
 
-    render(<LogoutButton />)
+    renderWithProviders(<LogoutButton />)
     fireEvent.click(screen.getByRole('button'))
 
     await waitFor(() => {
       expect(cookieSpy).toHaveBeenCalled()
-      expect(mocks.router.push).toHaveBeenCalledWith('/')
+      expect(mocks.router.push).toHaveBeenCalledWith('/login')
     })
 
     cookieSpy.mockRestore()
@@ -71,7 +81,7 @@ describe('LogoutButton', () => {
   it('should not call supabase signOut in mock mode', async () => {
     process.env.NEXT_PUBLIC_MOCK_MODE = 'true'
 
-    render(<LogoutButton />)
+    renderWithProviders(<LogoutButton />)
     fireEvent.click(screen.getByRole('button'))
 
     await waitFor(() => {

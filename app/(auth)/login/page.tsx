@@ -156,40 +156,27 @@ export default function LoginPage() {
         <p className="text-center text-[10px] font-black text-muted-foreground uppercase tracking-widest">
           Quick Demo Credentials
         </p>
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setEmail('admin@polaris.com')
-              setPassword('admin123')
-              setSelectedRole('Admin')
-            }}
-            className="py-2.5 rounded-xl text-[10px] font-bold bg-indigo-500/10 text-indigo-600 border border-indigo-200/50 hover:bg-indigo-500 hover:text-white transition-all"
-          >
-            Admin
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setEmail('founder@polaris.com')
-              setPassword('founder123')
-              setSelectedRole('Founder')
-            }}
-            className="py-2.5 rounded-xl text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-200/50 hover:bg-emerald-500 hover:text-white transition-all"
-          >
-            Founder
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setEmail('investor@polaris.com')
-              setPassword('investor123')
-              setSelectedRole('Investor')
-            }}
-            className="py-2.5 rounded-xl text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-200/50 hover:bg-amber-500 hover:text-white transition-all"
-          >
-            Investor
-          </button>
+        <div className="grid grid-cols-5 gap-2">
+          {[
+            { role: 'Admin',    email: 'admin@polaris.com',    pass: 'admin123',    cls: 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-600 hover:text-white hover:border-indigo-600' },
+            { role: 'Founder',  email: 'founder@polaris.com',  pass: 'founder123',  cls: 'bg-violet-50 text-violet-600 border-violet-100 hover:bg-violet-600 hover:text-white hover:border-violet-600' },
+            { role: 'Mentor',   email: 'mentor@polaris.com',   pass: 'mentor123',   cls: 'bg-sky-50 text-sky-600 border-sky-100 hover:bg-sky-600 hover:text-white hover:border-sky-600' },
+            { role: 'Investor', email: 'investor@polaris.com', pass: 'investor123', cls: 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-600 hover:text-white hover:border-emerald-600' },
+            { role: 'Manager',  email: 'manager@polaris.com',  pass: 'manager123',  cls: 'bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-600 hover:text-white hover:border-amber-600' },
+          ].map(({ role, email, pass, cls }) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => {
+                setEmail(email)
+                setPassword(pass)
+                setSelectedRole(role)
+              }}
+              className={`py-2.5 rounded-xl text-[10px] font-bold border transition-all ${cls}`}
+            >
+              {role}
+            </button>
+          ))}
         </div>
       </div>
     </div>

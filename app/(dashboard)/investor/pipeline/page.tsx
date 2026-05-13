@@ -25,19 +25,37 @@ export default async function PipelinePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data: startups } = await supabase
-    .from('startups')
-    .select('id, name, sector, stage, status, elevator_pitch, created_at')
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
+  const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+  
+  let startupsData: StartupRow[] | null = null
+  let interestsData: InterestRow[] | null = null
 
-  const { data: myInterests } = await supabase
-    .from('investor_interests')
-    .select('id, startup_id, signal_type, note')
-    .eq('investor_id', user.id)
+  if (isMock) {
+    startupsData = [
+      { id: '1', name: 'AeroDynamics', sector: 'Aerospace', stage: 'seed', status: 'active', elevator_pitch: 'Autonomous drone logistics for instant local delivery network hubs.', created_at: new Date().toISOString() },
+      { id: '2', name: 'BioSynth', sector: 'Healthtech', stage: 'series-a', status: 'active', elevator_pitch: 'Synthetic biology and genomics software accelerating therapeutics discovery.', created_at: new Date().toISOString() },
+      { id: '3', name: 'CloudScale', sector: 'SaaS', stage: 'seed', status: 'active', elevator_pitch: 'Automated cloud resource allocator scaling underlying container clusters effortlessly.', created_at: new Date().toISOString() },
+      { id: '4', name: 'DeFiX', sector: 'Fintech', stage: 'series-a', status: 'active', elevator_pitch: 'Global unified liquidity protocols for decentralized institutional finance platforms.', created_at: new Date().toISOString() }
+    ]
+    interestsData = [
+      { id: 'i1', startup_id: '1', signal_type: 'high', note: 'Very interested in drone delivery telemetry tech.' },
+      { id: 'i2', startup_id: '2', signal_type: 'medium', note: 'Evaluating regulatory risks in clinical pipeline.' }
+    ]
+  } else {
+    const { data: startups } = await supabase
+      .from('startups')
+      .select('id, name, sector, stage, status, elevator_pitch, created_at')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
 
-  const startupsData = startups as StartupRow[] | null
-  const interestsData = myInterests as InterestRow[] | null
+    const { data: myInterests } = await supabase
+      .from('investor_interests')
+      .select('id, startup_id, signal_type, note')
+      .eq('investor_id', user.id)
+
+    startupsData = startups as StartupRow[] | null
+    interestsData = myInterests as InterestRow[] | null
+  }
 
   // Build a map of startup_id -> interest for quick lookup
   const interestMap: Record<string, { id: string, signal_type: string | null, note: string | null }> = {}

@@ -23,12 +23,24 @@ export default async function PortfolioPage() {
     redirect('/login')
   }
 
-  const { data: startups } = await supabase
-    .from('startups')
-    .select('id, name, sector, stage, status, elevator_pitch')
-    .order('created_at', { ascending: false })
+  const isMock = process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+  let startupsData: StartupRow[] = []
 
-  const startupsData = (startups as StartupRow[] | null) ?? []
+  if (isMock) {
+    startupsData = [
+      { id: '1', name: 'AeroDynamics', sector: 'Aerospace', stage: 'seed', status: 'active', elevator_pitch: 'Autonomous drone logistics for instant local delivery network hubs.' },
+      { id: '2', name: 'BioSynth', sector: 'Healthtech', stage: 'series-a', status: 'active', elevator_pitch: 'Synthetic biology and genomics software accelerating therapeutics discovery.' },
+      { id: '3', name: 'CloudScale', sector: 'SaaS', stage: 'seed', status: 'active', elevator_pitch: 'Automated cloud resource allocator scaling underlying container clusters effortlessly.' },
+      { id: '4', name: 'DeFiX', sector: 'Fintech', stage: 'series-a', status: 'active', elevator_pitch: 'Global unified liquidity protocols for decentralized institutional finance platforms.' }
+    ] as any[]
+  } else {
+    const { data: startups } = await supabase
+      .from('startups')
+      .select('id, name, sector, stage, status, elevator_pitch')
+      .order('created_at', { ascending: false })
+
+    startupsData = (startups as StartupRow[] | null) ?? []
+  }
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-8 animate-in fade-in duration-500">

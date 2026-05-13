@@ -7,24 +7,19 @@ import {
   Briefcase, 
   FileSignature, 
   Milestone, 
-  Coins, 
   Settings, 
   HelpCircle,
   User,
   Users,
   FolderKanban,
-  GraduationCap,
   Calendar,
   BarChart3,
   Rocket,
-  Sun,
-  Moon
 } from 'lucide-react'
 import { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { useTheme } from 'next-themes'
 
 const navConfigs: Record<string, { name: string, href: string, icon: LucideIcon }[]> = {
   founder: [
@@ -71,7 +66,6 @@ interface SidebarProps {
 export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }: SidebarProps) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
-  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -154,11 +148,10 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
         </Link>
 
 
-        <div className="flex items-center gap-2">
-          <Link 
+        <Link 
             href={`/${role}/settings`} 
             className={cn(
-              "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
               pathname === `/${role}/settings` 
                 ? "bg-card text-black shadow-sm font-bold border border-border/40" 
                 : "text-muted-foreground hover:text-foreground hover:bg-card/50"
@@ -167,14 +160,6 @@ export function Sidebar({ user, displayName = 'User', displayRole = 'Founder' }:
             <Settings className="w-4 h-4" />
             <span className="text-sm">Settings</span>
           </Link>
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card/50 border border-transparent hover:border-border/40 transition-all shrink-0"
-            aria-label="Toggle theme"
-          >
-            {mounted && (theme === 'dark' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-600" />)}
-          </button>
-        </div>
 
         <Link 
           href="/help" 

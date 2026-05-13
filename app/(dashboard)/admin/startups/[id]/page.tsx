@@ -44,7 +44,7 @@ export default async function StartupReviewPage({ params }: { params: { id: stri
       founder:users(email, full_name)
     `)
     .eq('id', params.id)
-    .single()
+    .maybeSingle()
 
   if (!startup) {
     notFound()

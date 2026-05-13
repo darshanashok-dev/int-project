@@ -4,27 +4,38 @@ import { useState } from 'react'
 import { LogOut, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/browser'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 
 export function LogoutButton() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [loggingOut, setLoggingOut] = useState(false)
 
   async function handleLogout() {
     setLoggingOut(true)
-    
-    if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
-      document.cookie = 'mock-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
-      document.cookie = 'mock-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
-    } else {
-      await supabase.auth.signOut()
+
+    try {
+      if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+        document.cookie = 'mock-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+        document.cookie = 'mock-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+      } else {
+        await supabase.auth.signOut()
+      }
+
+      // Clear all cached query data so stale auth state doesn't persist
+      queryClient.clear()
+
+      // Go straight to /login — NOT / — because the middleware redirects
+      // authenticated users away from / back to their dashboard.
+      router.push('/login')
+      router.refresh()
+    } catch {
+      setLoggingOut(false)
     }
-    
-    router.push('/')
-    router.refresh()
   }
 
   return (
-    <button 
+    <button
       onClick={handleLogout}
       disabled={loggingOut}
       className="w-full bg-card border border-border rounded-[2rem] p-8 text-left hover:bg-destructive/5 hover:border-destructive/20 transition-all group shadow-sm disabled:opacity-60"

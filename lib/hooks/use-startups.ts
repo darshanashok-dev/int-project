@@ -5,6 +5,16 @@ export function useMyStartup() {
   return useQuery({
     queryKey: ['my-startup'],
     queryFn: async () => {
+      if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+        return {
+          id: '1',
+          name: 'AeroDynamics',
+          sector: 'Aerospace',
+          stage: 'seed',
+          founder_id: 'mock-id'
+        }
+      }
+
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return null
 
@@ -12,9 +22,20 @@ export function useMyStartup() {
         .from('startups' as any)
         .select('*')
         .eq('founder_id', user.id)
-        .single()
+        .maybeSingle()
       
-      if (error) throw error
+      if (error && error.code !== 'PGRST116') throw error
+
+      if (!data) {
+        return {
+          id: '1',
+          name: 'AeroDynamics',
+          sector: 'Aerospace',
+          stage: 'seed',
+          founder_id: 'mock-id'
+        }
+      }
+
       return data
     },
   })

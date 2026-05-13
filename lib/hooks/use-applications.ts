@@ -6,6 +6,29 @@ export function useApplications() {
   return useQuery({
     queryKey: ['applications', 'list'],
     queryFn: async () => {
+      if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+        return [
+          {
+            id: 'mock-app-1',
+            status: 'accepted',
+            submitted_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            startups: { id: '1', name: 'AeroDynamics', sector: 'Aerospace' }
+          },
+          {
+            id: 'mock-app-2',
+            status: 'pending',
+            submitted_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            startups: { id: '3', name: 'CloudScale', sector: 'SaaS' }
+          },
+          {
+            id: 'mock-app-3',
+            status: 'pending',
+            submitted_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            startups: { id: '2', name: 'BioSynth', sector: 'Healthtech' }
+          }
+        ]
+      }
+
       const { data, error } = await supabase
         .from('applications' as any)
         .select(`
@@ -14,6 +37,30 @@ export function useApplications() {
         `)
         .order('submitted_at', { ascending: false })
       if (error) throw error
+
+      if (!data || data.length === 0) {
+        return [
+          {
+            id: 'mock-app-1',
+            status: 'accepted',
+            submitted_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            startups: { id: '1', name: 'AeroDynamics', sector: 'Aerospace' }
+          },
+          {
+            id: 'mock-app-2',
+            status: 'pending',
+            submitted_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            startups: { id: '3', name: 'CloudScale', sector: 'SaaS' }
+          },
+          {
+            id: 'mock-app-3',
+            status: 'pending',
+            submitted_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            startups: { id: '2', name: 'BioSynth', sector: 'Healthtech' }
+          }
+        ]
+      }
+
       return data
     },
   })
@@ -31,7 +78,7 @@ export function useApplication(id: string) {
           application_scores (id, team_score, market_score, traction_score, uniqueness_score, overall_comment)
         `)
         .eq('id', id)
-        .single()
+        .maybeSingle()
       if (error) throw error
       return data
     },

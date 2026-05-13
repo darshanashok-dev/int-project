@@ -8,12 +8,20 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         style={{ background: 'radial-gradient(circle at 50% 50%, rgba(26, 115, 232, 0.05) 0%, transparent 70%)' }}>
       </div>
 
+      {/* Back Button */}
+      <div className="absolute top-8 left-8 z-50">
+        <Link href="/" className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-indigo-600 transition-colors group">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+          Back to Home
+        </Link>
+      </div>
+
       {/* Header Branding */}
       <div className="flex flex-col items-center gap-4 relative z-10 mb-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-black text-foreground tracking-tight text-indigo-600">Polaris</h1>
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Venture Incubation Systems</p>
-        </div>
+        <Link href="/" className="text-center group block">
+          <h1 className="text-3xl font-black text-foreground tracking-tight text-indigo-600 group-hover:opacity-80 transition-opacity">Polaris</h1>
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mt-1 group-hover:text-indigo-600 transition-colors">Venture Incubation Systems</p>
+        </Link>
       </div>
 
       {/* Main Content (Card) */}

@@ -42,7 +42,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           .from('users')
           .select('full_name, role')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
         
         const profile = profileData as any
         displayName = profile?.full_name || user.email?.split('@')[0] || 'User'
@@ -63,7 +63,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       .from('users')
       .select('onboarding_completed, role')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
     
     const profile = profileData as any
 

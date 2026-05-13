@@ -9,39 +9,51 @@ export function NotificationListener() {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    let channel: any
+    let channel: ReturnType<typeof supabase.channel> | null = null
+    let cancelled = false
 
     const setupSubscription = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      try {
+        // Use getSession() — reads from cache, no auth-lock network race
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session?.user || cancelled) return
 
-      channel = supabase
-        .channel(`public:notifications:user_id=eq.${user.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${user.id}`,
-          },
-          (payload) => {
-            const newNotification = payload.new as any
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
-            toast(newNotification.title, {
-              description: newNotification.body,
-            })
-          }
-        )
-        .subscribe()
+        const userId = session.user.id
+
+        channel = supabase
+          .channel(`public:notifications:user_id=eq.${userId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'notifications',
+              filter: `user_id=eq.${userId}`,
+            },
+            (payload) => {
+              const newNotification = payload.new as { title: string; body: string }
+              queryClient.invalidateQueries({ queryKey: ['notifications'] })
+              toast(newNotification.title, { description: newNotification.body })
+            }
+          )
+          .subscribe()
+      } catch (err: unknown) {
+        // Swallow auth lock errors thrown when the component unmounts
+        // mid-flight (e.g. "lock stolen" / AbortError)
+        const isLockError =
+          err instanceof Error &&
+          (err.name === 'AbortError' || err.message.includes('lock'))
+        if (!isLockError) {
+          console.error('[NotificationListener]', err)
+        }
+      }
     }
 
     setupSubscription()
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel)
-      }
+      cancelled = true
+      if (channel) supabase.removeChannel(channel)
     }
   }, [queryClient])
 

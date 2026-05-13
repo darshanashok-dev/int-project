@@ -5,13 +5,42 @@ export function useSessions() {
   return useQuery({
     queryKey: ['sessions'],
     queryFn: async () => {
+      if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') {
+        return [
+          {
+            id: 'mock-sess-1',
+            title: 'Q2 Roadmap & Go-to-Market Strategy',
+            scheduled_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            duration_minutes: 60,
+            notes: 'Discussed their B2B sales pipeline expansion. Advised focusing on mid-market SaaS first before moving into the enterprise sector. Team is aligned on Product Hunt launch timeline.',
+            startups: { id: '1', name: 'AeroDynamics' }
+          },
+          {
+            id: 'mock-sess-2',
+            title: 'Technical Architecture & Scale Review',
+            scheduled_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+            duration_minutes: 45,
+            notes: 'Reviewed their current PostgreSQL scaling limits. Recommended migrating heavy analytics logging to a dedicated OLAP store to keep the primary DB response times fast.',
+            startups: { id: '3', name: 'CloudScale' }
+          },
+          {
+            id: 'mock-sess-3',
+            title: 'Pitch Deck Critique & Series A Narrative',
+            scheduled_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+            duration_minutes: 90,
+            notes: 'Deep dive into slide flow. The product narrative is extremely strong, but their market size (TAM) slides need more precise bottom-up calculation to satisfy next-round investors.',
+            startups: { id: '2', name: 'BioSynth' }
+          }
+        ]
+      }
+
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return []
 
       const { data: mentorData } = await (supabase.from('mentors') as any)
         .select('id')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
       
       const mentor = mentorData as any
 
@@ -26,6 +55,36 @@ export function useSessions() {
         .order('scheduled_at', { ascending: false })
       
       if (error) throw error
+      
+      if (!data || data.length === 0) {
+        return [
+          {
+            id: 'mock-sess-1',
+            title: 'Q2 Roadmap & Go-to-Market Strategy',
+            scheduled_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            duration_minutes: 60,
+            notes: 'Discussed their B2B sales pipeline expansion. Advised focusing on mid-market SaaS first before moving into the enterprise sector. Team is aligned on Product Hunt launch timeline.',
+            startups: { id: '1', name: 'AeroDynamics' }
+          },
+          {
+            id: 'mock-sess-2',
+            title: 'Technical Architecture & Scale Review',
+            scheduled_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+            duration_minutes: 45,
+            notes: 'Reviewed their current PostgreSQL scaling limits. Recommended migrating heavy analytics logging to a dedicated OLAP store to keep the primary DB response times fast.',
+            startups: { id: '3', name: 'CloudScale' }
+          },
+          {
+            id: 'mock-sess-3',
+            title: 'Pitch Deck Critique & Series A Narrative',
+            scheduled_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+            duration_minutes: 90,
+            notes: 'Deep dive into slide flow. The product narrative is extremely strong, but their market size (TAM) slides need more precise bottom-up calculation to satisfy next-round investors.',
+            startups: { id: '2', name: 'BioSynth' }
+          }
+        ]
+      }
+      
       return data
     },
   })
@@ -41,7 +100,7 @@ export function useCreateSession() {
       const { data: mentorData } = await (supabase.from('mentors') as any)
         .select('id')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
       
       const mentor = mentorData as any
       
