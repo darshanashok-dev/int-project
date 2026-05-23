@@ -35,6 +35,12 @@ export default function RegisterPage() {
       return
     }
 
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder.supabase.co')) {
+      setError('Connection configuration error: Supabase environment variables are missing or configured as placeholders. Please check your environment setup.')
+      setLoading(false)
+      return
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,

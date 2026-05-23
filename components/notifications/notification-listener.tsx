@@ -9,6 +9,8 @@ export function NotificationListener() {
   const queryClient = useQueryClient()
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_MOCK_MODE === 'true') return
+
     let channel: ReturnType<typeof supabase.channel> | null = null
     let cancelled = false
 
